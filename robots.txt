@@ -1,0 +1,15 @@
+# NOTE: Crawlers (Google/Bing) only read /robots.txt at the host root
+# (https://mukarramkebra.github.io/robots.txt), which this project does
+# NOT control. So the `Sitemap:` line below is invisible to major crawlers;
+# discovery relies on:
+#   1. The <link rel="sitemap"> tag in index.html's <head>, and
+#   2. Manual submission at Google Search Console / Bing Webmaster Tools:
+#        https://mukarramkebra.github.io/German-Expert/sitemap.xml
+# The directive is kept for well-behaved crawlers that DO fetch project-path
+# robots.txt and for anyone inspecting this file directly.
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+Sitemap: https://mukarramkebra.github.io/German-Expert/sitemap.xml

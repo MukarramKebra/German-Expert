@@ -1,0 +1,438 @@
+/*
+ * ============================================================
+ *   German Expert — ADMIN PANEL  (admin/index.html)
+ * ============================================================
+ *
+ *  HOW IT WORKS (plain English):
+ *  ─────────────────────────────
+ *  1. LOGIN SCREEN
+ *     • User types username + password.
+ *     • "bahar"     → regular admin  → sees all tabs (Inventory, Orders, etc.)
+ *     • "ultimate15" → owner/super   → same tabs + extra "Owner Controls" tab
+ *     • Session is saved in localStorage (jain_auth) so refresh keeps you logged in.
+ *
+ *  2. DATA STORAGE
+ *     • Products, stock, orders, photos are stored in Supabase (online database).
+ *     • Some things (deleted items, settings) are stored in localStorage (browser).
+ *     • Every time admin opens, it loads fresh data from Supabase.
+ *
+ *  3. TABS
+ *     • Inventory   — View/edit all products, change stock, add/delete products
+ *     • Analytics   — See which products are viewed and searched most
+ *     • Deleted     — Recover deleted products or orders
+ *     • Orders      — See customer orders, change status (pending/confirmed/delivered)
+ *     • Reports     — Download Excel files of inventory, sales, and orders
+ *     • Categories  — Change the banner images for each product category
+ *     • Owner Controls (ultimate15 only) — disable/enable bahar account, undo bahar's actions
+ *
+ *  4. REPORTS / EXCEL
+ *     • "Connect File" — links to a file on your computer (picks save location, no download)
+ *     • "Download"     — writes the latest data into that Excel file
+ *     • Auto-write happens every time you open the Reports tab (if file is connected)
+ *
+ *  5. AUDIT LOG (Owner Controls)
+ *     • Every action bahar does (add/delete product, change stock, change order status)
+ *       is recorded with a timestamp in localStorage (jain_audit_log).
+ *     • "Undo All This Week" reverses all of bahar's actions from the last 7 days.
+ *
+ * ============================================================
+ */
+
+// ── LOGIN CREDENTIALS ──────────────────────────────────────────────────────────
+// No longer stored here — this used to hold the owner/manager/admin passwords
+// as plain constants, which meant anyone who loaded (or just fetched) this
+// public file could read them and log in directly. The check now happens
+// server-side in the admin-login Edge Function (see supabase/functions/
+// admin-login/index.ts and doLogin() in js/03-auth.js), against a table
+// that isn't reachable from the browser at all. To change a password, update
+// the expert_admin_master table in Supabase (or ask Claude to).
+
+// ── SUPABASE CONNECTION ────────────────────────────────────────────────────────
+// Supabase is the online database where all products, stock, orders, photos live.
+// SB_URL  = the database address
+// SB_KEY  = the access key (like a password to talk to the database — read-only for public)
+// SB_HDRS = the headers sent with every database request (authentication)
+// Keep in sync with GE_SB_URL / GE_SB_KEY_B64 in code/js/01-config-data.js (the storefront).
+const SB_URL  = 'https://qljcyiwkwdfodmabnzol.supabase.co';
+const SB_KEY  = (function() { try { return atob('REPLACE_WITH_BASE64_PUBLISHABLE_KEY'); } catch (e) { return ''; } })();
+// Mutated in place by setAdminSession()/clearAdminSession() (js/03-auth.js)
+// once logged in — every write in this admin panel sends this same object
+// as its headers, so that's what makes them all authenticated.
+const SB_HDRS = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+// The three admin_* order RPCs (and every other admin write) now check
+// is_admin(auth.uid()) server-side instead of a shared token that used to
+// live here in plain text — see supabase/functions/admin-login and the
+// is_admin() Postgres function.
+
+// Default categories shown in the admin category filter dropdown
+const DEFAULT_CATS = [
+  { slug:'engine',       label:'Engine Parts' },
+  { slug:'brakes',       label:'Brakes' },
+  { slug:'suspension',   label:'Suspension & Steering' },
+  { slug:'filters',      label:'Filters' },
+  { slug:'electrical',   label:'Electrical & Ignition' },
+  { slug:'cooling',      label:'Cooling & A/C' },
+  { slug:'oils-fluids',  label:'Oils & Fluids' },
+  { slug:'transmission', label:'Transmission & Clutch' },
+  { slug:'exhaust',      label:'Exhaust' },
+  { slug:'body-lights',  label:'Body & Lighting' },
+  { slug:'accessories',  label:'Accessories' },
+    // Admin-only category for non-purchasable/placeholder entries (e.g. items
+    // scraped from a source catalog that aren't real products). Never appears
+    // on the storefront — index.html's category grid/nav/pills don't reference
+    // it — but it's a normal filterable category here, and products in it are
+    // excluded from the low/out-of-stock alerts (see renderStats).
+  { slug:'hidden',           label:'Hidden' },
+  { slug:'cant-find-products', label:"Can't Find Products" }
+  ];
+
+// ── SUPABASE FETCH WRAPPER ─────────────────────────────────────────────────────
+// encodeHtml — converts special characters so text is safe to show inside HTML
+//              e.g. prevents product names with < or > from breaking the page
+function encodeHtml(s) {
+    // The straight double quote (") matters most here — product names use it
+  // for inch sizes (2" nails) and an unescaped one ends an HTML attribute
+  // early, silently truncating the value
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/”/g,'&#8221;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+// sbFetch — the main function used for ALL database calls (get, add, update, delete)
+//           Always returns { data, error } so we can check if it worked
+async function sbFetch(url, options) {
+    try {
+          const res  = await fetch(url, options);
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) return { data: null, error: (data && (data.error || data.message)) || ('HTTP ' + res.status) };
+          return { data, error: null };
+    } catch (e) {
+          return { data: null, error: e.message };
+    }
+}
+
+// Supabase's PostgREST caps any unpaginated "select=*" query at 1000 rows.
+// The catalog just crossed 1000 products, so a plain sbFetch() on
+// expert_products/expert_stock/etc silently truncates — newest rows go
+// missing with no error. Pages through with limit/offset until a page comes
+// back short; same { data, error } shape as sbFetch() so call sites don't change.
+async function sbFetchAll(baseUrl, headers) {
+  const pageSize = 1000;
+  let offset = 0;
+  let all = [];
+  while (true) {
+    const sep = baseUrl.includes('?') ? '&' : '?';
+    const { data, error } = await sbFetch(baseUrl + sep + 'limit=' + pageSize + '&offset=' + offset, { headers });
+    if (error) return { data: null, error };
+    if (!Array.isArray(data)) return { data, error: null };
+    all = all.concat(data);
+    if (data.length < pageSize) break;
+    offset += pageSize;
+  }
+  return { data: all, error: null };
+}
+
+// Neutral gray placeholder for products with no photo yet — never random
+// internet stock photos (picsum), which made missing images look like
+// completely wrong products.
+const NO_IMG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect width='80' height='80' rx='8' fill='%23eef0f3'/><g stroke='%23b9bfc7' stroke-width='4' fill='none' stroke-linecap='round'><path d='M28 52 L52 28'/><circle cx='25' cy='55' r='7'/><circle cx='55' cy='25' r='7'/></g></svg>";
+
+let _customProductRows = []; // products added by admin (fetched from Supabase jain_products table)
+let _hiddenBaseIds     = new Set(); // IDs of base products that have been hidden from the store
+
+// ── ID CONFLICT RESOLVER ─────────────────────────────────────────────────────
+// Supabase auto-increment starts at 1, which conflicts with base product IDs 1-60.
+// This function detects conflicts and re-inserts custom products with safe IDs (1001+).
+async function _fixCustomProductIds() {
+    // DISABLED for German Expert. This was a Kuwait-fork fix for products whose
+    // ids collided with 60 hardcoded base products; German Expert has no base
+    // products, so on a fresh table it would DELETE and re-insert every product
+    // with id <= 60. Kept (inert) only so the call site stays harmless.
+    return;
+    const BASE_MAX = 60; // all custom products will get IDs > 60
+  const baseNames = new Set(PRODUCTS.map(function(p){ return p.name.toLowerCase().trim(); }));
+    const baseIds   = new Set(PRODUCTS.map(function(p){ return p.id; }));
+
+  const conflicts = _customProductRows.filter(function(r){ return r.id <= BASE_MAX; });
+    if (!conflicts.length) return; // nothing to fix
+
+  console.log('[ID Fix] Resolving', conflicts.length, 'conflicting custom product IDs...');
+    showToast('Fixing product IDs…');
+
+  // Current max safe ID already in use
+  // Next safe ID = max of all product IDs + 1 (sequential, no gap-filling)
+  var allIds = PRODUCTS.map(function(p){return p.id;})
+      .concat(_customProductRows.map(function(r){return r.id;}));
+    var maxSafeId = allIds.reduce(function(m,id){return Math.max(m,id);}, BASE_MAX);
+
+  for (var i = 0; i < conflicts.length; i++) {
+        var p = conflicts[i];
+        var isTrueDupe = baseIds.has(p.id) && baseNames.has((p.name||'').toLowerCase().trim());
+
+      // 1. Delete old entry from Supabase
+      await sbFetch(SB_URL + '/rest/v1/expert_products?id=eq.' + p.id, { method:'DELETE', headers:SB_HDRS });
+        // Also clean up orphaned stock/photos for old ID
+      await sbFetch(SB_URL + '/rest/v1/expert_stock?product_id=eq.' + p.id, { method:'DELETE', headers:SB_HDRS });
+
+      // Remove from local array
+      var idx = _customProductRows.findIndex(function(r){ return r.id === p.id; });
+        if (idx >= 0) _customProductRows.splice(idx, 1);
+
+      if (isTrueDupe) {
+              console.log('[ID Fix] Deleted true duplicate:', p.name, '(was ID', p.id + ')');
+              continue; // don't re-insert — it's a copy of a base product
+      }
+
+      // 2. Re-insert with a safe ID > 1000
+      maxSafeId += 1;
+        var payload = {
+                id: maxSafeId,
+                name: p.name,
+                category: p.category,
+                price: p.price,
+                description: p.description || '',
+                badge: p.badge || null,
+                img_url: p.img_url || '',
+                hidden: p.hidden || false
+        };
+        var result = await sbFetch(SB_URL + '/rest/v1/expert_products', {
+                method: 'POST',
+                headers: Object.assign({}, SB_HDRS, {'Prefer':'return=representation'}),
+                body: JSON.stringify([payload])
+        });
+        if (result.data && result.data[0]) {
+                _customProductRows.push(result.data[0]);
+                // Migrate stock to new ID
+          var oldQty = stockData[p.id] || 50;
+                stockData[result.data[0].id] = oldQty;
+                await sbFetch(SB_URL + '/rest/v1/expert_stock', {
+                          method: 'POST',
+                          headers: Object.assign({}, SB_HDRS, {'Prefer':'resolution=merge-duplicates'}),
+                          body: JSON.stringify([{ product_id: result.data[0].id, qty: oldQty }])
+                });
+                // Migrate photo to new ID
+          var oldPhoto = null;
+                try { var ph = JSON.parse(localStorage.getItem('jain_photos')||'{}'); oldPhoto = ph[String(p.id)]||null; } catch(_){}
+                if (oldPhoto) {
+                          sbFetch(SB_URL + '/rest/v1/expert_photos', {
+                                      method:'POST', headers:Object.assign({},SB_HDRS,{'Prefer':'resolution=merge-duplicates'}),
+                                      body:JSON.stringify([{product_id:result.data[0].id, img_url:oldPhoto}])
+                          });
+                          // Update localStorage photo key
+                  try {
+                              var ph2 = JSON.parse(localStorage.getItem('jain_photos')||'{}');
+                              ph2[String(result.data[0].id)] = oldPhoto;
+                              delete ph2[String(p.id)];
+                              localStorage.setItem('jain_photos', JSON.stringify(ph2));
+                  } catch(_){}
+                }
+                console.log('[ID Fix] Moved', p.name, 'from ID', p.id, '→', result.data[0].id);
+        } else {
+                console.warn('[ID Fix] Failed to re-insert', p.name, result.error);
+        }
+  }
+    if (conflicts.length) showToast('Products fixed ✓');
+    // NOTE: No second pass — IDs do not need to be sequential. Non-sequential gaps are fine.
+}
+
+async function loadFromSupabase() {
+    showToast('Loading from cloud…');
+    // Photos (expert_photos) carries every product's full image as base64 —
+  // several MB total — and Supabase's free tier can take up to a minute to
+  // respond on its first request after being idle-paused. Fetching it inside
+  // this same Promise.all meant the ENTIRE inventory table sat blank until
+  // that one slow call finished (the "need to click Reload twice" symptom).
+  // It's now fetched separately below so the table renders immediately;
+  // thumbnails fill in once photos are ready.
+  // The 8 per-key settings rows (sku_map, brand_map, multi_cats,
+  // ignored_alerts, product_keywords, hidden_prices, qty_limits,
+  // product_variants) used to be 8 separate requests — each 400ms-1.4s on
+  // its own and serialized behind the browser's ~6-connection-per-origin
+  // cap. One key=in.(...) request returns all of them in a single trip.
+  const [s, c, h, cb, st] = await Promise.all([
+    sbFetchAll(SB_URL + '/rest/v1/expert_stock?select=*',          SB_HDRS),
+    sbFetchAll(SB_URL + '/rest/v1/expert_products?select=*',       SB_HDRS),
+    sbFetchAll(SB_URL + '/rest/v1/expert_hidden?select=product_id',SB_HDRS),
+    sbFetchAll(SB_URL + '/rest/v1/expert_cat_bgs?select=*',        SB_HDRS),
+    sbFetch(SB_URL + '/rest/v1/expert_settings?key=in.(sku_map,brand_map,fitment_map,multi_cats,ignored_alerts,product_keywords,hidden_prices,qty_limits,product_variants,cat_labels,cat_order,cat_hidden,custom_hidden_cats,custom_visible_cats)&select=key,value', { headers: SB_HDRS })
+  ]);
+  const _settingsByKey = {};
+  if (!st.error && Array.isArray(st.data)) {
+    st.data.forEach(function(row) { _settingsByKey[row.key] = row.value; });
+  }
+  function _settingJSON(key, fallback) {
+    var raw = _settingsByKey[key];
+    if (!raw) return fallback;
+    try { return JSON.parse(raw) || fallback; } catch(e) { return fallback; }
+  }
+  // Size/pack options per product (shared with the storefront via expert_settings)
+  window._sbVariants = _settingJSON('product_variants', {});
+    // Real SKU labels (shared with the storefront via expert_settings)
+  window._sbSkuMap = _settingJSON('sku_map', {});
+  localStorage.setItem('jain_sku_map', JSON.stringify(window._sbSkuMap));
+    // Brand labels (shared with the storefront via expert_settings)
+  window._sbBrandMap = _settingJSON('brand_map', {});
+    // Car makes each part fits (shared with the storefront's Shop-by-Make filter)
+  window._sbFitmentMap = _settingJSON('fitment_map', {});
+    // Extra category assignments (shared with the storefront via expert_settings)
+  window._sbMultiCats = _settingJSON('multi_cats', {});
+  localStorage.setItem('bahar_multi_cats', JSON.stringify(window._sbMultiCats));
+    // Ignored low/out-of-stock alerts (see ignoreAlert() in 07-orders.js)
+  window._sbIgnoredAlerts = _settingJSON('ignored_alerts', {});
+    // Per-product SEO keywords (shared with the storefront via expert_settings)
+  window._sbProductKeywords = _settingJSON('product_keywords', {});
+    // Per-product min/max order quantity (see getQtyLimits() in 08-inventory.js)
+  window._sbQtyLimits = _settingJSON('qty_limits', {});
+    // Manually hidden prices (see togglePriceHidden() in 07-orders.js)
+  window._sbPriceHidden = _settingJSON('hidden_prices', {});
+    // Category order/renames/hide-show — seeded into localStorage here so
+    // renderHiddenCats() (Inventory tab, which loads before Categories) shows
+    // current names/visibility on a fresh admin session, not stale defaults.
+  if (_settingsByKey.cat_labels) localStorage.setItem('jain_cat_labels', _settingsByKey.cat_labels);
+  if (_settingsByKey.cat_order)  localStorage.setItem('jain_cat_order',  _settingsByKey.cat_order);
+  if (_settingsByKey.cat_hidden) localStorage.setItem('jain_cat_hidden', _settingsByKey.cat_hidden);
+    // Custom hidden categories (admin-created, no storefront tile by
+    // construction — see createHiddenCategory() in 05-categories.js). Synced
+    // through Supabase so every admin session and the category dropdowns
+    // (Add Product, multi-category picker, CSV import) see the same list.
+  window._sbCustomHiddenCats = _settingJSON('custom_hidden_cats', []);
+  // Admin-created categories the owner has chosen to show to customers (see catToggleCustomVisible() in 05-categories.js)
+  window._sbCustomVisibleCats = _settingJSON('custom_visible_cats', []);
+  localStorage.setItem('jain_custom_hidden_cats', JSON.stringify(window._sbCustomHiddenCats));
+  _invalidateCatsCache();
+    // Category backgrounds
+  if (!cb.error && Array.isArray(cb.data)) {
+        var catBgs = {};
+        try { catBgs = JSON.parse(localStorage.getItem('jain_cat_bgs') || '{}'); } catch(e) {}
+        cb.data.forEach(function(r) { if (r.slug && r.img_url) catBgs[r.slug] = r.img_url; });
+        localStorage.setItem('jain_cat_bgs', JSON.stringify(catBgs));
+  }
+
+  // Stock
+  if (s.error) {
+        console.warn('Stock load failed:', s.error);
+        showToast('Offline — using local data');
+  } else if (Array.isArray(s.data)) {
+        s.data.forEach(function(r) { stockData[r.product_id] = r.qty; });
+        localStorage.setItem('jain_stock', JSON.stringify(stockData));
+  }
+
+  // Custom products
+  if (c.error) {
+        console.warn('Products load failed:', c.error);
+  } else if (Array.isArray(c.data)) {
+        _customProductRows = c.data;
+        // Fix any conflicting IDs (Supabase auto-increment starts at 1, conflicts with base IDs 1-60)
+      await _fixCustomProductIds();
+        console.log('Custom products ready:', _customProductRows.length);
+  }
+
+  // Hidden base products
+  if (h.error) {
+        console.warn('Hidden list load failed:', h.error);
+  } else if (Array.isArray(h.data)) {
+        _hiddenBaseIds = new Set(h.data.map(function(r) { return r.product_id; }));
+  }
+
+  if (!s.error) showToast('Loaded from cloud ☁️');
+
+  try {
+        refreshCategorySelects(); renderStats(); renderTable();
+  } catch(err) {
+        console.error('Admin render error:', err);
+        document.getElementById('tblBody').innerHTML = '<tr><td colspan="8" style="color:red;padding:20px;font-weight:700;font-size:13px">&#9888; RENDER ERROR: ' + err.message + '</td></tr>';
+  }
+
+  // Photos load separately and re-render once ready (see comment above) —
+  // the table above already shows real names/prices/stock immediately.
+  sbFetchAll(SB_URL + '/rest/v1/expert_photos?select=*', SB_HDRS).then(function(p) {
+    if (Array.isArray(p.data)) {
+      const ph = JSON.parse(localStorage.getItem('jain_photos') || '{}');
+      p.data.forEach(function(r) { ph[r.product_id] = r.img_url; });
+      localStorage.setItem('jain_photos', JSON.stringify(ph));
+      renderTable();
+    }
+  });
+
+  checkAssetVersion();
+}
+
+// ── ASSET VERSION CHECK ─────────────────────────────────────────────────────
+// Mirrors the storefront's check (js/01-config-data.js) — same Supabase key
+// (expert_settings, 'asset_version') and same shared localStorage key
+// (expert_asset_v, same origin as the storefront), so bumping it from
+// Flush Cache refreshes the admin panel's own JS/CSS too.
+function checkAssetVersion() {
+    sbFetch(SB_URL + '/rest/v1/expert_settings?key=eq.asset_version&select=value', { headers: SB_HDRS }).then(function(r) {
+          if (r.error || !r.data || !r.data[0] || !r.data[0].value) return;
+          var serverV = r.data[0].value;
+          var localV  = localStorage.getItem('expert_asset_v');
+          if (!localV) { localStorage.setItem('expert_asset_v', serverV); return; }
+          if (serverV !== localV) {
+                  localStorage.setItem('expert_asset_v', serverV);
+                  window.location.reload();
+          }
+    });
+}
+
+// Common spellings -> German Expert category slugs (mirrors normalizeCategory()
+// in code/js/01-config-data.js for the most frequent ones)
+var _OLD_CAT_MAP = {
+    'brake':'brakes', 'filter':'filters', 'engine-parts':'engine', 'clutch':'transmission',
+    'oil':'oils-fluids', 'oils':'oils-fluids', 'lighting':'body-lights', 'accessory':'accessories'
+};
+function normalizeAdminCat(c) { return _OLD_CAT_MAP[c] || c; }
+
+// Merged list of all products (base + custom)
+function getAllAdminProducts() {
+    var deletedIds = new Set(getDeletedProducts().map(function(d){return d.id;}));
+    var baseIds    = new Set(PRODUCTS.map(function(p){return p.id;}));  // IDs 1-60 are authoritative
+  const base = PRODUCTS
+      .filter(function(p){ return !deletedIds.has(p.id); })
+      .map(function(p) {
+              return { id:p.id, name:p.name, cat:normalizeAdminCat(p.cat), price:p.price, img:p.img, desc:p.desc||'', isBase:true, hidden:_hiddenBaseIds.has(p.id) };
+      });
+    const custom = _customProductRows
+      .filter(function(p){ return !deletedIds.has(p.id) && !baseIds.has(p.id); }) // skip Supabase dupes of base IDs
+    .map(function(p) {
+            return { id:p.id, name:p.name, cat:normalizeAdminCat(p.category), price:parseFloat(p.price), img:p.img_url||'', desc:p.description||'', isBase:false, hidden:p.hidden||false };
+    });
+    return [...base, ...custom].sort(function(a,b){return a.id-b.id;});
+}
+
+const PRODUCTS = [];
+
+// Car makes a part can fit — same slugs as CAR_MAKES in code/js/01-config-data.js
+// and the storefront's Shop-by-Make row in index.html.
+const CAR_MAKES = [
+  { slug: 'mercedes',   label: 'Mercedes-Benz' },
+  { slug: 'bmw',        label: 'BMW' },
+  { slug: 'audi',       label: 'Audi' },
+  { slug: 'volkswagen', label: 'Volkswagen' },
+  { slug: 'porsche',    label: 'Porsche' },
+  { slug: 'mini',       label: 'MINI' },
+  { slug: 'opel',       label: 'Opel' }
+];
+function getMakes(id) { var v = (window._sbFitmentMap || {})[String(id)]; return Array.isArray(v) ? v : []; }
+// Accepts "BMW; Mercedes-Benz | audi" etc. -> ['bmw','mercedes','audi'] (unknown words dropped)
+function parseMakes(text) {
+  var out = [];
+  String(text || '').split(/[;,|/]+/).forEach(function(t) {
+    var k = t.trim().toLowerCase().replace(/[^a-z]/g, '');
+    if (!k) return;
+    var m = CAR_MAKES.find(function(x) { return x.slug === k || x.label.toLowerCase().replace(/[^a-z]/g, '') === k || (k === 'vw' && x.slug === 'volkswagen') || (k === 'benz' && x.slug === 'mercedes') || (k === 'mercedesbenz' && x.slug === 'mercedes'); });
+    if (m && out.indexOf(m.slug) === -1) out.push(m.slug);
+  });
+  return out;
+}
+// Debounced upsert of the whole fitment map (same pattern as _pushBrandMap)
+function _pushFitmentMap() {
+  clearTimeout(window._fitPushT);
+  window._fitPushT = setTimeout(function() {
+    sbFetch(SB_URL + '/rest/v1/expert_settings', {
+      method: 'POST',
+      headers: Object.assign({}, SB_HDRS, { 'Prefer': 'resolution=merge-duplicates' }),
+      body: JSON.stringify([{ key: 'fitment_map', value: JSON.stringify(window._sbFitmentMap || {}) }])
+    }).then(function(r) { if (r && r.error) showToast('Failed to save car makes'); });
+  }, 400);
+}
+
+// Brand for each built-in product (random); overridable per-product in the admin table
+const BASE_BRANDS = {};

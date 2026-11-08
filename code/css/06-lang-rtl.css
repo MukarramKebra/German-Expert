@@ -1,0 +1,80 @@
+/* TEMPORARILY DISABLED: Arabic toggle hidden (also ARABIC_ENABLED in js/04-i18n-order.js). Delete this rule and set that flag to true to restore. */
+.lang-btn { display: none !important; }
+
+/* ── LANGUAGE TOGGLE BUTTON ──────────────────────────────────────────────── */
+.lang-btn {
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.45);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: all 0.2s;
+  font-family: 'Cairo', 'Inter', sans-serif;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.lang-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.8); }
+
+/* ── RTL / ARABIC ────────────────────────────────────────────────────────── */
+[dir="rtl"] body { font-family: 'Cairo', 'Inter', sans-serif; }
+
+/* Hero */
+[dir="rtl"] #hero::before { background: linear-gradient(to left, rgba(15,17,21,0.88) 0%, rgba(15,17,21,0.70) 50%, rgba(15,17,21,0.45) 100%); }
+[dir="rtl"] .hero-content { padding-right: max(20px, calc((100vw - 1200px) / 2)); padding-left: 40px; text-align: right; }
+[dir="rtl"] .hero-btns { justify-content: flex-start; }
+[dir="rtl"] .hero-stats { justify-content: flex-start; }
+[dir="rtl"] .stat { border-left: none; border-right: 3px solid var(--orange); padding-left: 0; padding-right: 14px; }
+
+/* Section headers */
+[dir="rtl"] .section-header { text-align: right; }
+
+/* Contact */
+[dir="rtl"] .contact-info { text-align: right; }
+[dir="rtl"] .contact-item { flex-direction: row-reverse; }
+[dir="rtl"] .contact-item > div { text-align: right; }
+
+/* About */
+[dir="rtl"] .about-text { text-align: right; }
+[dir="rtl"] .about-features li { flex-direction: row-reverse; }
+
+/* FAQ */
+[dir="rtl"] .faq-item summary { text-align: right; padding: 18px 0 18px 32px; }
+[dir="rtl"] .faq-item summary::after { right: auto; left: 0; }
+[dir="rtl"] .faq-item p { text-align: right; }
+
+/* Forms */
+[dir="rtl"] .form-group label { text-align: right; display: block; }
+[dir="rtl"] .form-group input,
+[dir="rtl"] .form-group select,
+[dir="rtl"] .form-group textarea { text-align: right; direction: rtl; }
+
+/* Footer */
+[dir="rtl"] .footer-links { text-align: right; }
+[dir="rtl"] .footer-brand { text-align: right; }
+[dir="rtl"] .footer-brand .social-links { justify-content: flex-end; }
+
+/* Intro section */
+[dir="rtl"] .intro-inner { text-align: right; }
+[dir="rtl"] .intro-checks { justify-content: flex-end; }
+[dir="rtl"] .intro-check { flex-direction: row-reverse; }
+
+/* Checkout modal */
+[dir="rtl"] .co-field label { text-align: right; display: block; }
+[dir="rtl"] .co-field input,
+[dir="rtl"] .co-field select { text-align: right; direction: rtl; }
+[dir="rtl"] .co-total { flex-direction: row-reverse; }
+[dir="rtl"] .co-success-summary { text-align: right; }
+[dir="rtl"] .co-success-summary .co-item { flex-direction: row-reverse; }
+
+/* Mobile RTL overrides */
+@media (max-width: 768px) {
+  [dir="rtl"] .hero-content { text-align: right; padding-right: 20px; padding-left: 20px; }
+  [dir="rtl"] .intro-inner { text-align: center; }
+  [dir="rtl"] .intro-checks { justify-content: center; }
+  [dir="rtl"] .intro-check { flex-direction: row-reverse; }
+}
+

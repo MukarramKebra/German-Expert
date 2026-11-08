@@ -1,0 +1,547 @@
+//   USER ACCOUNTS — Supabase Auth + Profile + My Orders
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Current logged-in user state
+let _authUser    = null;   // { id, email } or null
+let _authToken   = null;   // JWT access token string
+let _userProfile = null;   // { id, name, phone, address } from jain_customers
+
+// ── Session helpers ────────────────────────────────────────────────────────────
+function getAuthHeaders() {
+  return {
+    'apikey':        SB_KEY,
+    'Authorization': 'Bearer ' + (_authToken || SB_KEY),
+    'Content-Type':  'application/json'
+  };
+}
+function saveAuthSession(data) {
+  _authToken = data.access_token;
+  _authUser  = { id: data.user.id, email: data.user.email };
+  localStorage.setItem('jain_access_token',  data.access_token);
+  localStorage.setItem('jain_refresh_token', data.refresh_token);
+  localStorage.setItem('jain_user_id',       data.user.id);
+  localStorage.setItem('jain_user_email',    data.user.email);
+}
+function clearAuthSession() {
+  _authUser  = null;
+  _authToken = null;
+  _userProfile = null;
+  localStorage.removeItem('jain_access_token');
+  localStorage.removeItem('jain_refresh_token');
+  localStorage.removeItem('jain_user_id');
+  localStorage.removeItem('jain_user_email');
+}
+
+// ── Google OAuth (Supabase GoTrue) ─────────────────────────────────────────────
+// Kicks off the hosted OAuth flow. GoTrue bounces the browser to Google and
+// back to redirect_to with the session in the URL hash (#access_token=…), which
+// _handleOAuthHash() picks up on the next load. No client secret lives here —
+// the Google client ID/secret are configured server-side in Supabase Auth.
+function authGoogleSignIn() {
+  // redirect_to must be an allow-listed URL in Supabase → Auth → URL config.
+  // Strip any existing query/hash so we land cleanly back on the site root.
+  const redirect = window.location.origin + window.location.pathname;
+  const url = SB_URL + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(redirect);
+  window.location.href = url;
+}
+
+// Reads the tokens GoTrue leaves in the URL hash after an OAuth round-trip,
+// turns them into the same session shape the email/password flow stores, then
+// cleans the hash so a refresh doesn't reprocess it. Returns true if handled.
+async function _handleOAuthHash() {
+  const hash = window.location.hash || '';
+  if (hash.indexOf('access_token=') === -1 && hash.indexOf('error=') === -1) return false;
+  const params = new URLSearchParams(hash.replace(/^#/, ''));
+  const cleanHash = () => history.replaceState(null, '', window.location.origin + window.location.pathname + window.location.search);
+
+  if (params.get('error')) {
+    cleanHash();
+    return false;
+  }
+  const access  = params.get('access_token');
+  const refresh = params.get('refresh_token');
+  if (!access) return false;
+
+  try {
+    // Resolve the user's id + email from the freshly issued token.
+    const res = await fetch(SB_URL + '/auth/v1/user', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + access }
+    });
+    if (!res.ok) { cleanHash(); return false; }
+    const user = await res.json();
+    saveAuthSession({ access_token: access, refresh_token: refresh, user: { id: user.id, email: user.email } });
+    // If Google gave us a display name and there's no profile row yet, seed one.
+    const gName = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || '';
+    const isNewAccount = !(_userProfile && _userProfile.name);
+    cleanHash();
+    await loadUserProfile();
+    if (gName && isNewAccount) { await saveUserProfile(gName, '', ''); await loadUserProfile(); }
+    updateHeaderForAuth();
+    // Google sign-up is a full-page redirect away and back, so the normal
+    // signup form's "Send me offers & updates" checkbox never gets a chance
+    // to show — ask once, right here, only for a brand-new account (not
+    // every time an existing user happens to sign back in via Google).
+    if (isNewAccount) showGoogleSubscribePrompt();
+    return true;
+  } catch (e) {
+    cleanHash();
+    return false;
+  }
+}
+
+// ── Init auth on page load ─────────────────────────────────────────────────────
+// Tries to restore session from localStorage, refreshes the token silently.
+async function initAuth() {
+  // An OAuth redirect back from Google carries the session in the URL hash —
+  // handle that first so it takes precedence over any stale localStorage session.
+  if (await _handleOAuthHash()) return;
+
+  const token  = localStorage.getItem('jain_access_token');
+  const refresh = localStorage.getItem('jain_refresh_token');
+  const uid    = localStorage.getItem('jain_user_id');
+  const email  = localStorage.getItem('jain_user_email');
+  if (token && uid && email) {
+    _authToken = token;
+    _authUser  = { id: uid, email: email };
+    // Silently refresh token (in background)
+    _refreshSession(refresh);
+    await loadUserProfile();
+    updateHeaderForAuth();
+  } else {
+    updateHeaderForAuth();
+  }
+}
+
+async function _refreshSession(refreshToken) {
+  if (!refreshToken) return;
+  try {
+    const res  = await fetch(SB_URL + '/auth/v1/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken })
+    });
+    if (!res.ok) { clearAuthSession(); updateHeaderForAuth(); return; }
+    const data = await res.json();
+    _authToken = data.access_token;
+    localStorage.setItem('jain_access_token',  data.access_token);
+    localStorage.setItem('jain_refresh_token', data.refresh_token);
+  } catch(e) {}
+}
+
+// ── Auth actions ────────────────────────────────────────────────────────────────
+async function authSignUp(name, email, password) {
+  // Explicit redirect_to so the confirmation email's link points at the live
+  // site regardless of whatever "Site URL" happens to be set in the Supabase
+  // dashboard (it defaulted to localhost, which broke every confirmation link
+  // until this was added — same fix already applied to password reset below).
+  const res  = await fetch(SB_URL + '/auth/v1/signup?redirect_to=' + encodeURIComponent(AUTH_RESET_REDIRECT), {
+    method: 'POST',
+    headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (!res.ok) return { error: data.error_description || data.msg || 'Sign up failed. Try a different email.' };
+  if (data.access_token) {
+    // Email confirmations disabled — logged in immediately
+    saveAuthSession(data);
+    if (name) await saveUserProfile(name, '', '');
+    await loadUserProfile();
+    updateHeaderForAuth();
+    return { error: null, confirmed: true };
+  }
+  // Email confirmation required
+  return { error: null, confirmed: false };
+}
+
+async function authSignIn(email, password) {
+  const res  = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+    method: 'POST',
+    headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (!res.ok) return { error: data.error_description || 'Wrong email or password.' };
+  saveAuthSession(data);
+  await loadUserProfile();
+  updateHeaderForAuth();
+  return { error: null };
+}
+
+async function authSignOut() {
+  if (_authToken) {
+    fetch(SB_URL + '/auth/v1/logout', {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + _authToken }
+    }).catch(() => {});
+  }
+  clearAuthSession();
+  updateHeaderForAuth();
+}
+
+// Where Supabase sends the user after they click the reset link.
+// This exact URL must be listed under Supabase → Authentication → URL Configuration
+// → Redirect URLs, otherwise Supabase silently falls back to the Site URL.
+const AUTH_RESET_REDIRECT = SITE_URL;
+
+async function authForgotPassword(email) {
+  try {
+    const res = await fetch(
+      SB_URL + '/auth/v1/recover?redirect_to=' + encodeURIComponent(AUTH_RESET_REDIRECT), {
+        method: 'POST',
+        headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+    if (res.ok) return { error: null };
+
+    // Surface the real reason instead of a generic failure.
+    let body = {};
+    try { body = await res.json(); } catch (e) {}
+    const msg = body.msg || body.error_description || body.message || '';
+    console.error('[auth] password recover failed', res.status, body);
+
+    if (res.status === 429 || /rate limit/i.test(msg)) {
+      return { error: 'Too many reset emails requested. Supabase\'s built-in email service is rate limited — please wait an hour and try again, or contact us directly.' };
+    }
+    return { error: msg || ('Could not send reset email (error ' + res.status + ').') };
+  } catch (e) {
+    console.error('[auth] password recover network error', e);
+    return { error: 'Network error — could not reach the server. Please try again.' };
+  }
+}
+
+// ── Profile ────────────────────────────────────────────────────────────────────
+async function loadUserProfile() {
+  if (!_authUser) return;
+  try {
+    const res  = await fetch(SB_URL + '/rest/v1/expert_customers?id=eq.' + _authUser.id + '&select=*', {
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) return;
+    const rows = await res.json();
+    if (rows && rows.length) _userProfile = rows[0];
+  } catch(e) {}
+}
+
+async function saveUserProfile(name, phone, address) {
+  if (!_authUser) return false;
+  const payload = [{ id: _authUser.id, name: name || '', phone: phone || '', address: address || '' }];
+  try {
+    const res = await fetch(SB_URL + '/rest/v1/expert_customers', {
+      method:  'POST',
+      headers: Object.assign({}, getAuthHeaders(), { 'Prefer': 'resolution=merge-duplicates' }),
+      body:    JSON.stringify(payload)
+    });
+    if (res.ok) {
+      _userProfile = { id: _authUser.id, name, phone, address };
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+// ── My Orders ──────────────────────────────────────────────────────────────────
+async function loadMyOrders() {
+  if (_authUser) {
+    // Logged in: fetch from Supabase
+    try {
+      const res  = await fetch(SB_URL + '/rest/v1/expert_orders?user_id=eq.' + _authUser.id + '&order=created_at.desc&select=*', {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch(e) {}
+  }
+  // Guest: return localStorage orders
+  try { return JSON.parse(localStorage.getItem('jain_guest_orders') || '[]'); } catch(e) { return []; }
+}
+
+// ── Guest order store ──────────────────────────────────────────────────────────
+function saveGuestOrder(order) {
+  try {
+    const orders = JSON.parse(localStorage.getItem('jain_guest_orders') || '[]');
+    orders.unshift(order);
+    localStorage.setItem('jain_guest_orders', JSON.stringify(orders.slice(0, 30)));
+  } catch(e) {}
+}
+
+// ── Header update ──────────────────────────────────────────────────────────────
+function updateHeaderForAuth() {
+  const btn   = document.getElementById('accountBtn');
+  const label = document.getElementById('acctBtnLabel');
+  if (btn && label) {
+    if (_authUser) {
+      const initial = (_userProfile && _userProfile.name)
+        ? _userProfile.name.charAt(0).toUpperCase()
+        : _authUser.email.charAt(0).toUpperCase();
+      btn.classList.add('signed-in');
+      label.innerHTML =
+        '<span style="background:#fff;color:var(--orange);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">' + initial + '</span>' +
+        '<span class="acct-txt">&nbsp;My Account</span>';
+    } else {
+      btn.classList.remove('signed-in');
+      label.innerHTML = '<span class="acct-txt">Sign In</span>';
+    }
+  }
+  // Show/hide My Orders & Sign In links in mobile nav
+  var navOrders = document.getElementById('navMyOrders');
+  var navSignIn = document.getElementById('navSignIn');
+  if (navOrders) navOrders.style.display = _authUser ? '' : 'none';
+  if (navSignIn) navSignIn.style.display = _authUser ? 'none' : '';
+}
+
+// ── Header button click ────────────────────────────────────────────────────────
+function onAccountBtnClick(tab) {
+  if (_authUser) openAcctModal(tab);
+  else openAuthModal('login');
+}
+
+// ── Offers subscribe nudge ─────────────────────────────────────────────────────
+function showOffersNudge() {
+  const el = document.getElementById('offersNudge');
+  if (el) el.style.display = 'block';
+}
+function dismissOffersNudge() {
+  const el = document.getElementById('offersNudge');
+  if (el) el.style.display = 'none';
+  localStorage.setItem('jain_offers_nudge_dismissed', '1');
+}
+
+// ── Post-Google-signup offers prompt — see _handleOAuthHash() above ────────
+function showGoogleSubscribePrompt() {
+  const el = document.getElementById('googleSubscribePrompt');
+  if (el) el.style.display = 'block';
+}
+function dismissGoogleSubscribePrompt() {
+  const el = document.getElementById('googleSubscribePrompt');
+  if (el) el.style.display = 'none';
+}
+function confirmGoogleSubscribePrompt() {
+  const check = document.getElementById('googleSubscribeCheck');
+  if (check && check.checked && _authUser && _authUser.email) {
+    subscribeEmailToOffers(_authUser.email);
+  }
+  dismissGoogleSubscribePrompt();
+}
+
+// ── Auth Modal ─────────────────────────────────────────────────────────────────
+function openAuthModal(tab) {
+  document.getElementById('authOverlay').classList.add('open');
+  switchAuthTab(tab || 'login');
+  _clearAuthMessages();
+}
+function closeAuthModal() {
+  document.getElementById('authOverlay').classList.remove('open');
+  _clearAuthMessages();
+}
+function switchAuthTab(tab) {
+  document.getElementById('authLoginForm').style.display  = tab === 'login'  ? '' : 'none';
+  document.getElementById('authSignupForm').style.display = tab === 'signup' ? '' : 'none';
+  document.getElementById('authForgotForm').style.display = tab === 'forgot' ? '' : 'none';
+  document.getElementById('authTabLogin').classList.toggle('active',  tab === 'login');
+  document.getElementById('authTabSignup').classList.toggle('active', tab === 'signup');
+  // Show/hide tab buttons (hide them on forgot screen)
+  document.getElementById('authTabLogin').style.display  = tab === 'forgot' ? 'none' : '';
+  document.getElementById('authTabSignup').style.display = tab === 'forgot' ? 'none' : '';
+  var benefits = document.getElementById('authBenefits');
+  if (benefits) benefits.style.display = tab === 'forgot' ? 'none' : '';
+  _clearAuthMessages();
+}
+function _clearAuthMessages() {
+  const err = document.getElementById('authErr');
+  const ok  = document.getElementById('authOk');
+  if (err) { err.textContent = ''; err.classList.remove('show'); }
+  if (ok)  { ok.textContent  = ''; ok.classList.remove('show'); }
+}
+function _showAuthErr(msg) {
+  const el = document.getElementById('authErr');
+  if (el) { el.textContent = msg; el.classList.add('show'); }
+}
+function _showAuthOk(msg) {
+  const el = document.getElementById('authOk');
+  if (el) { el.textContent = msg; el.classList.add('show'); }
+}
+
+async function doAuthLogin() {
+  const email = (document.getElementById('authLoginEmail').value || '').trim();
+  const pass  = document.getElementById('authLoginPass').value;
+  _clearAuthMessages();
+  if (!email || !pass) { _showAuthErr('Please enter your email and password.'); return; }
+  const btn = document.getElementById('authLoginBtn');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  const result = await authSignIn(email, pass);
+  btn.disabled = false; btn.innerHTML = '<i class="fa fa-sign-in-alt"></i> Sign In';
+  if (result.error) { _showAuthErr(result.error); return; }
+  closeAuthModal();
+  openAcctModal();
+}
+
+async function doAuthSignup() {
+  const name  = (document.getElementById('authSignupName').value  || '').trim();
+  const email = (document.getElementById('authSignupEmail').value || '').trim();
+  const pass  = document.getElementById('authSignupPass').value;
+  _clearAuthMessages();
+  if (!email || !pass) { _showAuthErr('Please enter your email and password.'); return; }
+  if (pass.length < 8) { _showAuthErr('Password must be at least 8 characters.'); return; }
+  if (!/[a-zA-Z]/.test(pass) || !/[0-9]/.test(pass)) { _showAuthErr('Password must include both letters and numbers.'); return; }
+  const consent = document.getElementById('authSignupConsent');
+  if (consent && !consent.checked) { _showAuthErr('Please accept the Terms & Conditions to create an account.'); return; }
+  // Offers subscription is a separate, optional checkbox — never blocks
+  // signup either way, unlike the T&C consent above.
+  const wantsOffers = document.getElementById('authSignupSubscribe');
+  const btn = document.getElementById('authSignupBtn');
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  const result = await authSignUp(name, email, pass);
+  btn.disabled = false; btn.innerHTML = '<i class="fa fa-user-plus"></i> Create Account';
+  if (result.error) { _showAuthErr(result.error); return; }
+  if (wantsOffers && wantsOffers.checked) subscribeEmailToOffers(email);
+  if (result.confirmed) {
+    _showAuthOk('✅ Account created! Welcome, ' + (name || email) + '!');
+    setTimeout(() => { closeAuthModal(); openAcctModal(); }, 1200);
+  } else {
+    _showAuthOk('📧 Check your email for a confirmation link, then sign in.');
+    setTimeout(() => switchAuthTab('login'), 2500);
+  }
+}
+
+async function doAuthForgot() {
+  const email = (document.getElementById('authForgotEmail').value || '').trim();
+  _clearAuthMessages();
+  if (!email) { _showAuthErr('Please enter your email address.'); return; }
+  const btn = document.getElementById('authForgotBtn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const result = await authForgotPassword(email);
+  btn.disabled = false; btn.innerHTML = '<i class="fa fa-envelope"></i> Send Reset Link';
+  if (result.error) {
+    _showAuthErr(result.error);
+  } else {
+    _showAuthOk('📧 If that email is registered, a reset link is on its way. Check your inbox (and spam folder).');
+  }
+}
+
+// ── Account Modal (Profile + My Orders) ───────────────────────────────────────
+async function openAcctModal(tab) {
+  if (!_authUser) { openAuthModal('login'); return; }
+  // Fill in header info
+  const initial = (_userProfile && _userProfile.name)
+    ? _userProfile.name.charAt(0).toUpperCase()
+    : _authUser.email.charAt(0).toUpperCase();
+  document.getElementById('acctAvatar').textContent = initial;
+  document.getElementById('acctUname').textContent  = (_userProfile && _userProfile.name) || 'My Account';
+  document.getElementById('acctUemail').textContent = _authUser.email;
+  // Fill profile fields
+  if (_userProfile) {
+    document.getElementById('profName').value    = _userProfile.name    || '';
+    document.getElementById('profPhone').value   = _userProfile.phone   || '';
+    document.getElementById('profAddress').value = _userProfile.address || '';
+  }
+  switchAcctTab(tab === 'orders' ? 'orders' : 'profile');
+  document.getElementById('acctOverlay').classList.add('open');
+  if (tab !== 'orders') loadMyOrders().then(_updateActiveOrdersBadge);
+}
+function closeAcctModal() {
+  document.getElementById('acctOverlay').classList.remove('open');
+}
+function switchAcctTab(tab) {
+  document.getElementById('acctProfilePane').style.display = tab === 'profile' ? '' : 'none';
+  document.getElementById('acctOrdersPane').style.display  = tab === 'orders'  ? '' : 'none';
+  document.getElementById('acctTabProfile').classList.toggle('active', tab === 'profile');
+  document.getElementById('acctTabOrders').classList.toggle('active',  tab === 'orders');
+  if (tab === 'orders') renderMyOrders();
+}
+
+async function doSaveProfile() {
+  const name    = document.getElementById('profName').value.trim();
+  const phone   = document.getElementById('profPhone').value.trim();
+  const address = document.getElementById('profAddress').value.trim();
+  const ok = await saveUserProfile(name, phone, address);
+  const okEl = document.getElementById('acctOk');
+  if (ok) {
+    okEl.textContent = '✅ Profile saved!';
+    okEl.classList.add('show');
+    // Update header initial
+    updateHeaderForAuth();
+    document.getElementById('acctAvatar').textContent = name ? name.charAt(0).toUpperCase() : _authUser.email.charAt(0).toUpperCase();
+    document.getElementById('acctUname').textContent  = name || 'My Account';
+    setTimeout(() => okEl.classList.remove('show'), 3000);
+  } else {
+    okEl.textContent  = '⚠️ Could not save. Please try again.';
+    okEl.style.background = 'rgba(239,68,68,.07)';
+    okEl.style.borderColor = 'rgba(239,68,68,.25)';
+    okEl.style.color = '#dc2626';
+    okEl.classList.add('show');
+    setTimeout(() => { okEl.classList.remove('show'); okEl.style = ''; }, 3000);
+  }
+}
+
+async function doSignOut() {
+  await authSignOut();
+  closeAcctModal();
+}
+
+// Orders still in progress vs finished — shown as two sections in My Orders.
+function _isActiveOrder(o) {
+  var st = String(o.status || 'pending').toLowerCase();
+  return st !== 'delivered' && st !== 'cancelled' && st !== 'canceled';
+}
+function _orderCardHtml(o) {
+  var statusClass = { pending:'myo-pending', confirmed:'myo-confirmed', delivered:'myo-delivered', cancelled:'myo-cancelled', canceled:'myo-cancelled' };
+  var items = Array.isArray(o.items)
+    ? o.items.map(function(i) { return encodeHtml(String(i.name == null ? '' : i.name)) + ' &times;' + encodeHtml(String(i.qty == null ? '' : i.qty)); }).join('<br>')
+    : encodeHtml(o.items || '');
+  var date = o.created_at
+    ? new Date(o.created_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })
+    : '';
+  var status = String(o.status || 'pending').toLowerCase();
+  var shortId = o.short_code ? (o.short_code.slice(0, 5) + '-' + o.short_code.slice(5)) : String(o.id || '').slice(-6).toUpperCase();
+  var invoiceId = o.short_code || o.id;
+  var invoice = (invoiceId && o.user_id)
+    ? '<a class="myo-invoice" href="order-invoice.html?id=' + encodeURIComponent(invoiceId) + '" target="_blank" rel="noopener"><i class="fa fa-file-invoice"></i> Invoice</a>'
+    : '';
+  return '<div class="myo-card">' +
+      '<div class="myo-top">' +
+        '<div class="myo-meta"><span class="myo-id">Order #' + shortId + '</span><span class="myo-date">' + date + '</span></div>' +
+        '<span class="myo-status ' + (statusClass[status] || 'myo-pending') + '">' + encodeHtml(status) + '</span>' +
+      '</div>' +
+      '<div class="myo-items">' + items + '</div>' +
+      '<div class="myo-footer">' +
+        '<span class="myo-total">' + fmtPrice(o.total || 0) + '</span>' +
+        invoice +
+        '<span class="myo-addr">' + encodeHtml(o.address || '') + '</span>' +
+      '</div>' +
+    '</div>';
+}
+async function renderMyOrders() {
+  var container = document.getElementById('myOrdersList');
+  container.innerHTML = '<div class="myo-loading"><i class="fa fa-spinner fa-spin"></i> Loading orders…</div>';
+  var orders = await loadMyOrders();
+  _updateActiveOrdersBadge(orders);
+  if (!orders || !orders.length) {
+    container.innerHTML =
+      '<div class="myo-empty"><i class="fa fa-receipt"></i><p>No orders yet</p>' +
+      '<small>Orders you place while signed in are saved to your account and will appear here.</small></div>';
+    return;
+  }
+  var active = orders.filter(_isActiveOrder);
+  var past = orders.filter(function(o) { return !_isActiveOrder(o); });
+  var section = function(title, icon, list, emptyMsg) {
+    return '<div class="myo-section-title"><i class="fa ' + icon + '"></i> ' + title + ' <span class="myo-count">' + list.length + '</span></div>' +
+      (list.length ? list.map(_orderCardHtml).join('') : '<div class="myo-none">' + emptyMsg + '</div>');
+  };
+  container.innerHTML =
+    section('Active orders', 'fa-truck', active, 'No active orders right now.') +
+    section('Past orders', 'fa-clock-rotate-left', past, 'No past orders yet.');
+}
+// Small red count on the "My Orders" tab so customers can see in-progress orders at a glance.
+function _updateActiveOrdersBadge(orders) {
+  var tab = document.getElementById('acctTabOrders');
+  if (!tab) return;
+  var n = (orders || []).filter(_isActiveOrder).length;
+  var b = tab.querySelector('.myo-tab-badge');
+  if (!n) { if (b) b.remove(); return; }
+  if (!b) { b = document.createElement('span'); b.className = 'myo-tab-badge'; tab.appendChild(b); }
+  b.textContent = n;
+}
+
+// ── Kick off auth on page load ─────────────────────────────────────────────────
+initAuth();
+
+// ══════════════════════════════════════════════════════════════════════════════

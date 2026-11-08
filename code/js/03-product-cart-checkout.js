@@ -1,0 +1,765 @@
+// ── PRODUCT DETAIL MODAL ──────────────────────────────────────────────────
+let _pmQty = 1;
+let _pmId  = null;
+let _pmVariantIdx = 0; // which size/pack option is selected (0 when none exist)
+let _pmBaseImg = null; // the product's own image, for options that don't override it
+
+// Price for the currently selected option — options without their own price
+// sell at the product's base price
+function _pmCurrentPrice(p) {
+  const opts = getVariants(_pmId);
+  if (!opts.length) return p.price;
+  const v = opts[_pmVariantIdx] || opts[0];
+  return (v.price > 0) ? v.price : p.price;
+}
+// "Was/now" markup when a Featured Sale % is active — same classes as the
+// grid card (_priceHtml in js/02-catalog-render.js) for a consistent look.
+function _pmPriceHtml(rawPrice, id) {
+  const sale = getFeaturedSale(id);
+  if (sale > 0 && rawPrice > 0 && !window._sbPriceHidden[id]) {
+    const now = rawPrice * (1 - sale / 100);
+    return '<span class="prod-price-now">' + now.toFixed(2) + '</span> <span class="prod-price-was">' + rawPrice.toFixed(2) + '</span> <small>' + CURRENCY + '</small>';
+  }
+  return rawPrice.toFixed(2) + ' <small>' + CURRENCY + '</small>';
+}
+// SKU for a specific option — options without their own SKU sell under the
+// product's own (matches the source catalog, which suffixes the base SKU
+// per option rather than leaving it blank)
+function _variantSku(v, productId) {
+  return (v && v.sku) ? v.sku : getProductSku(productId);
+}
+
+// Applies the currently-selected option's own SKU/image/description
+// ("duplicated" from the product when the admin created it, then edited) —
+// falls back to the product's own when the option didn't override one.
+// Shared by the initial render and every dropdown change so both stay in sync.
+function _pmApplyVariantDisplay(p) {
+  const v = getVariants(_pmId)[_pmVariantIdx];
+  const skuEl = document.getElementById('prodModalSku');
+  if (skuEl) skuEl.textContent = _variantSku(v, p.id);
+  const descEl = document.getElementById('pmDescDisplay');
+  if (descEl) descEl.textContent = (v && v.description) || p.desc;
+  const imgEl = document.getElementById('pmMainImg');
+  if (imgEl) {
+    const src = (v && v.image) || _pmBaseImg;
+    if (src) { imgEl.src = src; imgEl.style.display = ''; document.getElementById('pmFallback').style.display = 'none'; }
+    else { imgEl.style.display = 'none'; document.getElementById('pmFallback').style.display = 'flex'; }
+  }
+}
+// Tile order is exactly getVariants()'s array order — the same order the
+// admin's drag-and-drop reordering controls (see _vrWireDrag in
+// admin/js/08-inventory.js) — so "make this option show first" is entirely
+// an admin-side concern.
+function pmSelectVariant(idx) {
+  _pmVariantIdx = idx;
+  const p = getAllProducts().find(x => x.id === _pmId);
+  if (!p) return;
+  const priceHtml = _pmPriceHtml(_pmCurrentPrice(p), p.id);
+  ['pmPriceDisplay', 'pmStickyPrice'].forEach(function(elId) {
+    const el = document.getElementById(elId);
+    if (el) el.innerHTML = priceHtml;
+  });
+  _pmApplyVariantDisplay(p);
+  document.querySelectorAll('#pmVariantTiles .pm-variant-tile').forEach(function(t, i) {
+    t.classList.toggle('selected', i === idx);
+    t.setAttribute('aria-checked', i === idx ? 'true' : 'false');
+  });
+  const opt = getVariants(_pmId)[idx];
+  const nameEl = document.getElementById('pmVariantName');
+  if (nameEl && opt) nameEl.textContent = opt.label;
+}
+
+// Escapes a value for use inside an HTML attribute
+function _pmEsc(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+let _pmObserver = null; // shows the phone's sticky buy bar once the inline button scrolls away
+let _pmOpener   = null; // element focused before the popup opened, so focus can go back to it
+
+// _fromHistory is true only when this call is replaying a browser
+// forward/back navigation (see popstate handler below) — skips pushing a
+// second history entry on top of the one the browser just navigated to.
+function openProduct(id, _fromHistory) {
+  trackView(id);
+  trackRecentlyViewed(id);
+  const wasOpen = document.getElementById('prodOverlay').classList.contains('open');
+  if (!wasOpen) _pmOpener = document.activeElement;
+  if (_pmObserver) { _pmObserver.disconnect(); _pmObserver = null; }
+  _pmId  = id;
+  _pmVariantIdx = 0;
+  const limits = getQtyLimits(id);
+  _pmQty = Math.max(1, limits.min);
+  const p           = getAllProducts().find(x => x.id === id);
+  const liveStatus  = getLiveStock(id) || p.stock;
+  const liveQty     = getLiveQty(id);
+  const isOut       = liveStatus === 'out-of-stock';
+  const isLow       = liveStatus === 'low-stock';
+  const bigImg = productPhoto(p);
+  _pmBaseImg = bigImg; // remembered so pmSelectVariant can fall back to it
+  const hasPrice = hasVisiblePrice(p);
+  const variants = getVariants(id);
+  const wished   = isWishlisted(id);
+
+  let stockIcon, stockTxt, stockCls;
+  if (isOut)      { stockIcon = 'fa-times-circle'; stockTxt = 'Out of Stock'; stockCls = 'out-of-stock'; }
+  else if (isLow) { stockIcon = 'fa-exclamation-circle'; stockTxt = 'Low Stock — only ' + (liveQty||'few') + ' left!'; stockCls = 'low-stock'; }
+  else            { stockIcon = 'fa-check-circle'; stockTxt = 'In Stock' + (liveQty !== null ? ' — ' + liveQty + ' available' : ''); stockCls = 'in-stock'; }
+
+  // The inline buy button and the phone's sticky one share the same states
+  const buyBtn = function(btnId, extraCls) {
+    if (!hasPrice) {
+      return '<button type="button" class="pm-add-btn pm-wa-btn' + extraCls + '" id="' + btnId + '" onclick="askPriceOnWhatsApp(' + id + ', _pmVariantIdx)">' +
+        '<i class="fab fa-whatsapp" aria-hidden="true"></i> <span>Ask Price on WhatsApp</span></button>';
+    }
+    return '<button type="button" class="pm-add-btn' + extraCls + '" id="' + btnId + '" ' + (isOut ? 'disabled' : 'onclick="pmAddToCart()"') + '>' +
+      '<i class="fa ' + (isOut ? 'fa-ban' : 'fa-shopping-cart') + '" aria-hidden="true"></i> <span>' + (isOut ? 'Out of Stock' : 'Add to Cart') + '</span></button>';
+  };
+
+  document.getElementById('prodModalBody').innerHTML =
+    '<button type="button" class="pm-side-back-btn" onclick="closeProduct()" title="Back to Products" aria-label="Back to products"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>' +
+    '<div class="pm-img-col">' +
+      '<img id="pmMainImg" src="' + (bigImg || '') + '" alt="' + _pmEsc(p.name) + '" onerror="imgError(this)" style="display:' + (bigImg ? '' : 'none') + '" />' +
+      '<div class="pm-img-fallback" id="pmFallback" style="display:' + (bigImg ? 'none' : 'flex') + '"><i class="fa fa-gears" aria-hidden="true"></i></div>' +
+    '</div>' +
+    '<div class="pm-info-col">' +
+      '<div class="pm-badge-row">' +
+        '<span class="pm-badge cat"><i class="fa fa-tag" aria-hidden="true"></i> ' + catLabel(p.category) + '</span>' +
+        (p.badge ? '<span class="pm-badge orange">' + p.badge + '</span>' : '') +
+      '</div>' +
+      '<h2 class="pm-name">' + p.name + '</h2>' +
+      '<div class="pm-meta">' +
+        '<span class="prod-modal-sku"><i class="fa fa-barcode" aria-hidden="true"></i><span id="prodModalSku">' + getProductSku(id) + '</span></span>' +
+        (hasPrice ? '<span class="pm-stock-line ' + stockCls + '" role="status"><i class="fa ' + stockIcon + '" aria-hidden="true"></i> ' + stockTxt + '</span>' : '') +
+      '</div>' +
+      (hasPrice
+        ? '<div class="pm-price" id="pmPriceDisplay">' + _pmPriceHtml(_pmCurrentPrice(p), p.id) + '</div>'
+        : '<div class="pm-price pm-price-ask">Price on request</div>') +
+      '<p class="pm-desc" id="pmDescDisplay">' + p.desc + '</p>' +
+      (variants.length ?
+        '<div class="pm-variant-block" role="radiogroup" aria-label="Size / Pack">' +
+          '<span class="pm-qty-lbl">Size / Pack: <b id="pmVariantName">' + variants[0].label + '</b></span>' +
+          '<div class="pm-variant-tiles" id="pmVariantTiles">' +
+            variants.map(function(v, i) {
+              var thumb = v.image || bigImg || '';
+              return '<button type="button" role="radio" aria-checked="' + (i === 0) + '" class="pm-variant-tile' + (i === 0 ? ' selected' : '') + '" onclick="pmSelectVariant(' + i + ')">' +
+                (thumb
+                  ? '<img src="' + thumb + '" alt="" onerror="this.parentNode.classList.add(\'pm-variant-tile-broken\')" />'
+                  : '<div class="pm-variant-tile-noimg"><i class="fa fa-gears" aria-hidden="true"></i></div>') +
+                '<span>' + v.label + ((hasPrice && v.price > 0 && v.price !== p.price) ? ' — ' + fmtPrice(v.price) : '') + '</span>' +
+              '</button>';
+            }).join('') +
+          '</div>' +
+        '</div>'
+      : '') +
+      '<div class="pm-buybox">' +
+        ((hasPrice && !isOut) ?
+          '<div class="pm-qty-head"><span class="pm-qty-lbl" id="pmQtyLbl">Quantity</span><span class="pm-qty-hint" id="pmQtyHint"></span></div>' +
+          '<div class="pm-buy-row">' +
+            '<div class="pm-qty-ctrl" role="group" aria-labelledby="pmQtyLbl">' +
+              '<button type="button" id="pmQtyMinus" onclick="pmChangeQty(-1)" aria-label="Decrease quantity"><i class="fa fa-minus" aria-hidden="true"></i></button>' +
+              '<input type="number" inputmode="numeric" id="pmQtyDisplay" aria-label="Quantity" value="' + _pmQty + '" min="' + Math.max(1, limits.min) + '" autocomplete="off" oninput="pmQtyInput(this)" onblur="pmQtyBlur(this)" />' +
+              '<button type="button" id="pmQtyPlus" onclick="pmChangeQty(1)" aria-label="Increase quantity"><i class="fa fa-plus" aria-hidden="true"></i></button>' +
+            '</div>' +
+            buyBtn('pmAddBtn', '') +
+          '</div>'
+        : buyBtn('pmAddBtn', '')) +
+      '</div>' +
+      '<div class="pm-action-row">' +
+        '<button type="button" class="pm-wl-btn ' + (wished ? 'wishlisted' : '') + '" id="pmWlBtn" aria-pressed="' + wished + '" onclick="pmToggleWishlist(' + id + ', event)">' +
+          '<i class="fa fa-heart" aria-hidden="true"></i> <span>' + (wished ? 'Saved' : 'Save') + '</span>' +
+        '</button>' +
+        '<button type="button" class="pm-share-btn" onclick="shareProduct(' + id + ')">' +
+          '<i class="fab fa-whatsapp" aria-hidden="true"></i> <span>Share</span>' +
+        '</button>' +
+        '<button type="button" class="pm-review-btn" onclick="openReviews(' + id + ')">' +
+          '<i class="fa fa-star" aria-hidden="true"></i> <span>Reviews</span>' +
+        '</button>' +
+      '</div>' +
+      '<ul class="pm-features">' +
+        '<li class="pm-feat"><i class="fa fa-check-circle" aria-hidden="true"></i><span>100% genuine, quality-tested product</span></li>' +
+        '<li class="pm-feat"><i class="fa fa-shipping-fast" aria-hidden="true"></i><span>Same-day delivery in Sharjah · 1-2 days UAE-wide</span></li>' +
+        '<li class="pm-feat"><i class="fa fa-shield-alt" aria-hidden="true"></i><span>Easy returns &amp; after-sales support</span></li>' +
+        '<li class="pm-feat"><i class="fa fa-tags" aria-hidden="true"></i><span>Bulk pricing available for contractors</span></li>' +
+      '</ul>' +
+    '</div>' +
+    // Phone-only buy bar: appears once the inline button has scrolled out of view
+    ((hasPrice && isOut) ? '' :
+      '<div class="pm-sticky" id="pmSticky">' +
+        '<div class="pm-sticky-info">' +
+          '<span class="pm-sticky-lbl">' + (hasPrice ? 'Price' : 'Price on request') + '</span>' +
+          (hasPrice ? '<span class="pm-sticky-price" id="pmStickyPrice">' + _pmPriceHtml(_pmCurrentPrice(p), p.id) + '</span>' : '') +
+        '</div>' +
+        buyBtn('pmAddBtn2', ' pm-sticky-btn') +
+      '</div>');
+
+  // Breadcrumb in the red top bar (desktop): Products › Category › this product
+  const crumbs = document.getElementById('pmCrumbs');
+  if (crumbs) {
+    crumbs.innerHTML =
+      '<button type="button" class="pm-crumb-link" onclick="closeProduct()">Products</button>' +
+      '<i class="fa fa-chevron-right" aria-hidden="true"></i><span class="pm-crumb-cat">' + catLabel(p.category) + '</span>' +
+      '<i class="fa fa-chevron-right" aria-hidden="true"></i><span class="pm-crumb-cur" aria-current="page">' + p.name + '</span>';
+  }
+
+  if (variants.length) _pmApplyVariantDisplay(p);
+  _pmSyncQty();
+  const hint = document.getElementById('pmQtyHint');
+  if (hint) {
+    const max = _pmMaxQty(), min = _pmMinQty();
+    const bits = [];
+    if (min > 1) bits.push('Min ' + min);
+    if (max < 999) bits.push('Max ' + max);
+    hint.textContent = bits.join(' · ');
+  }
+  renderRelatedProducts(id, p.category);
+  const overlay = document.getElementById('prodOverlay');
+  overlay.classList.add('open');
+  overlay.scrollTop = 0;
+  document.body.classList.add('product-open');
+  document.body.style.overflow = 'hidden';
+
+  const sticky = document.getElementById('pmSticky');
+  const inlineBtn = document.getElementById('pmAddBtn');
+  if (sticky && inlineBtn && 'IntersectionObserver' in window) {
+    _pmObserver = new IntersectionObserver(function(entries) {
+      sticky.classList.toggle('show', !entries[0].isIntersecting);
+    }, { root: overlay, rootMargin: '0px 0px -76px 0px' });
+    _pmObserver.observe(inlineBtn);
+  }
+  const backBtn = overlay.querySelector('.prod-back-btn');
+  if (backBtn) { try { backBtn.focus({ preventScroll: true }); } catch (e) {} }
+
+  // Gives the phone's physical/gesture Back button something of ours to
+  // undo first — without this, opening a product added no history entry,
+  // so the very first Back press exited the site entirely (e.g. straight
+  // to the Google result you arrived from) instead of just closing the
+  // product view.
+  if (!_fromHistory) {
+    history.pushState({ pmOpen: true, id: id }, '', '#product-' + id);
+  }
+}
+
+// Save/unsave from the product page — also flips this button's own state
+// (toggleWishlist only syncs the matching card's heart in the grid behind the
+// popup, which is a different button from this one)
+function pmToggleWishlist(id, event) {
+  toggleWishlist(id, event);
+  const btn = document.getElementById('pmWlBtn');
+  if (!btn) return;
+  const on = isWishlisted(id);
+  btn.classList.toggle('wishlisted', on);
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  const lbl = btn.querySelector('span');
+  if (lbl) lbl.textContent = on ? 'Saved' : 'Save';
+}
+
+// "Customers Also Bought" — shown below the product info, same-category items
+// first, filled out with other products. Reuses the Recently Viewed card style.
+function renderRelatedProducts(currentId, category) {
+  const section = document.getElementById('pmRelatedSection');
+  if (!section) return;
+  const all     = getAllProducts().filter(p => p.id !== currentId);
+  const sameCat = all.filter(p => p.category === category);
+  const others  = all.filter(p => p.category !== category);
+  const picks   = sameCat.concat(others).slice(0, 6);
+  if (!picks.length) { section.innerHTML = ''; return; }
+  section.innerHTML =
+    '<div class="pm-related-head"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Customers Also Bought</div>' +
+    '<div class="rv-grid pm-rel-grid">' +
+    picks.map(p => {
+      const photo = productPhoto(p);
+      return '<button type="button" class="rv-card pm-rel-card" onclick="openProduct(' + p.id + ')">' +
+        '<span class="pm-rel-img"><img src="' + photo + '" alt="' + _pmEsc(p.name) + '" loading="lazy" onerror="imgError(this)" /></span>' +
+        '<span class="rv-name">' + p.name + '</span>' +
+        '<span class="rv-price">' + fmtPrice(applySale(p.price, p.id)) + '</span>' +
+      '</button>';
+    }).join('') +
+    '</div>';
+}
+
+// _fromHistory is true only when this call is replaying a browser Back
+// press (see popstate handler below) — the browser has already moved off
+// the pmOpen history entry at that point, so calling history.back() again
+// here would skip past whatever page the visitor actually wanted.
+function closeProduct(_fromHistory) {
+  const overlay = document.getElementById('prodOverlay');
+  const wasOpen = overlay.classList.contains('open');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+  document.body.classList.remove('product-open');
+  if (_pmObserver) { _pmObserver.disconnect(); _pmObserver = null; }
+  _pmId = null; _pmQty = 1;
+  if (wasOpen && _pmOpener && document.contains(_pmOpener)) {
+    try { _pmOpener.focus({ preventScroll: true }); } catch (e) {}
+  }
+  _pmOpener = null;
+  if (!_fromHistory && history.state && history.state.pmOpen) {
+    history.back();
+  }
+}
+
+// Keeps the product modal in sync with the phone/browser Back and Forward
+// buttons — Back closes the modal (see the history entry openProduct()
+// pushes above) instead of leaving the site, Forward reopens it.
+window.addEventListener('popstate', function(e) {
+  const overlay = document.getElementById('prodOverlay');
+  const isOpen  = overlay && overlay.classList.contains('open');
+  const wantsModal = e.state && e.state.pmOpen;
+  if (isOpen && !wantsModal)      closeProduct(true);
+  else if (!isOpen && wantsModal) openProduct(e.state.id, true);
+});
+
+// Effective ceiling for the quantity stepper: the smallest of live stock and
+// this product's admin-set max order quantity (0 = no limit on that side).
+function _pmMaxQty() {
+  const liveQty = getLiveQty(_pmId);
+  const limits  = getQtyLimits(_pmId);
+  let max = liveQty !== null ? liveQty : 999;
+  if (limits.max > 0) max = Math.min(max, limits.max);
+  return max;
+}
+function _pmMinQty() {
+  return Math.max(1, getQtyLimits(_pmId).min);
+}
+// Greys out the − / + button that can't go any further
+function _pmSyncQty() {
+  const minus = document.getElementById('pmQtyMinus');
+  const plus  = document.getElementById('pmQtyPlus');
+  if (minus) minus.disabled = _pmQty <= _pmMinQty();
+  if (plus)  plus.disabled  = _pmQty >= _pmMaxQty();
+}
+
+function pmChangeQty(delta) {
+  const min = _pmMinQty(), max = _pmMaxQty();
+  _pmQty = Math.max(min, Math.min(max, _pmQty + delta));
+  var el = document.getElementById('pmQtyDisplay');
+  if (el) el.value = _pmQty;
+  _pmSyncQty();
+}
+
+function pmQtyInput(el) {
+  const min = _pmMinQty(), max = _pmMaxQty();
+  var v = parseInt(el.value, 10);
+  if (isNaN(v) || v < min) { _pmQty = min; _pmSyncQty(); return; }
+  if (v > max) { v = max; el.value = max; }
+  _pmQty = v;
+  _pmSyncQty();
+}
+
+function pmQtyBlur(el) {
+  // Snap to valid value when user leaves the field
+  const min = _pmMinQty(), max = _pmMaxQty();
+  var v = parseInt(el.value, 10);
+  if (isNaN(v) || v < min) v = min;
+  _pmQty = Math.min(v, max);
+  el.value = _pmQty;
+  _pmSyncQty();
+}
+
+function pmAddToCart() {
+  const product  = getAllProducts().find(p => p.id === _pmId);
+  const liveQty  = getLiveQty(_pmId);
+  // Each size/pack option is its own cart line; options share the parent
+  // product's stock pool, so stock checks count ALL lines of this product.
+  const opts     = getVariants(_pmId);
+  const selOpt   = opts.length ? (opts[_pmVariantIdx] || opts[0]) : null;
+  const variant  = selOpt ? selOpt.label : null;
+  const inCart   = cart.find(c => c.id === _pmId && (c.variant || null) === variant);
+  const cartQty  = cart.filter(c => c.id === _pmId).reduce((s,c) => s + c.qty, 0);
+  const limits   = getQtyLimits(_pmId);
+  if (liveQty !== null && cartQty + _pmQty > liveQty) {
+    alert('Only ' + liveQty + ' units available. You already have ' + cartQty + ' in your cart.');
+    return;
+  }
+  if (limits.max > 0 && cartQty + _pmQty > limits.max) {
+    alert('Maximum order quantity for this product is ' + limits.max + '.');
+    return;
+  }
+  if (limits.min > 0 && _pmQty < limits.min) {
+    alert('Minimum order quantity for this product is ' + limits.min + '.');
+    return;
+  }
+  if (inCart) { inCart.qty += _pmQty; }
+  else {
+    cart.push(Object.assign({}, product, {
+      qty: _pmQty,
+      variant: variant,
+      // Bake the option into the line's name/price/sku so cart, checkout,
+      // the WhatsApp message and the saved order all show it with no extra code
+      name:  variant ? product.name + ' (' + variant + ')' : product.name,
+      price: applySale(_pmCurrentPrice(product), _pmId),
+      sku:   _variantSku(selOpt, _pmId)
+    }));
+  }
+  updateCartUI();
+  // Flash the buy buttons (inline + phone sticky bar) green — stay on the
+  // product page, no cart popup
+  ['pmAddBtn', 'pmAddBtn2'].forEach(function(btnId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    if (btn.dataset.orig === undefined) btn.dataset.orig = btn.innerHTML;
+    btn.classList.add('pm-added-flash');
+    btn.innerHTML = '<i class="fa fa-check" aria-hidden="true"></i> <span>Added to Cart!</span>';
+    clearTimeout(btn._flashT);
+    btn._flashT = setTimeout(function() {
+      btn.classList.remove('pm-added-flash');
+      btn.innerHTML = btn.dataset.orig;
+      delete btn.dataset.orig;
+    }, 1200);
+  });
+  showToast('Added to cart');
+}
+
+// ESC key closes any open modal
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeProduct();
+    closeSearchOverlay();
+    document.getElementById('cartModal').classList.remove('open');
+    document.getElementById('checkoutOverlay').classList.remove('open');
+  }
+});
+
+// ── CART ──────────────────────────────────────────────────────────────────
+// btn (optional) is the clicked "Add" button — when given, it plays a brief
+// loading spinner -> checkmark sequence before the toast pops up.
+function addToCart(id, btn) {
+  if (btn && btn.dataset.busy === '1') return;
+  trackView(id);
+  const product = getAllProducts().find(p => p.id === id);
+  // If this product has size/pack options, read whichever one is selected
+  // in the card's own dropdown (cardVariantChange keeps it live) — each
+  // option is its own cart line, same as picking one in the product popup
+  const opts    = getVariants(id);
+  const sel     = opts.length ? document.getElementById('cardVarSel' + id) : null;
+  const variant = opts.length ? (opts[sel ? (parseInt(sel.value, 10) || 0) : 0] || opts[0]) : null;
+  const vLabel  = variant ? variant.label : null;
+  const rawPrice = variant ? ((variant.price > 0) ? variant.price : product.price) : product.price;
+  const price   = applySale(rawPrice, id);
+
+  const liveQty  = getLiveQty(id);
+  // Options share the parent product's stock pool, so stock/limit checks
+  // count every line of this product, not just the one matching this option
+  const inCart   = cart.find(c => c.id === id && (c.variant || null) === vLabel);
+  const cartQty  = cart.filter(c => c.id === id).reduce((s, c) => s + c.qty, 0);
+  const limits   = getQtyLimits(id);
+  const step     = inCart ? 1 : Math.max(1, limits.min); // first add jumps to the minimum order qty
+  if (liveQty !== null && cartQty >= liveQty) {
+    alert('Sorry, only ' + liveQty + ' units available in stock!'); return;
+  }
+  if (limits.max > 0 && cartQty + step > limits.max) {
+    alert('Maximum order quantity for this product is ' + limits.max + '.'); return;
+  }
+  function commit() {
+    if (inCart) { inCart.qty += step; }
+    else {
+      cart.push(Object.assign({}, product, {
+        qty: step,
+        variant: vLabel,
+        name: vLabel ? product.name + ' (' + vLabel + ')' : product.name,
+        price: price,
+        sku: _variantSku(variant, id)
+      }));
+    }
+    updateCartUI();
+  }
+  if (!btn) { commit(); showToast('Added to cart'); return; }
+  btn.dataset.busy = '1';
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.classList.add('btn-add-loading');
+  btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Adding...';
+  setTimeout(function() {
+    commit();
+    btn.classList.remove('btn-add-loading');
+    btn.classList.add('btn-add-added');
+    btn.innerHTML = '<i class="fa fa-check"></i> Added';
+    showToast('Added to cart');
+    setTimeout(function() {
+      btn.classList.remove('btn-add-added');
+      btn.innerHTML = original;
+      btn.disabled = false;
+      delete btn.dataset.busy;
+    }, 1000);
+  }, 600);
+}
+// Removes one cart line by array index (not product id) — a product with
+// size/pack options can occupy several lines at once, one per chosen option
+function removeFromCart(idx) { cart.splice(idx, 1); updateCartUI(); }
+function updateCartUI() {
+  const count = cart.reduce((s,c) => s+c.qty, 0);
+  // Update any cart count badges safely (header count may not exist)
+  const cc = document.getElementById('cartCount');
+  if (cc) cc.textContent = count;
+  const fab = document.getElementById('mobCartCount');
+  if (fab) fab.textContent = count;
+  const navBadge = document.getElementById('navCartBadge');
+  if (navBadge) { navBadge.textContent = count; navBadge.style.display = count ? 'inline-block' : 'none'; }
+  const body  = document.getElementById('cartItems');
+  const total = cart.reduce((s,c) => s+c.price*c.qty, 0);
+  document.getElementById('cartTotal').textContent = fmtPrice(total);
+  if (!cart.length) { body.innerHTML = '<p class="empty-cart">Your cart is empty.</p>'; return; }
+  body.innerHTML = cart.map((c, idx) => {
+    // Only use stored photo if it's a real URL — otherwise fall back to local image
+    const imgSrc = productPhoto(c);
+    return `
+    <div class="cart-item">
+      <div class="cart-item-icon"><img src="${imgSrc}" alt="${c.name}" onerror="imgError(this)" /></div>
+      <div class="cart-item-info">
+        <strong>${c.name}</strong>
+        <span>Qty: ${c.qty} &times; ${fmtPrice(c.price)}</span>
+      </div>
+      <div class="cart-item-actions">
+        <span class="cart-item-price">${fmtPrice(c.price*c.qty)}</span>
+        <button class="btn-remove" onclick="removeFromCart(${idx})" aria-label="Remove ${encodeHtml(c.name)} from cart"><i class="fa fa-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openCart() { document.getElementById('cartModal').classList.add('open'); }
+
+// ── CHECKOUT ──────────────────────────────────────────────────────────────
+// Signed-in customers skip straight to the order form (pre-filled from their
+// saved profile). Guests are asked to choose Sign In or Continue as Guest
+// first — replaces the old post-order "Create Account" nudge, which showed
+// the prompt only after the order was already sent, too late to be useful.
+function openCheckout() {
+  if (!cart.length) return;
+  document.getElementById('cartModal').classList.remove('open');
+  document.getElementById('checkoutOverlay').classList.add('open');
+  if (_authUser) {
+    renderCheckoutForm();
+  } else {
+    showCheckoutAuthChoice();
+  }
+}
+
+function showCheckoutAuthChoice() {
+  document.getElementById('coBody').innerHTML = `
+    <div class="co-auth-choice">
+      <p>Sign in to auto-fill your details and track this order, or continue as a guest.</p>
+      <button class="btn btn-primary" onclick="document.getElementById('checkoutOverlay').classList.remove('open');openAuthModal('login')">
+        <i class="fa fa-user"></i> Sign In
+      </button>
+      <button class="btn" onclick="continueCheckoutAsGuest()">Continue as Guest</button>
+    </div>`;
+}
+
+function continueCheckoutAsGuest() {
+  document.getElementById('coBody').innerHTML = origCoBody;
+  renderCheckoutForm();
+}
+
+function renderCheckoutForm() {
+  document.getElementById('coItems').innerHTML = cart.map(c => `
+    <div class="co-item">
+      <div><span class="co-item-name">${c.name}</span><br/><span class="co-item-qty">x${c.qty} unit${c.qty>1?'s':''}</span></div>
+      <span class="co-item-price">${fmtPrice(c.price*c.qty)}</span>
+    </div>`).join('');
+  const total = cart.reduce((s,c) => s+c.price*c.qty, 0);
+  document.getElementById('coTotal').textContent = fmtPrice(total);
+  // Pre-fill from saved profile if user is logged in
+  const _coEmailEl = document.getElementById('coEmail');
+  if (_coEmailEl && typeof _authUser !== 'undefined' && _authUser && _authUser.email) _coEmailEl.value = _authUser.email;
+  if (_userProfile) {
+    if (_userProfile.name)  document.getElementById('coName').value  = _userProfile.name;
+    if (_userProfile.phone) document.getElementById('coPhone').value = _userProfile.phone;
+    // Parse saved address back into the area field if possible
+    if (_userProfile.address) {
+      const addrParts = _userProfile.address.split(',').map(s => s.trim());
+      const areaEl = document.getElementById('coArea');
+      if (addrParts.length) {
+        for (let i = 0; i < areaEl.options.length; i++) {
+          if (areaEl.options[i].text === addrParts[0]) { areaEl.value = addrParts[0]; break; }
+        }
+      }
+    }
+  }
+  // Assignment (not addEventListener) so this is always exactly one binding —
+  // restoring coBody's innerHTML for a guest swaps in a fresh #coSubmitBtn
+  // node with no listener, while the already-logged-in path reuses the same
+  // node every time; addEventListener would either miss the fresh node or
+  // stack a second listener onto the reused one and double-submit orders.
+  document.getElementById('coSubmitBtn').onclick = handleCheckoutSubmit;
+}
+
+// ── FULFILMENT TOGGLE ─────────────────────────────────────────────────────
+let _fulfilment = 'delivery'; // 'delivery' | 'pickup'
+function setFulfilment(mode) {
+  _fulfilment = mode;
+  document.getElementById('ftDelivery').classList.toggle('active', mode === 'delivery');
+  document.getElementById('ftPickup').classList.toggle('active', mode === 'pickup');
+  document.getElementById('coDeliverySection').style.display = mode === 'delivery' ? '' : 'none';
+  document.getElementById('coPickupInfo').style.display = mode === 'pickup' ? '' : 'none';
+}
+
+function handleCheckoutSubmit() {
+  const name  = document.getElementById('coName').value.trim();
+  const phone = document.getElementById('coPhone').value.trim();
+  // coEmail can be missing for a visitor still holding a cached copy of
+  // index.html from before the field existed — treat that as "no email".
+  const emailEl = document.getElementById('coEmail');
+  const email = emailEl ? emailEl.value.trim() : '';
+  const isPickup = _fulfilment === 'pickup';
+
+  // Validate required fields
+  let valid = true;
+  ['coName','coPhone'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el.value.trim()) { el.classList.add('err'); valid = false; }
+    else el.classList.remove('err');
+  });
+  // Email is how the customer gets their Order ID (needed to track/cancel later).
+  if (emailEl) {
+    const emailOk = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(email) && email.length <= 254;
+    emailEl.classList.toggle('err', !emailOk);
+    if (!emailOk) valid = false;
+  }
+  if (!isPickup) {
+    const areaEl = document.getElementById('coArea');
+    if (!areaEl.value) { areaEl.classList.add('err'); valid = false; }
+    else areaEl.classList.remove('err');
+  }
+  if (!valid) { alert('Please fill in your name, WhatsApp number and a valid email address' + (isPickup ? '.' : ', and select your area.')); return; }
+
+  const notes  = document.getElementById('coNotes').value.trim();
+  const total  = cart.reduce((s,c) => s+c.price*c.qty, 0);
+  const orderLines = cart.map(c => `  • ${c.name} x${c.qty} — ${fmtPrice(c.price*c.qty)}`).join('\n');
+  // Generated here (not inside saveOrderToSupabase) so it's available
+  // immediately for the WhatsApp message and the confirmation screen below,
+  // without awaiting the Supabase call — awaiting first would delay
+  // window.open() past the click's user-gesture window and risk it being
+  // popup-blocked.
+  const orderId  = crypto.randomUUID();
+  // The short code is the customer-facing Order ID (what they paste into My Orders).
+  // 10 chars from a 32-letter alphabet without look-alikes (no 0/O/1/I) — still ~10^15
+  // combinations, so it can't be guessed the way a short sequential number could.
+  const _alpha = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const orderCode = Array.from(crypto.getRandomValues(new Uint8Array(10)), b => _alpha[b % 32]).join('');
+  const orderCodeShown = orderCode.slice(0, 5) + '-' + orderCode.slice(5);
+
+  let address = '';
+  if (!isPickup) {
+    const area   = document.getElementById('coArea').value;
+    const block  = document.getElementById('coBlock').value.trim();
+    const street = document.getElementById('coStreet').value.trim();
+    const house  = document.getElementById('coHouse').value.trim();
+    const floor  = document.getElementById('coFloor').value.trim();
+    address = [area, block&&'Block '+block, street&&'Street '+street, house, floor].filter(Boolean).join(', ');
+  }
+
+  const msg = [
+    '🚗 *German Expert Order* 🚗',
+    '🆔 *Order ID:* ' + orderCodeShown,
+    '',
+    '👤 *Name:* ' + name,
+    '📞 *WhatsApp:* ' + phone,
+    isPickup ? '🏪 *Fulfilment:* Store Pick Up' : '📍 *Delivery Address:* ' + address,
+    notes ? '📝 *Notes:* ' + notes : '',
+    '',
+    '🛒 *Order:*',
+    orderLines,
+    '',
+    '💰 *Total: ' + fmtPrice(total) + '*',
+    '',
+    'Please confirm my order. Thank you!'
+  ].filter(l => l !== null).join('\n');
+
+  // Deduct stock
+  deductStock(cart);
+
+  // Save order to Supabase (fire-and-forget — see orderId comment above)
+  saveOrderToSupabase({ id: orderId, short_code: orderCode, name, phone, email, address: isPickup ? 'PICK UP' : address, notes, items: cart.map(c=>({name:c.name,sku:c.sku||getProductSku(c.id),qty:c.qty,price:c.price})), total });
+
+  // Open WhatsApp
+  window.open('https://wa.me/' + SHOP_WA + '?text=' + encodeURIComponent(msg), '_blank');
+
+  // Show success, clear cart
+  const orderItemsHtml = cart.map(c => `
+      <div class="co-item">
+        <div><span class="co-item-name">${c.name}</span><br/><span class="co-item-qty">x${c.qty} unit${c.qty>1?'s':''}</span></div>
+        <span class="co-item-price">${fmtPrice(c.price*c.qty)}</span>
+      </div>`).join('');
+  cart = [];
+  updateCartUI();
+  // true = keep the batches already scrolled through. This re-render exists to
+  // refresh the stock badges the order just changed, on the same result set —
+  // collapsing back to the first batch would move the visitor somewhere else
+  // in the catalog the moment they close the success panel.
+  renderProducts(true);
+  document.getElementById('coBody').innerHTML = `
+    <div class="co-success">
+      <i class="fab fa-whatsapp"></i>
+      <h3>Order Sent!</h3>
+      <p>Your order has been sent to German Expert on WhatsApp.<br/>We will confirm and arrange ${isPickup ? 'pick up' : 'delivery'} shortly.<br/><br/><strong>Thank you, ${name}!</strong></p>
+      <div class="co-success-ref">Order ID — keep this to track or cancel your order<br/>
+        <strong style="font-size:22px;letter-spacing:2px;user-select:all">${orderCodeShown}</strong><br/>
+        <button class="btn btn-outline" style="margin-top:6px;padding:4px 12px;font-size:12px" onclick="copyLastOrderId(this)"><i class="fa fa-copy"></i> Copy Order ID</button>
+        ${email ? `<div style="font-size:12px;margin-top:6px;color:#666">We're also emailing it, with your order summary, to <strong>${email.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</strong>.</div>` : ''}
+      </div>
+      <div class="co-success-summary">
+        ${orderItemsHtml}
+        <div class="co-item co-success-total"><span>Total</span><span>${fmtPrice(total)}</span></div>
+      </div>
+      <div class="co-success-btns">
+        <button class="btn btn-outline" onclick="trackJustPlacedOrder()">Track Order</button>
+        <button class="btn btn-primary" onclick="document.getElementById('checkoutOverlay').classList.remove('open');document.getElementById('coBody').innerHTML=origCoBody">Continue Shopping</button>
+      </div>
+    </div>`;
+  // Read by trackJustPlacedOrder()/copyLastOrderId() below — kept off the
+  // inline onclick attributes above so nothing is interpolated into them.
+  _lastCheckoutOrderId = orderCodeShown;
+}
+
+function trackJustPlacedOrder() {
+  document.getElementById('checkoutOverlay').classList.remove('open');
+  openOrderTracker();
+  const tp = document.getElementById('trackOrderId');
+  if (tp && _lastCheckoutOrderId) { tp.value = _lastCheckoutOrderId; if (typeof trackOrder === 'function') trackOrder(); }
+}
+function copyLastOrderId(btn) {
+  const done = () => { if (btn) btn.innerHTML = '<i class="fa fa-check"></i> Copied'; };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(_lastCheckoutOrderId).then(done, () => {});
+}
+let _lastCheckoutOrderId = '';
+
+// Store original checkout body to reset it
+let origCoBody = '';
+window.addEventListener('load', () => { origCoBody = document.getElementById('coBody').innerHTML; });
+
+// ── EVENTS ────────────────────────────────────────────────────────────────
+function $on(id, evt, fn) { var el = document.getElementById(id); if (el) el.addEventListener(evt, fn); }
+window.addEventListener('scroll', () => document.getElementById('header').classList.toggle('scrolled', window.scrollY > 40));
+$on('hamburger',       'click', () => document.getElementById('nav').classList.toggle('open'));
+$on('cartBtn',         'click', openCart);
+$on('mobCartFab',      'click', openCart);
+$on('closeCart',       'click', () => document.getElementById('cartModal').classList.remove('open'));
+$on('cartModal',       'click', e => { if (e.target === document.getElementById('cartModal')) document.getElementById('cartModal').classList.remove('open'); });
+$on('checkoutBtn',     'click', openCheckout);
+$on('closeCheckout',   'click', () => document.getElementById('checkoutOverlay').classList.remove('open'));
+$on('checkoutOverlay', 'click', e => { if (e.target === document.getElementById('checkoutOverlay')) document.getElementById('checkoutOverlay').classList.remove('open'); });
+document.querySelectorAll('.pill:not([data-custom])').forEach(pill => {
+  pill.addEventListener('click', () => {
+    activeFilter = pill.dataset.filter;
+    syncCatNav(activeFilter);
+    renderProducts();
+  });
+});
+// The always-visible product search box also drives the full-screen,
+// closest-match-first results overlay (see js/02-catalog-render.js) — the
+// header's own collapsible search stays as a simple inline grid filter.
+document.getElementById('searchInput').addEventListener('input', function(e) {
+  debouncedRenderProducts();
+  debouncedSearchOverlay(e.target.value);
+});
+document.getElementById('contactForm').addEventListener('submit', e => {
+  e.preventDefault();
+  document.getElementById('formSuccess').classList.add('show');
+  e.target.reset();
+  setTimeout(() => document.getElementById('formSuccess').classList.remove('show'), 4000);
+});
+// Initial renderProducts()/loadSBData() call moved to js/06-features.js (last
+// file to load) — renderProducts() depends on _lang and isWishlisted, which
+// are declared in files that load after this one.
+

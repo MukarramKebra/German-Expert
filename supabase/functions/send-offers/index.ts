@@ -1,0 +1,280 @@
+// ═══════════════════════════════════════════════════════════════════════════
+//  Edge Function: send-offers  (Deno / TypeScript)
+//  Secure server-side sender for German Expert marketing campaigns.
+//
+//  A static frontend can't hold the Resend API key, so ALL sending happens
+//  here. Two callers, two different auth paths:
+//    - The admin panel (Offers tab) — must be a real logged-in admin
+//      (is_admin(auth.uid()), same check every other admin write uses —
+//      see CLAUDE.md's Admin auth note). Previously this authenticated with
+//      a shared ADMIN_SEND_TOKEN that the operator pasted into the browser
+//      and that sat in localStorage indefinitely with no expiry; now that
+//      real admin sessions exist, that token never needs to reach a browser
+//      at all.
+//    - pg_cron's "run_scheduled" job — not a browser session, so it still
+//      needs a static shared secret. That secret lives in
+//      expert_service_secrets (key 'send_offers_cron_token', service-role
+//      only), not an env var — see cronToken() below for why.
+//
+//  Secrets (set with `supabase secrets set …`, never in git):
+//    RESEND_API_KEY     – your Resend API key
+//  Auto-provided by the platform:
+//    SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+//
+//  Actions (JSON body { action, ... }):
+//    { action: 'send_now',      subject, html }        send immediately to all active
+//    { action: 'schedule',      subject, html, scheduled_at }  store for later
+//    { action: 'send_campaign', campaign_id }          send one existing campaign
+//    { action: 'run_scheduled' }                       (cron) send all due campaigns
+//    { action: 'list_subscribers' }                    active subscriber list
+//    { action: 'list_campaigns' }                      campaign history
+//    { action: 'test',          subject, html, to }    send a single test email
+// ═══════════════════════════════════════════════════════════════════════════
+
+// TODO-CONTACT: FROM must be on a domain verified in Resend (override with the FROM_EMAIL secret).
+const FROM = Deno.env.get("FROM_EMAIL") ?? "German Expert <offers@german-expert.ae>";
+const SITE_BASE = "https://mukarramkebra.github.io/German-Expert/";
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
+// pg_cron's shared secret now lives in expert_service_secrets (service-role
+// only table, read via db() below) instead of an env var — the previous
+// ADMIN_SEND_TOKEN secret and this cron job's own hardcoded header had
+// drifted out of sync after a rotation that only updated one side, silently
+// breaking every scheduled send. Both sides now read/write the same row.
+async function cronToken(): Promise<string> {
+  const rows = await db(`expert_service_secrets?key=eq.send_offers_cron_token&select=value`);
+  return Array.isArray(rows) && rows[0] ? rows[0].value : "";
+}
+
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, apikey, x-admin-token, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...CORS, "Content-Type": "application/json" },
+  });
+}
+
+// Thin REST helper against PostgREST using the service role (bypasses RLS).
+async function db(path: string, init: RequestInit = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...init,
+    headers: {
+      apikey: SERVICE_KEY,
+      Authorization: `Bearer ${SERVICE_KEY}`,
+      "Content-Type": "application/json",
+      ...(init.headers || {}),
+    },
+  });
+  if (!res.ok) throw new Error(`DB ${path} -> ${res.status} ${await res.text()}`);
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+// Resolves the caller's own uid from their Supabase session access token,
+// then confirms expert_admin_profiles has a row for them (is_admin()).
+async function isRealAdmin(authHeader: string | null): Promise<boolean> {
+  if (!authHeader) return false;
+  const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: { apikey: SERVICE_KEY, Authorization: authHeader },
+  });
+  if (!userRes.ok) return false;
+  const user = await userRes.json();
+  // Restricted Team Accounts (role 'custom') have no Offers permission in the
+  // UI, so they must not reach the subscriber list or mass-mailer through the
+  // API either. Only the three built-in roles may use this function.
+  if (typeof user?.id !== "string" || !/^[0-9a-f-]{36}$/i.test(user.id)) return false;
+  const profiles = await db(`expert_admin_profiles?id=eq.${user.id}&select=role`);
+  return Array.isArray(profiles) && profiles.length > 0 &&
+    ["super", "bahar15", "1"].includes(profiles[0].role);
+}
+
+function unsubscribeUrl(token: string) {
+  return `${SUPABASE_URL}/functions/v1/unsubscribe?token=${encodeURIComponent(token)}`;
+}
+
+// Wrap the admin's HTML with a header + a mandatory unsubscribe footer.
+function wrapEmail(html: string, unsubUrl: string) {
+  return `<!DOCTYPE html><html><body style="margin:0;background:#f6f7f9;font-family:Arial,Helvetica,sans-serif;color:#1f2937">
+  <div style="max-width:600px;margin:0 auto;background:#fff">
+    <div style="background:#16191f;padding:18px 24px"><span style="color:#fff;font-size:18px;font-weight:800;letter-spacing:.5px">GERMAN EXPERT</span></div>
+    <div style="padding:24px;line-height:1.7;font-size:15px">${html}</div>
+    <div style="padding:18px 24px;border-top:1px solid #eee;font-size:12px;color:#8a8a8a;line-height:1.6">
+      You are receiving this because you subscribed to offers from German Expert, Sharjah, UAE.<br>
+      <a href="${unsubUrl}" style="color:#8a8a8a;text-decoration:underline">Unsubscribe</a> &middot;
+      <a href="${SITE_BASE}" style="color:#8a8a8a;text-decoration:underline">Visit our store</a>
+    </div>
+  </div></body></html>`;
+}
+
+async function resendSend(to: string, subject: string, html: string, unsubUrl: string) {
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: FROM,
+      to,
+      subject,
+      html: wrapEmail(html, unsubUrl),
+      // RFC 8058 one-click unsubscribe — improves deliverability + compliance.
+      headers: {
+        "List-Unsubscribe": `<${unsubUrl}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
+    }),
+  });
+  if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`);
+  return res.json();
+}
+
+// Send one campaign to every active subscriber; returns how many were sent.
+async function deliverCampaign(campaign: { id: string; subject: string; html: string }) {
+  await db(`offer_campaigns?id=eq.${campaign.id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "sending" }),
+  });
+
+  const subs: Array<{ email: string; unsubscribe_token: string }> = await db(
+    `offer_subscribers?unsubscribed=eq.false&select=email,unsubscribe_token`,
+  );
+
+  let sent = 0;
+  const errors: string[] = [];
+  for (const s of subs) {
+    try {
+      await resendSend(s.email, campaign.subject, campaign.html, unsubscribeUrl(s.unsubscribe_token));
+      sent++;
+      // Gentle pacing to stay well under Resend rate limits.
+      await new Promise((r) => setTimeout(r, 120));
+    } catch (e) {
+      errors.push(`${s.email}: ${(e as Error).message}`);
+    }
+  }
+
+  await db(`offer_campaigns?id=eq.${campaign.id}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      status: errors.length && sent === 0 ? "failed" : "sent",
+      sent_at: new Date().toISOString(),
+      sent_count: sent,
+      error: errors.length ? errors.slice(0, 20).join(" | ") : null,
+    }),
+  });
+
+  return { sent, failed: errors.length, total: subs.length };
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+
+  let body: any = {};
+  try { body = await req.json(); } catch (_) { /* empty body ok for cron */ }
+  const action = body.action || "run_scheduled";
+
+  // ── Auth ──────────────────────────────────────────────────────────────
+  // run_scheduled is pg_cron only (no browser session possible) — shared
+  // token, stored server-side in the cron job definition. Every other
+  // action must come from a real logged-in admin.
+  if (action === "run_scheduled") {
+    const token = req.headers.get("x-admin-token") || "";
+    const expected = await cronToken();
+    if (!expected || token !== expected) return json({ error: "Unauthorized" }, 401);
+  } else {
+    const ok = await isRealAdmin(req.headers.get("authorization"));
+    if (!ok) return json({ error: "Unauthorized" }, 401);
+  }
+
+  try {
+    switch (action) {
+      case "list_subscribers": {
+        const subs = await db(
+          `offer_subscribers?select=email,consent_at,created_at,unsubscribed&order=created_at.desc`,
+        );
+        return json({ subscribers: subs });
+      }
+
+      case "list_campaigns": {
+        const rows = await db(
+          `offer_campaigns?select=id,subject,status,scheduled_at,created_at,sent_at,sent_count,error&order=created_at.desc&limit=100`,
+        );
+        return json({ campaigns: rows });
+      }
+
+      case "test": {
+        if (!body.subject || !body.html || !body.to) return json({ error: "subject, html, to required" }, 400);
+        await resendSend(body.to, body.subject, body.html, unsubscribeUrl("preview"));
+        return json({ ok: true, message: `Test sent to ${body.to}` });
+      }
+
+      case "schedule": {
+        if (!body.subject || !body.html || !body.scheduled_at) {
+          return json({ error: "subject, html, scheduled_at required" }, 400);
+        }
+        const row = await db(`offer_campaigns`, {
+          method: "POST",
+          headers: { Prefer: "return=representation" },
+          body: JSON.stringify({
+            subject: body.subject,
+            html: body.html,
+            status: "scheduled",
+            scheduled_at: body.scheduled_at,
+            created_by: body.created_by || null,
+          }),
+        });
+        return json({ ok: true, campaign: row?.[0] });
+      }
+
+      case "send_now": {
+        if (!body.subject || !body.html) return json({ error: "subject, html required" }, 400);
+        const row = await db(`offer_campaigns`, {
+          method: "POST",
+          headers: { Prefer: "return=representation" },
+          body: JSON.stringify({
+            subject: body.subject,
+            html: body.html,
+            status: "sending",
+            created_by: body.created_by || null,
+          }),
+        });
+        const result = await deliverCampaign(row[0]);
+        return json({ ok: true, campaign_id: row[0].id, ...result });
+      }
+
+      case "send_campaign": {
+        if (!body.campaign_id) return json({ error: "campaign_id required" }, 400);
+        const rows = await db(`offer_campaigns?id=eq.${body.campaign_id}&select=id,subject,html`);
+        if (!rows?.length) return json({ error: "Campaign not found" }, 404);
+        const result = await deliverCampaign(rows[0]);
+        return json({ ok: true, campaign_id: rows[0].id, ...result });
+      }
+
+      case "run_scheduled": {
+        // Called by pg_cron. Send every campaign whose time has come.
+        const nowIso = new Date().toISOString();
+        const due = await db(
+          `offer_campaigns?status=eq.scheduled&scheduled_at=lte.${nowIso}&select=id,subject,html`,
+        );
+        const results = [];
+        for (const c of due) {
+          results.push({ id: c.id, ...(await deliverCampaign(c)) });
+        }
+        return json({ ok: true, processed: results.length, results });
+      }
+
+      default:
+        return json({ error: `Unknown action: ${action}` }, 400);
+    }
+  } catch (e) {
+    return json({ error: (e as Error).message }, 500);
+  }
+});

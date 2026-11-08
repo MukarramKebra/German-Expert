@@ -1,0 +1,75 @@
+name: Generate product SEO pages
+
+# Rebuilds /product/*.html and sitemap.xml from the live Supabase catalog and
+# commits any changes back to main. Runs on every push to main (so a code or
+# template change regenerates immediately) and once daily (so new/edited/removed
+# products in Supabase are reflected without anyone touching the repo).
+#
+# GitHub Pages serves the committed files, so writing the generated pages into
+# the repo is exactly what makes them live — no separate deploy step needed.
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'product/**'
+      - 'sitemap.xml'
+  schedule:
+    - cron: '17 3 * * *'   # daily at 03:17 UTC
+  workflow_dispatch: {}      # allow manual runs from the Actions tab
+
+permissions:
+  contents: write            # commit regenerated files with GITHUB_TOKEN
+  issues: write              # open/update the failure tracker issue below
+
+concurrency:
+  group: generate-seo
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate product pages + sitemap
+        run: node scripts/generate-product-pages.js
+
+      - name: Commit changes if any
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # product/ may not exist yet while the catalog is empty
+          for p in product sitemap.xml sitemap-manifest.json; do [ -e "$p" ] && git add "$p"; done
+          if git diff --cached --quiet; then
+            echo "No SEO changes to commit."
+          else
+            git commit -m "chore(seo): regenerate product pages + sitemap [skip ci]"
+            git push
+          fi
+
+      # If the generator or commit step failed, open or update a tracking
+      # issue so a broken sitemap pipeline is visible the next day instead
+      # of the next quarter. Previously a failure here was silent, so stale
+      # lastmods and missing new products could pile up unnoticed.
+      - name: Report failure as a GitHub issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -e
+          TITLE="SEO generator failed"
+          BODY="The \`generate-seo\` workflow failed on $(date -u +'%Y-%m-%d %H:%M UTC').\n\nLast failing run: $RUN_URL\n\nUntil this is fixed, \`sitemap.xml\` and \`/product/\` will not update, so new/edited/deleted products in Supabase will not reach Google. Check the run log for the specific Supabase query or filesystem error."
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number,title --jq ".[] | select(.title==\"$TITLE\") | .number" | head -n 1)
+          if [ -n "$EXISTING" ]; then
+            printf "%b" "$BODY" | gh issue comment "$EXISTING" --body-file -
+          else
+            printf "%b" "$BODY" | gh issue create --title "$TITLE" --body-file -
+          fi

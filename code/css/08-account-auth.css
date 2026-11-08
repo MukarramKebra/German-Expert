@@ -1,0 +1,202 @@
+/* ── HEADER INSTAGRAM ICON ──────────────────────────────────────────────── */
+.header-insta { display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:8px; background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.18); color:#fff; font-size:16px; text-decoration:none; transition:all .2s; flex-shrink:0; }
+.header-insta:hover { background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); border-color:transparent; color:#fff; transform:scale(1.05); }
+@media(max-width:480px){ .header-insta { width:30px; height:30px; font-size:14px; border:none; background:none; color:#fff; } }
+
+/* ── ACCOUNT BUTTON (header) ────────────────────────────────────────────── */
+.btn-account { background:var(--orange); border:2px solid var(--orange); color:#fff; padding:9px 18px; border-radius:8px; font-size:13px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:7px; transition:all .2s; font-family:inherit; white-space:nowrap; }
+.btn-account:hover { background:var(--orange-dark); border-color:var(--orange-dark); }
+.btn-account.signed-in { background:transparent; border-color:#22c55e; color:#22c55e; }
+.btn-account.signed-in:hover { background:rgba(34,197,94,.1); }
+@media(max-width:400px){ .btn-account .acct-txt { display:none; } .btn-account { padding:8px 11px; } }
+
+/* ── OFFERS SUBSCRIBE PROMPT (bottom-right slide-in) ─────────────────────── */
+.login-prompt { position:fixed; bottom:24px; right:24px; background:#fff; border-radius:14px; box-shadow:0 8px 32px rgba(0,0,0,.18); padding:18px 18px 18px 16px; width:300px; z-index:8000; border-left:4px solid var(--orange); animation:slideUpPrompt .4s ease; }
+@keyframes slideUpPrompt { from{transform:translateY(80px);opacity:0} to{transform:translateY(0);opacity:1} }
+.lp-close { position:absolute; top:10px; right:12px; background:none; border:none; font-size:15px; color:#bbb; cursor:pointer; line-height:1; }
+.lp-close:hover { color:#666; }
+.lp-inner { display:flex; align-items:flex-start; gap:12px; }
+.lp-icon { font-size:26px; color:var(--orange); flex-shrink:0; margin-top:2px; }
+.lp-text strong { display:block; font-size:14px; font-weight:800; color:var(--dark); margin-bottom:3px; }
+.lp-text span { font-size:11px; color:#777; display:block; margin-bottom:12px; line-height:1.5; }
+.lp-btn { width:100%; padding:9px; background:var(--orange); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:800; cursor:pointer; font-family:inherit; }
+.lp-btn:hover { background:var(--orange-dark); }
+.lp-sub-form input[type=email] { width:100%; box-sizing:border-box; padding:9px 10px; border:1px solid #ddd; border-radius:7px; font-size:12.5px; font-family:inherit; outline:none; margin-bottom:9px; }
+.lp-sub-form input[type=email]:focus { border-color:var(--orange); }
+.lp-sub-consent { display:flex; align-items:flex-start; gap:7px; margin-bottom:10px; font-size:10.5px; line-height:1.45; color:#888; cursor:pointer; }
+.lp-sub-consent input { width:13px; height:13px; margin:1px 0 0; flex-shrink:0; accent-color:var(--orange); cursor:pointer; }
+.lp-sub-consent a { color:var(--orange); font-weight:700; text-decoration:underline; }
+#offersNudge .subscribe-msg.ok { color:#16a34a; }
+#offersNudge .subscribe-msg.err { color:#dc2626; }
+@media(max-width:480px){ .login-prompt { right:12px; left:12px; width:auto; bottom:14px; } }
+
+/* ── AUTH MODAL (login / sign up / forgot password) ─────────────────────── */
+.auth-overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:9500; display:none; align-items:center; justify-content:center; padding:16px; }
+.auth-overlay.open { display:flex; }
+.auth-modal { background:#fff; border-radius:18px; width:100%; max-width:420px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.35); }
+.auth-head { background:var(--bar); padding:22px 22px 0; position:relative; }
+.auth-close-x { position:absolute; top:14px; right:16px; background:none; border:none; color:rgba(255,255,255,.45); font-size:20px; cursor:pointer; line-height:1; }
+.auth-close-x:hover { color:#fff; }
+.auth-logo-row { display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:16px; }
+.auth-logo-row img { height:42px; width:auto; object-fit:contain; border-radius:7px; background:transparent; padding:0; }
+.auth-logo-row span { color:#fff; font-size:16px; font-weight:900; }
+.auth-logo-row span em { color:var(--orange); font-style:normal; }
+.auth-tabs { display:flex; }
+.auth-tab { flex:1; padding:12px 8px; font-size:13px; font-weight:800; color:rgba(255,255,255,.4); background:none; border:none; cursor:pointer; border-bottom:3px solid transparent; transition:all .2s; font-family:inherit; text-transform:uppercase; letter-spacing:.5px; }
+.auth-tab.active { color:#fff; border-bottom-color:var(--orange); }
+.auth-body { padding:24px 22px 22px; }
+.auth-benefits { list-style:none; margin:0 0 20px; padding:14px 16px; background:#fff7ed; border-radius:10px; display:flex; flex-direction:column; gap:9px; }
+.auth-benefits li { display:flex; align-items:flex-start; gap:8px; font-size:12.5px; font-weight:700; color:var(--dark); line-height:1.4; }
+.auth-benefits .fa-check-circle { color:var(--orange); font-size:14px; margin-top:1px; flex-shrink:0; }
+.auth-field { margin-bottom:15px; }
+.auth-field label { display:block; font-size:11px; font-weight:800; color:#666; text-transform:uppercase; letter-spacing:.5px; margin-bottom:5px; }
+.auth-field input { width:100%; padding:12px 14px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; font-family:inherit; outline:none; transition:border-color .2s; box-sizing:border-box; }
+.auth-field input:focus { border-color:var(--orange); }
+.auth-submit { width:100%; padding:13px; background:var(--orange); color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:800; cursor:pointer; font-family:inherit; margin-top:4px; transition:background .2s; }
+.auth-submit:hover { background:var(--orange-dark); }
+.auth-submit:disabled { opacity:.55; cursor:not-allowed; }
+.auth-err { background:rgba(239,68,68,.07); border:1.5px solid rgba(239,68,68,.25); color:#dc2626; border-radius:8px; padding:10px 13px; font-size:13px; margin-bottom:14px; display:none; }
+.auth-err.show { display:block; }
+.auth-ok { background:rgba(34,197,94,.07); border:1.5px solid rgba(34,197,94,.25); color:#16a34a; border-radius:8px; padding:10px 13px; font-size:13px; margin-bottom:14px; display:none; }
+.auth-ok.show { display:block; }
+.auth-forgot-link { background:none; border:none; color:var(--orange); font-size:12px; cursor:pointer; font-family:inherit; display:block; text-align:right; margin:-10px 0 12px; }
+.auth-bottom-note { text-align:center; font-size:12px; color:#707070; margin-top:14px; }
+.auth-bottom-note button { background:none; border:none; color:var(--orange); font-weight:700; cursor:pointer; font-family:inherit; font-size:12px; }
+/* Standard Google sign-in button — white surface, grey border, brand "G". */
+.auth-google { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px; background:#fff; color:#3c4043; border:1.5px solid #dadce0; border-radius:10px; font-size:14px; font-weight:700; font-family:inherit; cursor:pointer; transition:background .18s,box-shadow .18s; }
+.auth-google:hover { background:#f7f8f8; box-shadow:0 1px 3px rgba(60,64,67,.12); }
+.auth-google svg { flex-shrink:0; }
+.auth-divider { display:flex; align-items:center; text-align:center; color:#9aa0a6; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; margin:14px 0; }
+.auth-divider::before, .auth-divider::after { content:''; flex:1; height:1px; background:#e2e8f0; }
+.auth-divider span { padding:0 12px; }
+/* Required consent checkbox on the sign-up form. */
+.auth-consent { display:flex; align-items:flex-start; gap:9px; margin:4px 0 14px; font-size:12px; line-height:1.5; color:#555; cursor:pointer; }
+.auth-consent input { width:16px; height:16px; margin:1px 0 0; flex-shrink:0; accent-color:var(--orange); cursor:pointer; }
+.auth-consent a { color:var(--orange); font-weight:700; }
+
+/* ── ACCOUNT MODAL (profile + my orders) ────────────────────────────────── */
+.acct-overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:9500; display:none; align-items:center; justify-content:center; padding:16px; }
+.acct-overlay.open { display:flex; }
+.acct-modal { background:#fff; border-radius:18px; width:100%; max-width:480px; max-height:90vh; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.35); }
+.acct-head { background:var(--bar); padding:20px 22px 0; flex-shrink:0; }
+.acct-user-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; gap:10px; }
+.acct-user-info { display:flex; align-items:center; gap:12px; min-width:0; }
+.acct-avatar { width:44px; height:44px; background:var(--orange); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900; color:#fff; flex-shrink:0; }
+.acct-uname { color:#fff; font-size:14px; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.acct-uemail { color:rgba(255,255,255,.8); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.acct-signout-btn { background:none; border:1px solid rgba(239,68,68,.45); color:#ef4444; padding:6px 12px; border-radius:7px; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; flex-shrink:0; }
+.acct-tabs { display:flex; }
+.acct-tab { flex:1; padding:12px 8px; font-size:13px; font-weight:700; color:rgba(255,255,255,.8); background:none; border:none; cursor:pointer; border-bottom:3px solid transparent; transition:all .2s; font-family:inherit; text-transform:uppercase; letter-spacing:.5px; }
+.acct-tab.active { color:#fff; border-bottom-color:var(--orange); }
+.acct-body { padding:22px; overflow-y:auto; flex:1; }
+.acct-field { margin-bottom:15px; }
+.acct-field label { display:block; font-size:11px; font-weight:800; color:#666; text-transform:uppercase; letter-spacing:.5px; margin-bottom:5px; }
+.acct-field input,.acct-field textarea { width:100%; padding:11px 13px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:14px; font-family:inherit; outline:none; transition:border-color .2s; box-sizing:border-box; resize:vertical; }
+.acct-field input:focus,.acct-field textarea:focus { border-color:var(--orange); }
+.acct-save-btn { width:100%; padding:12px; background:var(--orange); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:800; cursor:pointer; font-family:inherit; transition:background .2s; }
+.acct-save-btn:hover { background:var(--orange-dark); }
+.acct-ok { background:rgba(34,197,94,.07); border:1.5px solid rgba(34,197,94,.25); color:#16a34a; border-radius:8px; padding:10px 13px; font-size:13px; margin-bottom:14px; display:none; }
+.acct-ok.show { display:block; }
+
+/* ── MY ORDERS LIST ──────────────────────────────────────────────────────── */
+.myo-card { border:1.5px solid #e2e8f0; border-radius:12px; padding:16px; margin-bottom:14px; }
+.myo-card:last-child { margin-bottom:0; }
+.myo-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; gap:8px; flex-wrap:wrap; }
+.myo-meta { display:flex; flex-direction:column; gap:2px; }
+.myo-id { font-size:11px; font-weight:800; color:#707070; }
+.myo-date { font-size:11px; color:#707070; }
+.myo-status { display:inline-block; padding:4px 11px; border-radius:20px; font-size:10px; font-weight:900; text-transform:uppercase; }
+.myo-pending   { background:rgba(245,158,11,.12);  color:#b45309; }
+.myo-confirmed { background:rgba(59,130,246,.12);  color:#1d4ed8; }
+.myo-delivered { background:rgba(34,197,94,.12);   color:#15803d; }
+.myo-cancelled { background:rgba(239,68,68,.12);   color:#dc2626; }
+.myo-items { font-size:12px; color:#555; line-height:1.8; border-top:1px solid #f0f0f0; padding-top:10px; margin-bottom:10px; }
+.myo-footer { display:flex; justify-content:space-between; align-items:center; padding-top:8px; border-top:1px solid #f0f0f0; }
+.myo-total { font-size:15px; font-weight:900; color:var(--dark); }
+.myo-addr { font-size:11px; color:#707070; max-width:60%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.myo-empty { text-align:center; padding:44px 20px; }
+.myo-empty i { font-size:38px; display:block; margin-bottom:12px; color:#ddd; }
+.myo-empty p { font-size:14px; font-weight:700; color:#707070; margin-bottom:4px; }
+.myo-empty small { font-size:12px; color:#707070; }
+.myo-loading { text-align:center; padding:32px; color:#707070; font-size:13px; }
+
+/* ── POST-ORDER ACCOUNT NUDGE ────────────────────────────────────────────── */
+/* ── CHECKOUT: SIGN IN / GUEST CHOICE ─────────────────────────────────── */
+.co-auth-choice { max-width:380px; margin:40px auto; text-align:center; padding:0 24px; }
+.co-auth-choice p { font-size:14px; color:#888; line-height:1.6; margin-bottom:22px; }
+.co-auth-choice .btn { display:block; width:100%; padding:13px 20px; border-radius:10px; font-size:14px; font-weight:800; cursor:pointer; font-family:inherit; margin-bottom:12px; border:1.5px solid var(--border); background:#fff; color:var(--dark); }
+.co-auth-choice .btn-primary { background:var(--orange); color:#fff; border-color:var(--orange); }
+.co-auth-choice .btn:hover { opacity:0.9; }
+
+/* ── FLOATING CART FAB (all screens, bottom-left) ───────────────────────── */
+.mob-cart-fab {
+  display:flex; align-items:center; gap:14px;
+  position:fixed; bottom:22px; left:16px; z-index:8500;
+    background:var(--orange); color:#fff; border:none;
+    border-radius:50px; padding:34px 18px;
+    font-size:26px; font-weight:900; font-family:inherit;
+    cursor:pointer; box-shadow:0 4px 18px rgba(168,123,0,.45);
+    transition:transform .15s, box-shadow .15s;
+  }
+.mob-cart-fab:active { transform:scale(0.95); }
+.mob-cart-fab span {
+    background:#fff; color:var(--orange);
+    border-radius:50%; width:36px; height:36px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:900; flex-shrink:0;
+}
+/* Always hide the header cart button — FAB is used on all screens */
+.btn-cart { display:none !important; }
+
+/* Bigger still on desktop — same button, just more prominent where there's
+   room for it. */
+@media (min-width:769px) {
+  .mob-cart-fab { padding:24px 28px; font-size:26px; bottom:28px; left:24px; gap:12px; }
+  .mob-cart-fab span { width:34px; height:34px; font-size:16px; }
+}
+
+/* Mobile: a plain circle, same size as the WhatsApp button, so the two read
+   as a matched pair. The count badge moves out of the flex row and overlaps
+   the circle's corner instead — keeping it inline would stretch the circle
+   into an oval once there's an icon AND a badge sitting side by side. */
+@media (max-width:768px) {
+  .mob-cart-fab { padding:18px; font-size:24px; border-radius:50%; justify-content:center; }
+  .mob-cart-fab span { position:absolute; top:-2px; right:-2px; width:22px; height:22px; font-size:12px; border:2px solid #fff; }
+}
+
+/* ── MOBILE NAV EXTRA LINKS (My Orders / Sign In) ───────────────────────── */
+#navMyOrders, #navSignIn { border-top:1px solid rgba(255,255,255,0.1); padding-top:12px; margin-top:4px; }
+#navSignIn { color:var(--orange) !important; }
+#navMyOrders { color:rgba(255,255,255,0.85) !important; }
+
+/* ── SEARCH FORM WRAPPER ─────────────────────────────────────────────────── */
+form.search-wrap { border:none; outline:none; }
+
+/* ── CHECKOUT MOBILE EXTRA FIXES ─────────────────────────────────────────── */
+@media(max-width:520px){
+  .checkout-box { border-radius:16px 16px 0 0; }
+  .co-header h3 { font-size:14px; }
+  .co-section-title { font-size:12px; }
+  .co-item { flex-direction:column; gap:2px; }
+  .co-item-price { align-self:flex-end; }
+}
+
+/* ── WHATSAPP CHAT FAB ───────────────────────────────────────────────────── */
+.toast-msg { position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px); background:rgba(30,30,30,0.92); color:#fff; padding:11px 22px; border-radius:50px; font-size:14px; font-weight:600; z-index:9999; opacity:0; transition:opacity 0.25s,transform 0.25s; pointer-events:none; white-space:nowrap; }
+.toast-msg.show { opacity:1; transform:translateX(-50%) translateY(0); }
+body.product-open .wa-chat-fab,
+body.product-open .mob-cart-fab { opacity:0 !important; pointer-events:none !important; transform:scale(0.7) !important; }
+.wa-chat-fab { position:fixed; bottom:28px; right:12px; z-index:8500; background:#25d366; color:#fff; border:none; border-radius:50px; padding:24px 28px; display:flex; align-items:center; gap:12px; font-size:18px; font-weight:800; cursor:pointer; box-shadow:0 4px 18px rgba(37,211,102,0.45); transition:all 0.2s; }
+.wa-chat-fab:hover { background:#1ebe5d; transform:translateY(-2px); box-shadow:0 6px 24px rgba(37,211,102,0.55); }
+.wa-chat-fab i { font-size:26px; }
+/* Pulled in tighter to the corner than before (was bottom:82px/right:14px on
+   mobile) — same circle size as the cart button so the two match exactly. */
+@media(max-width:768px){ .wa-chat-fab { bottom:18px; right:10px; padding:18px; border-radius:50%; } .wa-chat-fab i { font-size:24px; } .wa-chat-label { display:none; } }
+/* My Orders: Active / Past sections */
+.myo-section-title { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.5px; color:var(--dark); margin:4px 0 12px; }
+.myo-section-title:not(:first-child) { margin-top:22px; }
+.myo-count { background:#f1f5f9; color:#555; border-radius:999px; padding:1px 8px; font-size:11px; }
+.myo-none { font-size:12px; color:#707070; padding:6px 2px 4px; }
+.myo-invoice { font-size:11px; font-weight:800; color:var(--orange); text-decoration:none; white-space:nowrap; }
+.myo-invoice:hover { text-decoration:underline; }
+.myo-tab-badge { display:inline-block; background:#fff; color:var(--orange); border-radius:999px; min-width:18px; height:18px; line-height:18px; padding:0 5px; font-size:11px; font-weight:900; margin-left:6px; vertical-align:middle; }

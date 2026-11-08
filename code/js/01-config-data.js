@@ -1,0 +1,770 @@
+// ── SUPABASE PROJECT (German Expert) ──────────────────────────────────────
+// The publishable/anon key is public by design (it can only SELECT, see
+// supabase/schema.sql). Defined once here; the two early IIFEs below and the
+// main SB_URL/SB_KEY reuse it. scripts/generate-product-pages.js parses
+// GE_SB_URL / GE_SB_KEY_B64 out of this file — keep the literals simple.
+const GE_SB_URL = 'https://qljcyiwkwdfodmabnzol.supabase.co';
+const GE_SB_KEY_B64 = 'REPLACE_WITH_BASE64_PUBLISHABLE_KEY';
+// Decoded once; '' while the key above is still the placeholder (atob would throw).
+const GE_SB_KEY = (function() { try { return atob(GE_SB_KEY_B64); } catch (e) { return ''; } })();
+
+// ── SHOP CONTACT / SITE (TODO-CONTACT: replace the placeholder WhatsApp number) ──
+const SHOP_WA  = '971500000000';   // international format, digits only, used for wa.me links
+const SITE_URL = 'https://mukarramkebra.github.io/German-Expert/';
+
+// ── PRICE FORMAT (AED, 2 decimals) ────────────────────────────────────────
+// Every price shown on the storefront goes through this so the currency and
+// precision live in one place.
+const CURRENCY = 'AED';
+function fmtPrice(n) {
+  var v = Number(n);
+  if (!isFinite(v)) v = 0;
+  return v.toFixed(2) + ' ' + CURRENCY;
+}
+function roundMoney(n) { return Math.round((Number(n) || 0) * 100) / 100; }
+
+// ── SITE DISABLE CHECK ───────────────────────────────────────────────────
+// Owner can close the site to visitors via the admin Owner Controls panel.
+// This runs on every page load and shows a "closed" overlay if the flag is set.
+(async function checkSiteStatus() {
+  try {
+    const SB_URL_CHK = GE_SB_URL;
+    const SB_KEY_CHK = GE_SB_KEY;
+    const res = await fetch(SB_URL_CHK + '/rest/v1/expert_settings?key=eq.site_disabled&select=value', {
+      headers: { 'apikey': SB_KEY_CHK, 'Authorization': 'Bearer ' + SB_KEY_CHK }
+    });
+    if (!res.ok) return; // if table doesn't exist yet, skip quietly
+    const data = await res.json();
+    if (data && data.length && data[0].value === 'true') {
+      // Site is disabled — inject and show a full-screen maintenance overlay
+      const overlay = document.createElement('div');
+      overlay.id = 'siteClosedOverlay';
+      overlay.style.cssText = 'position:fixed;inset:0;background:#0f1115;z-index:999999;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:Inter,sans-serif;';
+      overlay.innerHTML = `
+        <div style="text-align:center;padding:40px 24px;max-width:460px">
+          <div style="font-size:64px;margin-bottom:20px">🔧</div>
+          <div style="font-size:26px;font-weight:900;color:#fff;margin-bottom:10px">Site Temporarily Closed</div>
+          <div style="font-size:15px;color:rgba(255,255,255,0.55);margin-bottom:28px;line-height:1.7">
+            We are currently performing maintenance.<br>We'll be back shortly. Thank you for your patience.
+          </div>
+          <div style="font-size:15px;font-weight:800;color:#f2b705;line-height:1.3;letter-spacing:2px">GERMAN EXPERT</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:6px;">German Car Parts — Sharjah, UAE</div>
+        </div>`;
+      document.body.appendChild(overlay);
+      // Prevent scrolling while closed
+      document.body.style.overflow = 'hidden';
+    }
+  } catch(e) { /* Network error — site remains visible */ }
+})();
+
+// ── SEO SETTINGS (editable in admin → SEO tab) ────────────────────────────
+// Overrides the title/description/keywords/OG tags that are baked into
+// index.html for crawlers that don't run JS — this lets the owner edit them
+// from admin without touching code or redeploying.
+(async function applySEOSettings() {
+  try {
+    const SB_URL_CHK = GE_SB_URL;
+    const SB_KEY_CHK = GE_SB_KEY;
+    const res = await fetch(SB_URL_CHK + '/rest/v1/expert_settings?key=eq.seo_settings&select=value', {
+      headers: { 'apikey': SB_KEY_CHK, 'Authorization': 'Bearer ' + SB_KEY_CHK }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data || !data.length || !data[0].value) return;
+    const seo = JSON.parse(data[0].value);
+    if (seo.title) {
+      document.title = seo.title;
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      const twTitle = document.querySelector('meta[name="twitter:title"]');
+      if (ogTitle) ogTitle.setAttribute('content', seo.title);
+      if (twTitle) twTitle.setAttribute('content', seo.title);
+    }
+    if (seo.description) {
+      const desc   = document.querySelector('meta[name="description"]');
+      const ogDesc = document.querySelector('meta[property="og:description"]');
+      const twDesc = document.querySelector('meta[name="twitter:description"]');
+      if (desc)   desc.setAttribute('content', seo.description);
+      if (ogDesc) ogDesc.setAttribute('content', seo.description);
+      if (twDesc) twDesc.setAttribute('content', seo.description);
+    }
+    if (seo.keywords) {
+      const kw = document.querySelector('meta[name="keywords"]');
+      if (kw) kw.setAttribute('content', seo.keywords);
+    }
+  } catch(e) { /* Network error — static meta tags in index.html remain as fallback */ }
+})();
+
+// ── SKU HELPER ────────────────────────────────────────────────────────────
+// SKU is a separate display label from the internal product ID.
+// Real SKUs live in Supabase (expert_settings key 'sku_map', loaded into
+// _sbSkuMap by loadSBData) so every visitor sees them — localStorage is only
+// a fallback for SKUs set before the cloud sync existed.
+var _sbSkuMap = {};
+// Raw part number (no label) for search/fitment — '' when none is set
+function getRawPartNo(id) {
+    var val = _sbSkuMap[String(id)];
+    return (val === undefined || val === null) ? '' : String(val);
+}
+function getProductSku(id) {
+    var val = _sbSkuMap[String(id)];
+    if (val === undefined) {
+          try { val = JSON.parse(localStorage.getItem('jain_sku_map') || '{}')[String(id)]; } catch(e) {}
+    }
+    if (val === undefined || val === null || val === '') return 'SKU-' + String(id).padStart(4, '0');
+    // Real part numbers (A0004203020, 34116860016, 06H115562…) show as-is
+  return 'Part No: ' + val;
+}
+
+// ── SUPABASE CONFIG ───────────────────────────────────────────────────────
+const SB_URL = GE_SB_URL;
+const SB_KEY = GE_SB_KEY;
+const SB_H   = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
+
+// ── SUPABASE FETCH WRAPPER ────────────────────────────────────────────────
+// Returns { data, error } — no try/catch needed anywhere else
+async function sbFetch(url, options) {
+    try {
+          const res  = await fetch(url, options);
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) return { data: null, error: (data && (data.error || data.message)) || ('HTTP ' + res.status) };
+          return { data, error: null };
+    } catch (e) {
+          return { data: null, error: e.message };
+    }
+}
+
+// Supabase's PostgREST caps any unpaginated "select=*" query at 1000 rows by
+// default. The catalog just crossed 1000 products, so a plain sbFetch() on
+// expert_products/expert_stock/etc silently truncates — newest rows go
+// missing from the live site with no error. sbFetchAll() pages through with
+// limit/offset until a page comes back short, and returns the same
+// { data, error } shape as sbFetch() so every existing call site keeps working.
+async function sbFetchAll(baseUrl, headers, parallelFirst) {
+  const pageSize = 1000;
+  let offset = 0;
+  let all = [];
+  // The big tables (catalog, stock) are known to span 2+ pages, so ask for the
+  // first two at once instead of paying a full round trip for each in turn.
+  if (parallelFirst) {
+    const sep0 = baseUrl.includes('?') ? '&' : '?';
+    const pages = await Promise.all([0, 1].map(function(i) {
+      return sbFetch(baseUrl + sep0 + 'limit=' + pageSize + '&offset=' + (i * pageSize), { headers });
+    }));
+    if (pages[0].error) return { data: null, error: pages[0].error };
+    if (pages[1].error) return { data: null, error: pages[1].error };
+    if (!Array.isArray(pages[0].data)) return { data: pages[0].data, error: null };
+    all = pages[0].data.concat(Array.isArray(pages[1].data) ? pages[1].data : []);
+    if (pages[0].data.length < pageSize || (pages[1].data || []).length < pageSize) return { data: all, error: null };
+    offset = pageSize * 2;
+  }
+  while (true) {
+    const sep = baseUrl.includes('?') ? '&' : '?';
+    const { data, error } = await sbFetch(baseUrl + sep + 'limit=' + pageSize + '&offset=' + offset, { headers });
+    if (error) return { data: null, error };
+    if (!Array.isArray(data)) return { data, error: null };
+    all = all.concat(data);
+    if (data.length < pageSize) break;
+    offset += pageSize;
+  }
+  return { data: all, error: null };
+}
+
+// A transient network blip on the ONE fetch the whole catalog depends on
+// (expert_products) used to permanently show every category as "No products
+// found" for that visitor — sbFetchAll had no retry, and loadSBData() below
+// marked window._catalogReady = true regardless of whether it actually got
+// any data. Retries a couple of times with a short backoff before giving up
+// for real.
+async function sbFetchAllWithRetry(baseUrl, headers, retries) {
+  retries = retries === undefined ? 2 : retries;
+  let last;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    last = await sbFetchAll(baseUrl, headers, true);
+    if (!last.error) return last;
+    if (attempt < retries) await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
+  }
+  return last;
+}
+
+// Live data loaded from Supabase (falls back to localStorage if offline)
+let _sbStock    = {};
+let _sbPhotos   = {};
+let _customProds = [];      // admin-added products from jain_products table
+let _hiddenIds   = new Set(); // base product IDs hidden by admin
+// Category slugs where the admin chose "also hide all its products" (not
+// just the nav pill/tile) — set by applyCatVisibilityOverrides() in
+// code/js/02-catalog-render.js, read by getAllProducts() below.
+let _catFullyHiddenSlugs = new Set();
+let _sbBanners   = [];       // admin-managed side banners (brand + img_url)
+let _sbBrandMap  = {};       // product id -> brand name, set from admin
+// product id -> ['bmw','audi',...] car makes the part fits (expert_settings
+// 'fitment_map', edited in the admin product form / CSV 'makes' column).
+let _sbFitmentMap = {};
+const CAR_MAKES = [
+  { slug: 'mercedes',   label: 'Mercedes-Benz' },
+  { slug: 'bmw',        label: 'BMW' },
+  { slug: 'audi',       label: 'Audi' },
+  { slug: 'volkswagen', label: 'Volkswagen' },
+  { slug: 'porsche',    label: 'Porsche' },
+  { slug: 'mini',       label: 'MINI' },
+  { slug: 'opel',       label: 'Opel' }
+];
+function getProductMakes(id) {
+  var v = _sbFitmentMap[String(id)];
+  return Array.isArray(v) ? v : [];
+}
+let _sbProductKeywords = {}; // product id -> SEO keyword phrases, set from admin
+window._sbPriceHidden = {};  // product id -> true if price is manually hidden (Ask Price on WhatsApp instead)
+window._sbQtyLimits = {};    // product id -> { min, max } order quantity, set from admin (0 = no limit)
+function getQtyLimits(id) { return (window._sbQtyLimits || {})[id] || { min: 0, max: 0 }; }
+// product id -> [{ label, price }] size/pack options ("accolades") shown as a
+// dropdown on the product; price is optional — options without one sell at
+// the product's own price
+window._sbVariants = {};
+function getVariants(id) {
+    var v = (window._sbVariants || {})[id];
+    return Array.isArray(v) ? v : [];
+}
+// Single source of truth for "does this product show a real price / Add to
+// Cart UI, or Price on request / Ask Price on WhatsApp" — both the grid card
+// and the product modal branch on this exact condition, plus reuse it to
+// decide whether a variant option's own price suffix is safe to show.
+function hasVisiblePrice(p) {
+    return p.price > 0 && !window._sbPriceHidden[p.id];
+}
+
+// ── FEATURED SALE % ───────────────────────────────────────────────────────
+// The per-product Sale % set in admin's Featured tab (expert_settings
+// 'featured_offers', { id, sale } entries) is a real, site-wide discount —
+// it applies wherever that product's price is shown or charged (grid card,
+// product page, cart/checkout), not just the homepage strip. p.price itself
+// is never modified; this only affects what's displayed/charged at runtime.
+function getFeaturedSale(id) {
+    var items = window._sbFeaturedOffers;
+    if (!Array.isArray(items)) return 0;
+    var item = items.find(function(x) { return x.id === id; });
+    return (item && item.sale > 0) ? item.sale : 0;
+}
+function applySale(price, id) {
+    if (!(price > 0) || (window._sbPriceHidden || {})[id]) return price;
+    var sale = getFeaturedSale(id);
+    return sale > 0 ? price * (1 - sale / 100) : price;
+}
+
+async function loadSBData() {
+    // Photos (expert_photos) used to carry every product's full image as
+  // base64 — several MB total, slow enough on Supabase's free tier that it
+  // was split into its own delayed fetch so the rest of the page didn't sit
+  // blank waiting for it. Photos are now just lightweight URL strings
+  // (~25KB for all 200 products), so it's back in the same batch as
+  // everything else — this also means the SEO product schema below is
+  // complete on the very first render instead of missing images until a
+  // second pass, which is what Google's Merchant Listings report was flagging.
+  try { _sbPhotos = JSON.parse(localStorage.getItem('jain_photos') || '{}'); } catch(_) {}
+
+  // All the per-key settings rows (hidden_prices, featured_offers, sku_map,
+  // brand_map, multi_cats, product_keywords, qty_limits, product_variants)
+  // used to be EIGHT separate requests — each a full round trip to Supabase
+  // (700ms-1.7s measured), and the browser's ~6-connection cap per origin
+  // meant most of them queued behind each other instead of truly running in
+  // parallel. One key=in.(...) request returns all of them in a single trip.
+  // What gates the first paint of the product grid is kept small on purpose.
+  // Three things used to sit in this critical path and together weighed ~5MB
+  // (measured Oct 2026): product_keywords (a 2.6MB settings blob — only
+  // search/SEO schema use it), the ~50 base64 uploaded photos in expert_photos
+  // (2.6MB — the plain-URL photos are only ~3KB), and the side banners. Those
+  // are now fetched AFTER the grid has rendered (see the end of this function);
+  // returning visitors already have the photos from localStorage.
+  const productsP = sbFetchAllWithRetry(SB_URL + '/rest/v1/expert_products?select=*', SB_H);
+  const photosP   = sbFetchAll(SB_URL + '/rest/v1/expert_photos?select=product_id,img_url&img_url=not.like.data:*', SB_H);
+  // Just the IDs of products whose photo is a base64 upload — ~50 integers,
+  // well under a kilobyte, so it rides along in the critical batch while the
+  // uploads themselves (~2.6MB) stay deferred. Without this the first render
+  // has no way to know an upload is coming and paints the product's OTHER
+  // image, which a throttled-4G measurement put 44s ahead of the real one.
+  // See uploadPending()/productPhoto() in js/02-catalog-render.js.
+  const pendingP  = sbFetchAll(SB_URL + '/rest/v1/expert_photos?select=product_id&img_url=like.data:*', SB_H);
+  const settingsP = sbFetch(SB_URL + '/rest/v1/expert_settings?key=in.(hidden_prices,featured_offers,sku_map,brand_map,fitment_map,multi_cats,qty_limits,product_variants,cat_labels,cat_hidden,cat_order,banner_sides,custom_visible_cats)&select=key,value', { headers: SB_H });
+
+  const stockP   = sbFetchAll(SB_URL + '/rest/v1/expert_stock?select=*',           SB_H, true);
+  const hiddenP  = sbFetchAll(SB_URL + '/rest/v1/expert_hidden?select=product_id', SB_H);
+
+  // The offers ticker used to wait on the SAME Promise.all as the full
+  // 1577+ row product catalog below (productsP) — by far the slowest of the
+  // three requests it was grouped with, so the ticker rendered a beat after
+  // everything else on the page even though it only ever shows up to 40
+  // cards. settingsP (a handful of small settings rows) resolves much
+  // sooner; as soon as it does, fetch ONLY the featured-offer products by id
+  // — a small targeted request, not the whole catalog — and render the
+  // ticker right away. The authoritative Promise.all below still re-renders
+  // it once the real full catalog is in, so this is a head start, not a
+  // separate source of truth; if it loses the race to the full fetch (fast
+  // network) the guard below just makes it a no-op.
+  settingsP.then(async function(st) {
+    if (st.error || !Array.isArray(st.data)) return;
+    var byKey = {};
+    st.data.forEach(function(row) { byKey[row.key] = row.value; });
+    function early(key, fb) { try { return JSON.parse(byKey[key]) || fb; } catch(e) { return fb; } }
+    window._sbFeaturedOffers = early('featured_offers', []).map(function(x) {
+      return (typeof x === 'number') ? { id: x, sale: 0 } : { id: x.id, sale: x.sale || 0 };
+    });
+    window._sbPriceHidden = early('hidden_prices', {});
+    if (_customProds.length || !window._sbFeaturedOffers.length) return; // full catalog already won the race, or nothing to show
+    var ids = window._sbFeaturedOffers.map(function(o) { return o.id; });
+    var tp = await sbFetch(SB_URL + '/rest/v1/expert_products?select=*&id=in.(' + ids.join(',') + ')', { headers: SB_H });
+    if (!tp.error && Array.isArray(tp.data) && tp.data.length && !_customProds.length) {
+      _customProds = tp.data.filter(function(r) { return !r.hidden; });
+      _invalidateAllProductsCache();
+      if (typeof initOffersTicker === 'function') initOffersTicker();
+    }
+  });
+
+  const [c, ph, st, pend] = await Promise.all([productsP, photosP, settingsP, pendingP]);
+
+  // Products that have an upload still downloading show a loading skeleton
+  // instead of a different image. Seeded from the cached photos first so a
+  // returning visitor never flashes a skeleton for one they already have.
+  window._sbUploadPending = new Set();
+  if (Array.isArray(pend.data)) {
+    pend.data.forEach(function(r) {
+      var cached = _sbPhotos[r.product_id];
+      if (!(cached && String(cached).indexOf('data:') === 0)) {
+        window._sbUploadPending.add(Number(r.product_id));
+      }
+    });
+  }
+
+  if (Array.isArray(c.data) && c.data.length > 0) _customProds = c.data.filter(r => !r.hidden);
+  // Still empty after sbFetchAllWithRetry's retries — a real, distinct state
+  // from "still loading" or "no matches", checked in renderProducts()'s
+  // empty-state branch (js/02-catalog-render.js) so a visitor sees "try
+  // reloading", not a permanent-looking empty store.
+  window._catalogLoadFailed = !!c.error && !_customProds.length;
+  _invalidateAllProductsCache();
+  if (Array.isArray(ph.data)) {
+    // Rebuild this slice instead of merging into it. _sbPhotos starts out as
+    // whatever this browser cached in jain_photos, and a merge can only ever
+    // ADD keys — so a photo the admin DELETED stayed in the cache and kept
+    // overriding that product's real image forever, on that one device, with
+    // nothing on the server left to explain it. This request is authoritative
+    // for every non-base64 photo (img_url=not.like.data:*), so drop the cached
+    // entries of that kind and take the server's set as the truth.
+    // Cached data: entries are deliberately carried over: they belong to the
+    // deferred fetch at the end of this function, which prunes them the same
+    // way, and dropping them here would show the wrong image until it lands.
+    var freshPhotos = {};
+    Object.keys(_sbPhotos).forEach(function(k) {
+      if (String(_sbPhotos[k]).indexOf('data:') === 0) freshPhotos[k] = _sbPhotos[k];
+    });
+    ph.data.forEach(function(r) { freshPhotos[r.product_id] = r.img_url; });
+    _sbPhotos = freshPhotos;
+    try { localStorage.setItem('jain_photos', JSON.stringify(_sbPhotos)); } catch(e) {}
+  }
+  const _settingsByKey = {};
+  if (!st.error && Array.isArray(st.data)) {
+    st.data.forEach(function(row) { _settingsByKey[row.key] = row.value; });
+  }
+  function _settingJSON(key, fallback) {
+    var raw = _settingsByKey[key];
+    if (!raw) return fallback;
+    try { return JSON.parse(raw) || fallback; } catch(e) { return fallback; }
+  }
+  window._sbPriceHidden = _settingJSON('hidden_prices', {});
+  // Older saves stored plain product ids (no sale support yet) — migrate.
+  window._sbFeaturedOffers = _settingJSON('featured_offers', []).map(function(x) {
+    return (typeof x === 'number') ? { id: x, sale: 0 } : { id: x.id, sale: x.sale || 0 };
+  });
+  if (typeof initOffersTicker === 'function') initOffersTicker();
+
+  _sbSkuMap = _settingJSON('sku_map', {});
+  _sbBrandMap = _settingJSON('brand_map', {});
+  _sbFitmentMap = _settingJSON('fitment_map', {});
+  window._sbMultiCats = _settingJSON('multi_cats', {});
+  window._sbQtyLimits = _settingJSON('qty_limits', {});
+  window._sbVariants = _settingJSON('product_variants', {});
+  // Per-banner Left/Right pin from the admin's Banners editor (id -> 'left'|
+  // 'right'). Banners without an entry here fall back to the automatic
+  // brand-interleave split in _splitBanners() (js/02-catalog-render.js).
+  window._sbBannerSides = _settingJSON('banner_sides', {});
+  // Category renames from the admin's category editor (drag-reorder tiles,
+  // click a name to rename — see admin/js/05-categories.js) apply here too,
+  // patching whatever static label is already in the page rather than
+  // requiring the whole category nav to be rebuilt from JS.
+  // Admin-created categories the owner has switched on get a pill + tile first,
+  // so the order/rename/hide overrides below treat them like any other category.
+  applyCustomVisibleCats(_settingJSON('custom_visible_cats', []), true);
+  const catOrder = _settingJSON('cat_order', []);
+  applyCatOrderOverride(catOrder);
+  applyCatLabelOverrides(_settingJSON('cat_labels', {}));
+  applyCatVisibilityOverrides(_settingJSON('cat_hidden', {}));
+  // Cached so the very first paint on the NEXT visit can reorder/relabel the
+  // pill row/tile grid synchronously (see the inline script right after them
+  // in index.html) instead of showing the static HTML's built-in order and
+  // names for a moment and then visibly jumping to the saved ones once this
+  // async fetch finally resolves — this is what made a renamed category
+  // (e.g. "Marhaba" renamed to "Generators") flash its old name on every
+  // load before snapping to the real one.
+  try { localStorage.setItem('cat_order_cache', JSON.stringify(catOrder)); } catch(e) {}
+  try { localStorage.setItem('cat_labels_cache', JSON.stringify(_settingJSON('cat_labels', {}))); } catch(e) {}
+
+  // Stock + hidden are small and decide what the grid shows, so they gate the
+  // render. Banners, reviews, keywords and the base64 photos do NOT — they're
+  // fetched below once the grid is already on screen.
+  const [s, h] = await Promise.all([stockP, hiddenP]);
+  window._sbReviewStats = {};
+    if (s.error) {
+          console.warn('Supabase offline — using localStorage fallback');
+          try { _sbStock  = JSON.parse(localStorage.getItem('jain_stock')  || '{}'); } catch(_) {}
+    } else {
+          if (Array.isArray(s.data)) s.data.forEach(r => { _sbStock[r.product_id]  = r.qty; });
+          if (Array.isArray(h.data)) {
+                  _hiddenIds = new Set(h.data.map(r => r.product_id));
+          }
+    }
+    // _sbBrandMap and _hiddenIds may have changed since the cache was last
+    // built above — invalidate once more before the first real grid render.
+    _invalidateAllProductsCache();
+    // See renderProducts()'s "still loading" check in js/02-catalog-render.js
+    // — until this flips true, an empty grid means "the catalog hasn't
+    // arrived yet", not "genuinely no matches". Categories with few/no
+    // hardcoded base products (e.g. DCK Power Tools, almost entirely
+    // admin-added) were flashing "No products found" for the second or two
+    // before this fetch resolved, on every single category click made
+    // before it did.
+    window._catalogReady = true;
+    renderProducts();
+    // The grid only renders its first batch now, so the crawlable per-product
+    // links that used to come from every card are built separately, once, into
+    // a display:none list (see _renderSeoProductLinks in js/02-catalog-render.js).
+    if (typeof _renderSeoProductLinks === 'function') _renderSeoProductLinks();
+
+  checkAssetVersion();
+  _loadDeferredStorefrontData();
+}
+
+// Everything the first paint of the product grid does not need. Started only
+// after renderProducts() has run so these downloads (~4MB combined before
+// compression: the product_keywords blob, base64 uploaded photos, side
+// banners, review ratings) never compete with the catalog for bandwidth.
+function _loadDeferredStorefrontData() {
+  // Side banners
+  sbFetchAll(SB_URL + '/rest/v1/expert_banners?select=*&order=id.asc', SB_H).then(function(b) {
+    if (Array.isArray(b.data) && b.data.length > 0) _sbBanners = b.data;
+    if (typeof initSideBanners === 'function') initSideBanners();
+  });
+
+  // Search keywords (2.6MB of text) — search just matches name/brand/description
+  // until they land; the search vocabulary is rebuilt once they do.
+  const kwP = sbFetch(SB_URL + '/rest/v1/expert_settings?key=eq.product_keywords&select=value', { headers: SB_H }).then(function(r) {
+    if (r.error || !Array.isArray(r.data) || !r.data[0]) return;
+    try { _sbProductKeywords = JSON.parse(r.data[0].value) || {}; } catch(e) {}
+    if (typeof _vocabCache !== 'undefined') _vocabCache = null;
+  });
+
+  // Bulk review stats (avg + count per product) for the Product schema's
+  // aggregateRating — fetched once here instead of per-product like
+  // getAvgRating() in js/06-features.js, which is fine for the review-modal's
+  // single lookup but would be one request per product for the whole catalog.
+  const rvP = sbFetchAll(SB_URL + '/rest/v1/expert_reviews?select=product_id,rating', SB_H).then(function(rv) {
+    if (!Array.isArray(rv.data)) return;
+    var sums = {};
+    rv.data.forEach(function(r) {
+      var s = sums[r.product_id] || (sums[r.product_id] = { total: 0, count: 0 });
+      s.total += r.rating; s.count++;
+    });
+    Object.keys(sums).forEach(function(id) {
+      window._sbReviewStats[id] = { avg: sums[id].total / sums[id].count, count: sums[id].count };
+    });
+  });
+
+  _loadUploadedPhotos();
+
+  // The structured-data block needs keywords + ratings, so build it once both are in.
+  // (see _loadUploadedPhotos below for the uploaded-photo loading itself)
+  Promise.all([kwP, rvP]).then(function() {
+    if (typeof _injectProductSchema === 'function') _injectProductSchema();
+  });
+}
+
+// ── UPLOADED (BASE64) PHOTOS ────────────────────────────────────────────────
+// Photos uploaded straight from the admin are stored as base64, ~50KB each
+// and ~2.6MB for all of them — far too heavy for the critical path, so they
+// are fetched after the first render. They used to come down as ONE request
+// for all 50: on a throttled 4G phone that started at 12.9s and took 31.4s,
+// so the uploaded photo only appeared 44s in. All-or-nothing, and until it
+// landed the cards showed a different image entirely.
+//
+// Now they arrive in small chunks, nearest-first: the products actually on
+// screen (the offers ticker and the rendered grid batch) are fetched before
+// everything else, so the photos a visitor can see turn up in the first
+// chunk instead of after the whole 2.6MB. Each chunk paints as it lands.
+// The first chunk is deliberately tiny and the rest are bigger. Only the
+// photos on the first screen are actually being waited on, so that request
+// should be as small as possible (measured: a chunk of 8 was ~400KB and took
+// ~10s on throttled 4G, a chunk of 3 lands in a fraction of that). Once
+// those are in, nothing is visibly waiting any more, so the remainder goes
+// in larger chunks to keep the request count — and its latency — down.
+const UPLOAD_CHUNK_FIRST = 3;
+const UPLOAD_CHUNK = 10;
+
+function _loadUploadedPhotos() {
+  var pending = Array.from(window._sbUploadPending || []);
+  if (!pending.length) return Promise.resolve();
+
+  // On-screen first: ticker products, then the grid cards already rendered.
+  var priority = [];
+  (window._sbFeaturedOffers || []).forEach(function(o) { priority.push(Number(o.id)); });
+  if (typeof _gridResults !== 'undefined' && Array.isArray(_gridResults)) {
+    _gridResults.slice(0, (typeof _gridShown !== 'undefined' ? _gridShown : 0) || 48)
+      .forEach(function(p) { priority.push(Number(p.id)); });
+  }
+  var seen = {}, order = [];
+  priority.concat(pending).forEach(function(id) {
+    if (!seen[id] && window._sbUploadPending.has(id)) { seen[id] = 1; order.push(id); }
+  });
+
+  var chunks = [];
+  if (order.length) chunks.push(order.slice(0, UPLOAD_CHUNK_FIRST));
+  for (var i = UPLOAD_CHUNK_FIRST; i < order.length; i += UPLOAD_CHUNK) {
+    chunks.push(order.slice(i, i + UPLOAD_CHUNK));
+  }
+
+  // Sequential, not parallel: these are big responses and firing all of them
+  // at once just makes every chunk slow instead of the first one fast.
+  return chunks.reduce(function(chain, ids) {
+    return chain.then(function() {
+      return sbFetch(SB_URL + '/rest/v1/expert_photos?select=product_id,img_url&product_id=in.(' +
+                     ids.join(',') + ')', { headers: SB_H })
+        .then(function(r) { _applyUploadedPhotos(r, ids); })
+        .catch(function() { /* one bad chunk shouldn't stop the rest */ });
+    });
+  }, Promise.resolve());
+}
+
+// Folds one chunk into _sbPhotos and repaints. Ids that came back with no
+// row are cleared from the pending set too, otherwise a product whose upload
+// was deleted between the id fetch and this one would shimmer forever.
+function _applyUploadedPhotos(r, requestedIds) {
+  if (!r || r.error || !Array.isArray(r.data)) return;
+  var changed = false;
+  r.data.forEach(function(row) {
+    if (_sbPhotos[row.product_id] !== row.img_url) { _sbPhotos[row.product_id] = row.img_url; changed = true; }
+    window._sbUploadPending.delete(Number(row.product_id));
+  });
+  requestedIds.forEach(function(id) {
+    if (window._sbUploadPending.delete(Number(id))) changed = true;
+  });
+  if (!changed) return;
+  try { localStorage.setItem('jain_photos', JSON.stringify(_sbPhotos)); } catch(e) {}
+  // true = hold the visitor's place — both the batches already scrolled
+  // through and the scroll offset, which renderProducts() restores itself
+  // (see its preserveShown in js/02-catalog-render.js). Chunks land seconds
+  // apart, so this must never move someone who has started browsing.
+  renderProducts(true);
+  if (typeof initOffersTicker === 'function') initOffersTicker();
+}
+
+// ── ASSET VERSION CHECK ─────────────────────────────────────────────────────
+// Lets admin's "Flush Cache" button force fresh JS/CSS onto every visitor,
+// not just the admin's own browser: the current version lives in Supabase
+// (expert_settings, key 'asset_version'). Each page load compares it in the
+// background against what this browser last used; a mismatch means new
+// files were deployed and flushed, so we save the new version — the NEXT
+// page load then fetches the fresh files. We deliberately do NOT reload the
+// page here: a reload after the catalog has already painted showed visitors
+// the site loading, restyling and then refreshing itself a second time.
+function checkAssetVersion() {
+    sbFetch(SB_URL + '/rest/v1/expert_settings?key=eq.asset_version&select=value', { headers: SB_H }).then(function(r) {
+          if (r.error || !r.data || !r.data[0] || !r.data[0].value) return;
+          try { localStorage.setItem('expert_asset_v', r.data[0].value); } catch (e) {}
+    });
+}
+
+// Normalise category strings so "Brake", "brakes", "Braking" etc.
+// all map to the hyphenated slug used by the filter pills
+function normalizeCategory(raw) {
+    const c = (raw || '').toLowerCase().replace(/[\s_]+/g, '-').trim();
+    const map = {
+          // common spellings -> German Expert category slugs
+          'engine-parts':        'engine',
+          'motor':               'engine',
+          'brake':               'brakes',
+          'braking':             'brakes',
+          'suspension-steering': 'suspension',
+          'steering':            'suspension',
+          'filter':              'filters',
+          'electric':            'electrical',
+          'electrics':           'electrical',
+          'ignition':            'electrical',
+          'electrical-ignition': 'electrical',
+          'cooling-ac':          'cooling',
+          'a/c':                 'cooling',
+          'ac':                  'cooling',
+          'oil':                 'oils-fluids',
+          'oils':                'oils-fluids',
+          'fluids':              'oils-fluids',
+          'lubricants':          'oils-fluids',
+          'clutch':              'transmission',
+          'gearbox':             'transmission',
+          'transmission-clutch': 'transmission',
+          'body':                'body-lights',
+          'lighting':            'body-lights',
+          'lights':              'body-lights',
+          'body-lighting':       'body-lights',
+          'accessory':           'accessories'
+    };
+    return map[c] || c;
+}
+
+// Merged base + admin-added products, with hidden ones removed.
+// Rebuilding this (a .filter+.map over all 1577+ products) used to happen
+// on EVERY call — and it's called on every category click, search
+// keystroke, and product lookup (21 call sites), several of them just to
+// .find() a single product by id. That's what made opening a category feel
+// slow, especially on phones. _customProds/_hiddenIds/_sbBrandMap only ever
+// change inside loadSBData() (nothing on the storefront mutates them
+// live), so the merged array is cached here and only rebuilt when
+// _invalidateAllProductsCache() is called from those same few spots.
+let _allProductsCache = null;
+function _invalidateAllProductsCache() { _allProductsCache = null; }
+function getAllProducts() {
+    if (_allProductsCache) return _allProductsCache;
+    // German Expert has no hardcoded base products: every product comes from
+  // expert_products. (The Kuwait fork dropped ids <= 60 here — removed, it
+  // would hide a fresh table's first 60 parts.)
+  const extra = _customProds.filter(p => !_hiddenIds.has(p.id) && !_catFullyHiddenSlugs.has(normalizeCategory(p.category))).map(p => ({
+        id:       p.id,
+        name:     p.name,
+        category: normalizeCategory(p.category),
+        // Finer-grained grouping within a category (e.g. "brake-pads" inside
+        // Brakes). Optional.
+        subcategory: p.subcategory || '',
+        price:    parseFloat(p.price),
+        // No random stock-photo fallback — if a product has no image yet, the
+        // card shows a neutral car-part icon instead.
+        img:      p.img_url || p.img || '',
+        desc:     p.description || p.desc || '',
+        badge:    p.badge || null,
+        brand:    _sbBrandMap[String(p.id)] || '',
+        makes:    getProductMakes(p.id),
+        stock:    'in-stock'
+  }));
+    _allProductsCache = extra;
+    return _allProductsCache;
+}
+
+// Subcategory display labels — German car-part groupings, keyed by slug.
+// Slugs not listed here just
+// render title-cased from the slug (see subcatLabel() in 02-catalog-render.js),
+// so a new subcategory works immediately even before a label is added.
+var _SUBCAT_LABELS = {
+    'timing':          'Timing Belts & Chains',
+    'gaskets-seals':   'Gaskets & Seals',
+    'engine-mounts':   'Engine Mounts',
+    'pumps':           'Oil & Fuel Pumps',
+    'belts':           'Drive Belts & Tensioners',
+
+    'brake-pads':      'Brake Pads',
+    'brake-discs':     'Brake Discs',
+    'brake-sensors':   'Wear Sensors',
+    'brake-fluid':     'Brake Fluid',
+
+    'shock-absorbers': 'Shock Absorbers',
+    'control-arms':    'Control Arms',
+    'links-bushes':    'Links & Bushes',
+    'steering':        'Steering Parts',
+    'air-suspension':  'Air Suspension',
+
+    'oil-filter':      'Oil Filters',
+    'air-filter':      'Air Filters',
+    'fuel-filter':     'Fuel Filters',
+    'cabin-filter':    'Cabin Filters',
+
+    'spark-plugs':     'Spark Plugs',
+    'ignition-coils':  'Ignition Coils',
+    'sensors':         'Sensors',
+    'batteries':       'Batteries',
+
+    'radiators':       'Radiators',
+    'thermostats':     'Thermostats',
+    'water-pumps':     'Water Pumps',
+    'ac-parts':        'A/C Parts',
+
+    'engine-oil':      'Engine Oil',
+    'coolant':         'Coolant',
+    'atf':             'Transmission Fluid',
+
+    'clutch-kits':     'Clutch Kits',
+    'gearbox-mounts':  'Gearbox Mounts',
+
+    'lamps':           'Lamps & Bulbs',
+    'mirrors':         'Mirrors',
+    'wipers':          'Wipers'
+};
+var _AR_SUBCATS = {
+    'timing':          'سير وجنزير التوقيت',
+    'gaskets-seals':   'جوانات وموانع تسرب',
+    'engine-mounts':   'كراسي المحرك',
+    'pumps':           'مضخات الزيت والوقود',
+    'belts':           'سيور وشدادات',
+
+    'brake-pads':      'فحمات الفرامل',
+    'brake-discs':     'أقراص الفرامل',
+    'brake-sensors':   'حساسات التآكل',
+    'brake-fluid':     'زيت الفرامل',
+
+    'shock-absorbers': 'مساعدات',
+    'control-arms':    'مقصات',
+    'links-bushes':    'روابط وجلب',
+    'steering':        'قطع التوجيه',
+    'air-suspension':  'تعليق هوائي',
+
+    'oil-filter':      'فلاتر زيت',
+    'air-filter':      'فلاتر هواء',
+    'fuel-filter':     'فلاتر وقود',
+    'cabin-filter':    'فلاتر مكيف',
+
+    'spark-plugs':     'بواجي',
+    'ignition-coils':  'كويلات',
+    'sensors':         'حساسات',
+    'batteries':       'بطاريات',
+
+    'radiators':       'رديترات',
+    'thermostats':     'ثرموستات',
+    'water-pumps':     'مضخات ماء',
+    'ac-parts':        'قطع المكيف',
+
+    'engine-oil':      'زيت محرك',
+    'coolant':         'سائل تبريد',
+    'atf':             'زيت ناقل الحركة',
+
+    'clutch-kits':     'طقم كلتش',
+    'gearbox-mounts':  'كراسي الجير',
+
+    'lamps':           'أضواء ولمبات',
+    'mirrors':         'مرايات',
+    'wipers':          'مساحات'
+};
+
+// ── ARABIC PRODUCT TRANSLATIONS ───────────────────────────────────────────
+var _AR_PRODUCTS = {};
+
+// Arabic category display names
+var _AR_CATS = {
+    'engine':       'قطع المحرك',
+    'brakes':       'الفرامل',
+    'suspension':   'التعليق والتوجيه',
+    'filters':      'الفلاتر',
+    'electrical':   'الكهرباء والإشعال',
+    'cooling':      'التبريد والتكييف',
+    'oils-fluids':  'الزيوت والسوائل',
+    'transmission': 'ناقل الحركة والكلتش',
+    'exhaust':      'العادم',
+    'body-lights':  'الهيكل والإضاءة',
+    'accessories':  'إكسسوارات'
+};
+
+let cart = [];
+let activeFilter = 'all';
+let activeSubFilter = 'all';
+let activeMake = 'all';   // car-make filter from the Shop-by-Make row ('all' = any)

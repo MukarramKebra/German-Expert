@@ -1,0 +1,1244 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Stops the browser auto-restoring the scroll position a phone's tab
+       was at before the OS reloaded it in the background (very common on
+       mobile under memory pressure — desktop tabs rarely get suspended
+       this way). Without this, reopening the site sometimes landed
+       straight at the footer, wherever the tab happened to be scrolled to
+       last, instead of the top. Must run before anything else touches
+       history — the browser reads this once, synchronously, on load. -->
+  <script>if ('scrollRestoration' in history) history.scrollRestoration = 'manual';</script>
+  <!-- No maximum-scale/user-scalable=no — those disable pinch-zoom, a real
+       accessibility harm for low-vision users, not just a Lighthouse nit. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- This site is authored as a light-themed page with its own explicit
+       colors. Without this, some browsers' forced/auto dark mode
+       re-interprets those colors on top of what's already there, which is
+       exactly what produced a real contrast bug on the admin panel earlier
+       — declaring the scheme opts this page out of that guesswork too. -->
+  <meta name="color-scheme" content="light" />
+  <title>German Expert | Genuine German Car Parts in Sharjah, UAE</title>
+  <meta name="description" content="German Expert supplies genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI in Sharjah, with fast delivery across the UAE." />
+  <meta name="keywords" content="german car parts sharjah, mercedes parts sharjah, bmw parts uae, audi parts uae, volkswagen parts, porsche parts, oem car parts uae, auto spare parts sharjah, German Expert" />
+  <link rel="canonical" href="https://mukarramkebra.github.io/German-Expert/" />
+  <!-- Same URL serves both languages (client-side toggle, no separate en/ar
+       paths) — a self-referencing hreflang cluster is the correct way to tell
+       Google that, rather than omitting it entirely.
+       The "ar" entry (and og:locale:alternate ar_AE below) is removed while the
+       Arabic toggle is disabled — restore both together with ARABIC_ENABLED. -->
+  <link rel="alternate" hreflang="en" href="https://mukarramkebra.github.io/German-Expert/" />
+  <link rel="alternate" hreflang="x-default" href="https://mukarramkebra.github.io/German-Expert/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="German Expert" />
+  <meta property="og:title" content="German Expert | Genuine German Car Parts in Sharjah" />
+  <meta property="og:description" content="Genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI. Based in Sharjah, delivering across the UAE." />
+  <meta property="og:url" content="https://mukarramkebra.github.io/German-Expert/" />
+  <meta property="og:image" content="https://mukarramkebra.github.io/German-Expert/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="German Expert — German car parts, Sharjah" />
+  <meta property="og:locale" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="German Expert | German Car Parts, Sharjah" />
+  <meta name="twitter:description" content="Genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, VW, Porsche and MINI — delivered across the UAE." />
+  <meta name="twitter:image" content="https://mukarramkebra.github.io/German-Expert/og-image.png" />
+  <meta name="twitter:image:alt" content="German Expert — German car parts, Sharjah" />
+  <meta name="geo.region" content="AE-SH" />
+  <meta name="geo.placename" content="Sharjah" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <!-- Second discovery path for the sitemap. GitHub Pages serves this project
+       at /German-Expert/ so our robots.txt lives at /German-Expert/robots.txt,
+       which crawlers never read (they only fetch /robots.txt at the host root).
+       Pointing at the sitemap from the HTML itself gives Google/Bing a path to
+       it that doesn't depend on the host-root robots.txt we can't publish. -->
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="/German-Expert/sitemap.xml" />
+  <!-- TODO-CONTACT: telephone / email / address / sameAs are placeholders -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "AutoPartsStore",
+    "name": "German Expert",
+    "image": "https://mukarramkebra.github.io/German-Expert/og-image.png",
+    "url": "https://mukarramkebra.github.io/German-Expert/",
+    "telephone": "+971 50 000 0000",
+    "email": "info@german-expert.ae",
+    "priceRange": "AED",
+    "currenciesAccepted": "AED",
+    "areaServed": "AE",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Sharjah",
+      "addressRegion": "Sharjah",
+      "addressCountry": "AE"
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Saturday","Sunday","Monday","Tuesday","Wednesday","Thursday"],
+      "opens": "08:00",
+      "closes": "21:00"
+    },
+    "sameAs": ["https://wa.me/971500000000"]
+  }
+  </script>
+  <!-- Enables a sitelinks search box in Google results. The URL template is
+       genuinely functional — js/06-features.js reads ?q= on load and runs
+       the exact same search a visitor would type into the header box. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "German Expert",
+    "url": "https://mukarramkebra.github.io/German-Expert/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://mukarramkebra.github.io/German-Expert/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+  <script>
+  // Version comes from localStorage (kept in sync with Supabase's
+  // expert_settings.asset_version by checkAssetVersion() in
+  // js/01-config-data.js) so admin's Flush Cache button can force fresh
+  // CSS/JS onto every visitor, not just their own browser. Falls back to
+  // the last known-good baked-in version on a visitor's very first load.
+  // Injected via DOM appends, NOT document.write — several ad-block/privacy
+  // extensions and Chrome's own interventions neuter document.write, which
+  // left the whole site unstyled for those visitors.
+  (function() {
+    var v = '';
+    try { v = localStorage.getItem('expert_asset_v') || ''; } catch(e) {}
+    v = /^[0-9]+$/.test(v) ? v : '202608170500';
+    ['01-base','02-sections','03-cart-features-contact','04-footer','05-responsive','06-lang-rtl','07-modals','08-account-auth','09-widgets'].forEach(function(f) {
+      var l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = 'code/css/' + f + '.css?v=' + v;
+      document.head.appendChild(l);
+    });
+  })();
+  </script>
+  <noscript>
+    <link rel="stylesheet" href="code/css/01-base.css" />
+    <link rel="stylesheet" href="code/css/02-sections.css" />
+    <link rel="stylesheet" href="code/css/03-cart-features-contact.css" />
+    <link rel="stylesheet" href="code/css/04-footer.css" />
+    <link rel="stylesheet" href="code/css/05-responsive.css" />
+    <link rel="stylesheet" href="code/css/06-lang-rtl.css" />
+    <link rel="stylesheet" href="code/css/07-modals.css" />
+    <link rel="stylesheet" href="code/css/08-account-auth.css" />
+    <link rel="stylesheet" href="code/css/09-widgets.css" />
+  </noscript>
+  <!-- Opens the connection to these origins early (DNS + TLS), in parallel
+       with everything else, instead of waiting until the stylesheet
+       requests below discover them — shaves real time off the
+       render-blocking critical path for both. -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Font Awesome is ~110KB of CSS defining thousands of icon classes, of
+       which this site uses a few dozen. As a plain stylesheet it was the
+       single worst item on the critical path: 1.8s total / 1.2s download on
+       a throttled 4G phone, with first paint blocked behind all of it
+       (measured Oct 2026). media="print" makes the browser fetch it at low
+       priority WITHOUT blocking render; the onload handler flips it to
+       media="all" so the icons apply as soon as it lands. Icons therefore
+       appear a beat after the text — they sit inside fixed-size buttons and
+       flex rows, so this costs no measurable layout shift.
+       rel=preload would start it sooner but is what made it block before. -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        media="print" onload="this.media='all';this.onload=null" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <!-- Cairo is the Arabic face, and the Arabic toggle is currently disabled on
+       purpose (see CLAUDE.md — ARABIC_ENABLED in js/04-i18n-order.js and the
+       .lang-btn rule in css/06-lang-rtl.css), so nothing on the page can
+       render in it right now. Kept here, rather than deleted, so Arabic is
+       restored as one piece; loaded non-blocking so a font no visitor can
+       currently see is not sitting on the critical path. -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet"
+        media="print" onload="this.media='all';this.onload=null" />
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  </noscript>
+</head>
+<body>
+
+  <!-- Full-page splash shown until the page finishes loading, then fades out.
+       Styled inline (not in the css/*.css files) on purpose: those are
+       injected async by the cache-busting loader above, so an external
+       stylesheet wouldn't be ready in time and this would flash unstyled. -->
+  <style>
+    #pagePreloader { position: fixed; inset: 0; z-index: 99999; background: #0f1115; display: flex; align-items: center; justify-content: center; transition: opacity .35s ease, visibility .35s ease; }
+    #pagePreloader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+    #pagePreloader .preloader-gear { width: 72px; height: 72px; border-radius: 50%; border: 6px solid rgba(255,255,255,.12); border-top-color: #f2b705; border-right-color: #c1121f; animation: preloader-spin .9s linear infinite; }
+    @keyframes preloader-spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { #pagePreloader .preloader-gear { animation: none; } }
+    #pagePreloader .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  </style>
+  <div id="pagePreloader" role="status" aria-live="polite">
+    <span class="preloader-gear" aria-hidden="true"></span>
+    <span class="visually-hidden">Loading…</span>
+  </div>
+  <script>
+  (function() {
+    // Hides once the DOM is parsed and ready (~100-200ms typically), NOT
+    // once every image on the page has finished downloading — this used to
+    // wait for window's 'load' event, which includes every product image
+    // that happens to sit above the fold, and on a wide desktop monitor
+    // that's a lot more images than on mobile (more columns/rows visible
+    // without scrolling). That made the splash sit on screen for however
+    // long those images took instead of just covering the brief moment
+    // before the page itself is actually ready.
+    var t0 = Date.now(), MIN_MS = 150, MAX_MS = 2500, done = false;
+    function hide() {
+      if (done) return; done = true;
+      var el = document.getElementById('pagePreloader');
+      if (el) el.classList.add('hide');
+    }
+    function reveal() {
+      setTimeout(hide, Math.max(0, MIN_MS - (Date.now() - t0)));
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', reveal, { once: true });
+    } else {
+      reveal();
+    }
+    setTimeout(hide, MAX_MS);
+  })();
+  </script>
+
+  <!-- Shown briefly on category switch, covering the whole viewport, so the
+       jump to the filtered products reads as "load, then arrive" instead of
+       a jarring instant scroll while the old category's products are still
+       on screen (see _switchCategoryWithLoading in js/02-catalog-render.js) -->
+  <div class="cat-load-overlay" id="catLoadOverlay"><span class="cat-load-gear" aria-hidden="true"></span></div>
+
+  <header id="header">
+    <div class="container header-inner">
+      <a href="#header" class="logo-wrap" onclick="goHome(event)">
+        <img src="logo.svg" width="640" height="200" alt="German Expert" class="logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+        <div class="logo-text-fallback" style="display:none"><span class="logo-dhow" style="font-size:0.8em;letter-spacing:2px">GERMAN<br>EXPERT</span></div>
+      </a>
+      <nav id="nav">
+        <a href="#about" data-i18n="nav_about" onclick="document.getElementById('nav').classList.remove('open')">About</a>
+        <a href="#products" data-i18n="nav_products" onclick="document.getElementById('nav').classList.remove('open')">Parts</a>
+        <a href="#faq" data-i18n="nav_faq" onclick="document.getElementById('nav').classList.remove('open')">FAQ</a>
+        <a href="#contact" data-i18n="nav_contact" onclick="document.getElementById('nav').classList.remove('open')">Contact</a>
+        <a href="#" id="navMyOrders" onclick="document.getElementById('nav').classList.remove('open');onAccountBtnClick('orders');return false;" style="display:none"><i class="fa fa-receipt" style="margin-right:6px"></i>My Orders</a>
+        <a href="#" id="navSignIn" onclick="document.getElementById('nav').classList.remove('open');openAuthModal('login');return false;"><i class="fa fa-user" style="margin-right:6px"></i>Sign In</a>
+        <a href="#" onclick="document.getElementById('nav').classList.remove('open');openWishlist();return false;"><i class="fa fa-heart" style="margin-right:6px"></i>Wishlist <span id="navWishlistBadge" style="display:none;background:var(--orange);color:#fff;border-radius:50%;padding:0 5px;font-size:10px;font-weight:900"></span></a>
+        <a href="#" id="navCart" onclick="document.getElementById('nav').classList.remove('open');openCart();return false;"><i class="fa fa-shopping-cart" style="margin-right:6px"></i>Cart <span id="navCartBadge" class="nav-cart-badge" style="display:none">0</span></a>
+        <a href="#" onclick="document.getElementById('nav').classList.remove('open');openOrderTracker();return false;"><i class="fa fa-search" style="margin-right:6px"></i>Track Order</a>
+        <a href="#" onclick="document.getElementById('nav').classList.remove('open');openOrderTracker();switchOrderTab('cancel');return false;"><i class="fa fa-times-circle" style="margin-right:6px"></i>Cancel Order</a>
+      </nav>
+      <div class="header-actions">
+        <div class="header-search-wrap" id="headerSearchWrap">
+          <button class="header-search-btn" id="headerSearchBtn" onclick="toggleHeaderSearch()" aria-label="Search products"><i class="fa fa-search"></i></button>
+          <input type="search" id="headerSearchInput" class="header-search-input" placeholder="Search parts or part numbers..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="onHeaderSearchInput(this.value)" onkeydown="if(event.key==='Escape'){toggleHeaderSearch(false);}else if(event.key==='Enter'){event.preventDefault();submitHeaderSearch();}" />
+        </div>
+        <button class="lang-btn" id="langBtn" onclick="toggleLang()">عربي</button>
+        <button class="hamburger" id="hamburger" aria-label="Open menu"><i class="fa fa-bars"></i></button>
+        <button class="btn-account" id="accountBtn" onclick="onAccountBtnClick()">
+          <i class="fa fa-user"></i>
+          <span class="acct-txt" id="acctBtnLabel">Sign In</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+  <h1 class="visually-hidden">German Expert — Genuine German Car Parts in Sharjah, UAE</h1>
+
+  <!-- OFFERS — moving carousel of offer cards (images fill the frame) -->
+  <section id="offers">
+    <div class="offers-band">
+      <div class="offers-track" id="offersTrack"></div>
+    </div>
+  </section>
+  <!-- Fills the ticker synchronously from whatever initOffersTicker() cached
+       on the last visit (see js/02-catalog-render.js), before the JS bundle
+       even loads, let alone the network fetch that normally builds it. On a
+       returning visit this is what makes the strip already-there instead of
+       popping in — the async path still runs afterward and replaces this
+       with fresh data (price/sale changes, newly picked offers, etc.), same
+       duplication math initOffersTicker() itself uses for the seamless loop. -->
+  <script>
+  (function() {
+    try {
+      var cards = localStorage.getItem('offers_ticker_cache');
+      if (!cards) return;
+      var track = document.getElementById('offersTrack');
+      if (!track) return;
+      track.innerHTML = cards;
+      var singleW = track.scrollWidth;
+      if (!singleW) { track.innerHTML = cards + cards; return; }
+      var vw = window.innerWidth || 1280;
+      var copies = Math.max(2, Math.ceil(vw / singleW) + 1);
+      var half = '';
+      for (var i = 0; i < copies; i++) half += cards;
+      track.innerHTML = half + half;
+      track.style.animationDuration = Math.round((singleW * copies) / 70) + 's';
+    } catch (e) {}
+  })();
+  </script>
+
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>Mercedes-Benz</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>BMW</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Audi</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Volkswagen</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Porsche</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>MINI</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Brake Pads &amp; Discs</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Oil &amp; Air Filters</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Spark Plugs</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Suspension</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Genuine &amp; OEM</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Mercedes-Benz</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>BMW</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Audi</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Volkswagen</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Porsche</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>MINI</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Brake Pads &amp; Discs</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Oil &amp; Air Filters</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Spark Plugs</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Suspension</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+      <span>Genuine &amp; OEM</span><span class="sep">&nbsp;&#183;&nbsp;</span>
+    </div>
+  </div>
+
+  <!-- Shop by make: filters the catalog by expert_settings.fitment_map (see setMakeFilter() in js/02-catalog-render.js) -->
+  <section id="makes" class="makes-section" aria-label="Shop by car make">
+    <div class="container">
+      <div class="section-header"><span class="section-tag" data-i18n="make_tag">Shop by Make</span></div>
+      <div class="make-row" id="makeRow">
+        <button type="button" class="make-chip" data-make="mercedes" aria-pressed="false" onclick="setMakeFilter('mercedes')">Mercedes-Benz</button>
+        <button type="button" class="make-chip" data-make="bmw" aria-pressed="false" onclick="setMakeFilter('bmw')">BMW</button>
+        <button type="button" class="make-chip" data-make="audi" aria-pressed="false" onclick="setMakeFilter('audi')">Audi</button>
+        <button type="button" class="make-chip" data-make="volkswagen" aria-pressed="false" onclick="setMakeFilter('volkswagen')">Volkswagen</button>
+        <button type="button" class="make-chip" data-make="porsche" aria-pressed="false" onclick="setMakeFilter('porsche')">Porsche</button>
+        <button type="button" class="make-chip" data-make="mini" aria-pressed="false" onclick="setMakeFilter('mini')">MINI</button>
+        <button type="button" class="make-chip" data-make="opel" aria-pressed="false" onclick="setMakeFilter('opel')">Opel</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Two vertical banners, each auto-rotating through category slides in sync (see initSideBanners() in js/02-catalog-render.js) -->
+  <section id="categories">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag" data-i18n="cat_tag">Shop by Category</span>
+      </div>
+      <div class="categories-grid" id="categoriesGrid">
+        <div class="cat-card" data-cat="engine" onclick="filterProducts('engine')">
+          <i class="cat-icon fa fa-gears" aria-hidden="true"></i>
+          <h3>Engine Parts</h3>
+          <p>Belts, Gaskets, Pumps &amp; Mounts</p>
+        </div>
+        <div class="cat-card" data-cat="brakes" onclick="filterProducts('brakes')">
+          <i class="cat-icon fa fa-circle-stop" aria-hidden="true"></i>
+          <h3>Brakes</h3>
+          <p>Pads, Discs, Sensors &amp; Fluid</p>
+        </div>
+        <div class="cat-card" data-cat="suspension" onclick="filterProducts('suspension')">
+          <i class="cat-icon fa fa-car-side" aria-hidden="true"></i>
+          <h3>Suspension &amp; Steering</h3>
+          <p>Shocks, Arms, Links &amp; Bushes</p>
+        </div>
+        <div class="cat-card" data-cat="filters" onclick="filterProducts('filters')">
+          <i class="cat-icon fa fa-filter" aria-hidden="true"></i>
+          <h3>Filters</h3>
+          <p>Oil, Air, Fuel &amp; Cabin</p>
+        </div>
+        <div class="cat-card" data-cat="electrical" onclick="filterProducts('electrical')">
+          <i class="cat-icon fa fa-bolt" aria-hidden="true"></i>
+          <h3>Electrical &amp; Ignition</h3>
+          <p>Spark Plugs, Coils, Sensors</p>
+        </div>
+        <div class="cat-card" data-cat="cooling" onclick="filterProducts('cooling')">
+          <i class="cat-icon fa fa-snowflake" aria-hidden="true"></i>
+          <h3>Cooling &amp; A/C</h3>
+          <p>Radiators, Thermostats, Fans</p>
+        </div>
+        <div class="cat-card" data-cat="oils-fluids" onclick="filterProducts('oils-fluids')">
+          <i class="cat-icon fa fa-oil-can" aria-hidden="true"></i>
+          <h3>Oils &amp; Fluids</h3>
+          <p>Engine Oil, Coolant, ATF</p>
+        </div>
+        <div class="cat-card" data-cat="transmission" onclick="filterProducts('transmission')">
+          <i class="cat-icon fa fa-gear" aria-hidden="true"></i>
+          <h3>Transmission &amp; Clutch</h3>
+          <p>Clutch Kits, Mounts, Filters</p>
+        </div>
+        <div class="cat-card" data-cat="exhaust" onclick="filterProducts('exhaust')">
+          <i class="cat-icon fa fa-wind" aria-hidden="true"></i>
+          <h3>Exhaust</h3>
+          <p>Sensors, Mounts &amp; Pipes</p>
+        </div>
+        <div class="cat-card" data-cat="body-lights" onclick="filterProducts('body-lights')">
+          <i class="cat-icon fa fa-lightbulb" aria-hidden="true"></i>
+          <h3>Body &amp; Lighting</h3>
+          <p>Lamps, Mirrors, Wipers</p>
+        </div>
+        <div class="cat-card" data-cat="accessories" onclick="filterProducts('accessories')">
+          <i class="cat-icon fa fa-toolbox" aria-hidden="true"></i>
+          <h3>Accessories</h3>
+          <p>Care, Tools &amp; Interior</p>
+        </div>
+        <div class="cat-card" data-cat="all" onclick="filterProducts('all')">
+          <i class="cat-icon fa fa-car" aria-hidden="true"></i>
+          <h3>All Parts</h3>
+          <p>Browse our full catalog</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="products">
+    <!-- Rotating brand banners — start where the products start and stay
+         pinned beside the product grid while it scrolls (sticky inside each
+         rail, which spans the section). Content is rendered by
+         initSideBanners() in js/02-catalog-render.js (falls back to Banners/
+         defaults, or whatever the admin has configured in Supabase). -->
+    <div class="side-banner-rail left"><div class="side-banner-slot left"><div class="side-banner" id="bannerLeft"></div></div></div>
+    <div class="side-banner-rail right"><div class="side-banner-slot right"><div class="side-banner" id="bannerRight"></div></div></div>
+    <div class="container">
+      <!-- Home › Products › Category — filled by renderCatCrumbs() in js/02-catalog-render.js while a category is open -->
+      <nav class="cat-crumbs" id="catCrumbs" aria-label="Breadcrumb"></nav>
+      <div class="products-controls">
+        <!-- autocomplete="off" on the form prevents browser from offering saved credentials -->
+        <form class="search-wrap" onsubmit="submitGridSearch();return false" autocomplete="off" role="search">
+          <i class="fa fa-search"></i>
+          <input type="search" id="searchInput" placeholder="Search by part name or part number..." data-i18n-placeholder="prod_search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+        </form>
+        <div class="sort-wrap">
+          <i class="fa fa-arrow-down-wide-short"></i>
+          <label for="sortSelect" class="visually-hidden">Sort products</label>
+          <select id="sortSelect" onchange="onSortChange(this.value)">
+            <option value="recommended">Recommended</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="newest">Newest</option>
+            <option value="name-asc">Name: A to Z</option>
+            <option value="name-desc">Name: Z to A</option>
+          </select>
+        </div>
+        <div class="filter-pills">
+          <button class="pill active" data-filter="all">All</button>
+          <button class="pill" data-filter="engine">Engine Parts</button>
+          <button class="pill" data-filter="brakes">Brakes</button>
+          <button class="pill" data-filter="suspension">Suspension &amp; Steering</button>
+          <button class="pill" data-filter="filters">Filters</button>
+          <button class="pill" data-filter="electrical">Electrical &amp; Ignition</button>
+          <button class="pill" data-filter="cooling">Cooling &amp; A/C</button>
+          <button class="pill" data-filter="oils-fluids">Oils &amp; Fluids</button>
+          <button class="pill" data-filter="transmission">Transmission &amp; Clutch</button>
+          <button class="pill" data-filter="exhaust">Exhaust</button>
+          <button class="pill" data-filter="body-lights">Body &amp; Lighting</button>
+          <button class="pill" data-filter="accessories">Accessories</button>
+        </div>
+        <!-- Reorders the category tile grid + pill row to match the admin's
+             saved order BEFORE the rest of the page finishes parsing, using
+             whatever order localStorage cached on the last visit (see
+             loadSBData() in js/01-config-data.js). Without this, the page
+             painted the hardcoded HTML order first and only jumped to the
+             real saved order once the Supabase fetch resolved a moment
+             later — visible every single load. This can still show the
+             hardcoded order once on a browser's very first-ever visit
+             (nothing cached yet), but every load after that is correct
+             from the start. -->
+        <script>
+        (function() {
+          try {
+            var order = JSON.parse(localStorage.getItem('cat_order_cache') || 'null');
+            if (!order || !order.length) return;
+            function reorder(container, attr) {
+              if (!container) return;
+              var els = Array.prototype.slice.call(container.children);
+              var bySlug = {};
+              els.forEach(function(el) { bySlug[el.getAttribute(attr)] = el; });
+              var ordered = order.map(function(slug) { return bySlug[slug]; }).filter(Boolean);
+              var leftover = els.filter(function(el) { return order.indexOf(el.getAttribute(attr)) === -1; });
+              ordered.concat(leftover).forEach(function(el) { container.appendChild(el); });
+            }
+            reorder(document.getElementById('categoriesGrid'), 'data-cat');
+            reorder(document.querySelector('.filter-pills'), 'data-filter');
+          } catch (e) {}
+          // Same idea as the reorder above, but for renamed categories (e.g.
+          // "Marhaba" -> "Generators" from the admin's category editor) —
+          // without this, the hardcoded HTML name flashed on screen for a
+          // moment before applyCatLabelOverrides() (js/02-catalog-render.js)
+          // fixed it once the async Supabase fetch resolved.
+          try {
+            var labels = JSON.parse(localStorage.getItem('cat_labels_cache') || 'null');
+            if (!labels) return;
+            Object.keys(labels).forEach(function(slug) {
+              var label = labels[slug];
+              var pill = document.querySelector('.pill[data-filter="' + slug + '"]');
+              if (pill) pill.textContent = label;
+              var card = document.querySelector('.cat-card[data-cat="' + slug + '"] h3');
+              if (card) card.textContent = label;
+            });
+          } catch (e) {}
+        })();
+        </script>
+        <div class="sub-filter-pills" id="subFilterPills"></div>
+      </div>
+      <!-- Shown when the typed search found nothing but a nearby spelling did
+           (see _didYouMean/renderProducts in js/02-catalog-render.js) — the
+           grid below is already showing the corrected results, not a dead end. -->
+      <div class="search-correction-notice" id="searchCorrectionNotice" style="display:none"></div>
+      <div class="products-grid" id="productsGrid"></div>
+      <!-- The grid renders in batches instead of all ~1,550 matching cards at
+           once (that was ~30,000 DOM nodes / 1,700 <img> elements on a phone,
+           which made the first paint and every scroll genuinely slow). This
+           sentinel sits below the last rendered batch; _gridWatchScroll in
+           js/02-catalog-render.js watches it on scroll and appends the next
+           batch once it nears the viewport, so scrolling still feels like one
+           continuous grid. The button is the explicit fallback for the case
+           where scroll events never arrive, and is what shows for a moment if
+           a visitor lands right on the sentinel. -->
+      <div class="grid-sentinel" id="gridSentinel" style="display:none">
+        <button class="btn btn-primary grid-more-btn" id="gridMoreBtn" onclick="_gridAppendBatch()" data-i18n="load_more">Load more products</button>
+      </div>
+      <div class="products-empty" id="productsEmpty" style="display:none">
+        <i class="fa fa-box-open"></i>
+        <p data-i18n="no_results">No products found. Try a different search.</p>
+      </div>
+      <!-- Every matching product still gets a real crawlable <a> here, because
+           the grid above now only renders the first batch. display:none keeps
+           it out of layout/paint entirely (~2 nodes per product, no images, no
+           observers) while preserving the internal links Google used to reach
+           the per-product pages from the homepage. Built once, by
+           _renderSeoProductLinks() in js/02-catalog-render.js. -->
+      <div id="seoProductLinks" style="display:none" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <div class="modal-overlay" id="cartModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>
+          <img src="logo.svg" width="640" height="200" alt="German Expert" class="modal-logo" onerror="this.style.display='none'" />
+          <i class="fa fa-shopping-cart"></i> <span data-i18n="cart_title">Your Cart</span>
+        </h3>
+        <button id="closeCart" aria-label="Close cart"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="modal-body" id="cartItems">
+        <p class="empty-cart" data-i18n="cart_empty">Your cart is empty.</p>
+      </div>
+      <div class="modal-footer">
+        <div class="cart-total"><span data-i18n="cart_total_label">Total:</span> <strong id="cartTotal">0.00 AED</strong></div>
+        <button class="btn btn-primary" id="checkoutBtn" style="width:100%;justify-content:center;margin-top:0">
+          <i class="fab fa-whatsapp"></i> <span data-i18n="cart_wa">Request Quote on WhatsApp</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECENTLY VIEWED -->
+  <section id="recentlyViewedSection" style="display:none;background:#fff;padding:36px 0 20px">
+    <div class="container">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <h3 style="font-size:17px;font-weight:800;color:var(--dark)"><i class="fa fa-history" style="color:var(--orange);margin-right:8px"></i>Recently Viewed</h3>
+      </div>
+      <div class="rv-grid" id="recentlyViewedGrid"></div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="container features-grid">
+      <div class="feature-card">
+        <i class="fa fa-shipping-fast"></i>
+        <h3 data-i18n="feat_delivery_h">Fast UAE Delivery</h3>
+        <p data-i18n="feat_delivery_p">Same-day delivery in Sharjah, and 1-2 business days to Dubai, Ajman and the rest of the UAE.</p>
+      </div>
+      <div class="feature-card">
+        <i class="fa fa-certificate"></i>
+        <h3 data-i18n="feat_genuine_h">Genuine &amp; OEM</h3>
+        <p data-i18n="feat_genuine_p">Original and OEM-quality parts from trusted German brands such as Bosch, Mann, Mahle, Lemförder and ATE.</p>
+      </div>
+      <div class="feature-card">
+        <i class="fa fa-headset"></i>
+        <h3 data-i18n="feat_advice_h">Fitment Help</h3>
+        <p data-i18n="feat_advice_p">Send us your VIN or chassis number and our specialists will confirm the right part for your car.</p>
+      </div>
+      <div class="feature-card">
+        <i class="fa fa-tags"></i>
+        <h3 data-i18n="feat_pricing_h">Garage Pricing</h3>
+        <p data-i18n="feat_pricing_p">Trade prices available for garages, workshops and fleet operators.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="container">
+      <div class="faq-head">
+        <span class="section-tag" data-i18n="faq_tag">Got Questions?</span>
+        <h2 data-i18n-html="faq_h2">Frequently Asked <span class="orange">Questions</span></h2>
+      </div>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary data-i18n="faq_q1">Where in the UAE do you deliver?</summary>
+          <p data-i18n="faq_a1">We deliver same day within Sharjah, and within 1-2 business days to Dubai, Ajman, Abu Dhabi, Umm Al Quwain, Ras Al Khaimah and Fujairah. You can also pick up from our Sharjah store.</p>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq_q2">What payment methods do you accept?</summary>
+          <p data-i18n="faq_a2">We accept cash on delivery, card on delivery and bank transfer. Payment details are confirmed with you directly on WhatsApp after you place an order.</p>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq_q3">How do I make sure a part fits my car?</summary>
+          <p data-i18n="faq_a3">Filter by your car make, search by part number, or send us your VIN (chassis number) on WhatsApp — we will confirm the exact part before you pay.</p>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq_q4">Can I return or exchange a part?</summary>
+          <p data-i18n="faq_a4">Yes. Unused, uninstalled parts in their original packaging can be returned or exchanged within 7 days of delivery. Electrical parts can only be exchanged if faulty. Contact us on WhatsApp to arrange it.</p>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq_q5">How do I track my order or get help?</summary>
+          <p data-i18n="faq_a5">Use the "Track Order" button in the menu and enter the Order ID from your confirmation, or message us on WhatsApp anytime — our team replies fast.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="container contact-grid">
+      <div class="contact-info">
+        <div class="contact-logo-row">
+          <img src="logo.svg" width="640" height="200" alt="German Expert" class="contact-logo-img" onerror="this.style.display='none'" />
+          <span class="contact-brand-txt" style="font-size:0.85em">GERMAN EXPERT</span>
+        </div>
+        <span class="section-tag" data-i18n="contact_tag">Get In Touch</span>
+        <h2 data-i18n-html="contact_h2">We're Here to <span class="orange">Help</span></h2>
+        <p data-i18n="contact_p">Can't find a part? Send us your VIN or part number and our team will source it for you — in Arabic or English.</p>
+        <div class="contact-items">
+          <div class="contact-item">
+            <i class="fa fa-map-marker-alt"></i>
+            <div><strong data-i18n="contact_loc_label">Location</strong><a href="https://www.google.com/maps/search/?api=1&amp;query=German+Expert+Sharjah" target="_blank" style="color:inherit;text-decoration:underline">View on Google Maps</a></div>
+          </div>
+          <div class="contact-item">
+            <i class="fa fa-envelope"></i>
+            <div><strong data-i18n="contact_email_label">Email</strong><span>info@german-expert.ae</span><!-- TODO-CONTACT --></div>
+          </div>
+          <div class="contact-item">
+            <i class="fa fa-phone"></i>
+            <div><strong data-i18n="contact_phone_label">Phone / WhatsApp</strong><span>+971 50 000 0000</span><!-- TODO-CONTACT --></div>
+          </div>
+          <div class="contact-item">
+            <i class="fa fa-clock"></i>
+            <div><strong data-i18n="contact_hours_label">Working Hours</strong><span data-i18n="contact_hours">Sat-Thu: 8 AM - 9 PM</span></div>
+          </div>
+        </div>
+        <div class="social-links">
+          <a href="https://wa.me/971500000000" target="_blank" aria-label="Chat with us on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+      <form class="contact-form" id="contactForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label data-i18n="form_name" for="contactName">Full Name</label>
+            <input type="text" id="contactName" data-i18n-placeholder="form_name_ph" placeholder="Your full name" required />
+          </div>
+          <div class="form-group">
+            <label data-i18n="form_phone" for="contactPhone">Phone / WhatsApp</label>
+            <input type="tel" id="contactPhone" placeholder="+971 5X XXX XXXX" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label data-i18n="form_email" for="contactEmail">Email</label>
+          <input type="email" id="contactEmail" placeholder="you@example.com" required />
+        </div>
+        <div class="form-group">
+          <label data-i18n="form_need" for="contactNeed">What do you need?</label>
+          <select id="contactNeed">
+            <option data-i18n="form_opt1">General Enquiry</option>
+            <option data-i18n="form_opt2">Part Request (VIN)</option>
+            <option data-i18n="form_opt3">Part Availability</option>
+            <option data-i18n="form_opt4">Garage / Trade Account</option>
+            <option data-i18n="form_opt5">Delivery Information</option>
+            <option data-i18n="form_opt6">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n="form_msg">Message</label>
+          <textarea rows="4" data-i18n-placeholder="form_msg_ph" placeholder="Car make, model, year, VIN and the part you need..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary full-width"><span data-i18n="form_send">Send Message</span> <i class="fa fa-paper-plane"></i></button>
+        <div class="form-success" id="formSuccess" data-i18n="form_success">Message sent! We will get back to you shortly.</div>
+      </form>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="container about-grid">
+      <div class="about-img-wrap">
+        <div class="about-img-card">
+          <img src="logo.svg" width="640" height="200" alt="German Expert" onerror="this.style.display='none'" />
+        </div>
+        <div class="about-badge"><i class="fa fa-location-dot"></i> <span data-i18n="about_badge">Sharjah</span></div>
+      </div>
+      <div class="about-text">
+        <span class="section-tag" data-i18n="about_tag">Who We Are</span>
+        <h2 data-i18n-html="about_h2">Your <span class="orange">German Car</span> Parts Specialist</h2>
+        <p data-i18n="about_p1">German Expert is a Sharjah-based specialist in parts for German cars. From service items like filters and brake pads to engine, suspension and electrical parts, we stock what Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI owners need.</p>
+        <p data-i18n="about_p2">We supply genuine and OEM-quality parts only, at fair prices, with real fitment advice in Arabic and English.</p>
+        <ul class="about-features">
+          <li><i class="fa fa-check-circle"></i> <span data-i18n="about_f1">Genuine and OEM-quality parts only</span></li>
+          <li><i class="fa fa-check-circle"></i> <span data-i18n="about_f2">Fitment checked by VIN on request</span></li>
+          <li><i class="fa fa-check-circle"></i> <span data-i18n="about_f3">Same-day delivery within Sharjah</span></li>
+          <li><i class="fa fa-check-circle"></i> <span data-i18n="about_f4">Trade pricing for garages and workshops</span></li>
+          <li><i class="fa fa-check-circle"></i> <span data-i18n="about_f5">Easy returns and after-sales support</span></li>
+        </ul>
+        <div class="about-btns">
+          <a href="#contact" class="btn btn-primary"><i class="fa fa-phone"></i> <span data-i18n="about_cta">Contact Us</span></a>
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=German+Expert+Sharjah" target="_blank" class="btn btn-outline"><i class="fa fa-map-marker-alt"></i> Our Location</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  </main>
+
+  <footer>
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <div class="footer-brand-wrap">
+          <img src="logo.svg" width="640" height="200" alt="German Expert" class="footer-logo" onerror="this.style.display='none'" />
+          <div class="footer-brand-name-text">German<span>Expert</span></div>
+        </div>
+        <p data-i18n="footer_desc">Sharjah's specialist for genuine and OEM-quality German car parts, delivering across the UAE.</p>
+        <div class="social-links">
+          <a href="https://wa.me/971500000000" target="_blank" aria-label="Chat with us on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h3 data-i18n="footer_nav">Navigation</h3>
+        <a href="#about" data-i18n="nav_about">About Us</a>
+        <a href="#products" data-i18n="nav_products">Parts</a>
+        <a href="#faq" data-i18n="nav_faq">FAQ</a>
+        <a href="#contact" data-i18n="nav_contact">Contact</a>
+      </div>
+      <div class="footer-links">
+        <h3 data-i18n="footer_cats">Categories</h3>
+        <a href="#categories" onclick="filterProducts('engine')" data-i18n="cat_engine">Engine Parts</a>
+        <a href="#categories" onclick="filterProducts('brakes')" data-i18n="cat_brakes">Brakes</a>
+        <a href="#categories" onclick="filterProducts('suspension')" data-i18n="cat_suspension">Suspension &amp; Steering</a>
+        <a href="#categories" onclick="filterProducts('filters')" data-i18n="cat_filters">Filters</a>
+        <a href="#categories" onclick="filterProducts('electrical')" data-i18n="cat_electrical">Electrical &amp; Ignition</a>
+        <a href="#categories" onclick="filterProducts('cooling')" data-i18n="cat_cooling">Cooling &amp; A/C</a>
+      </div>
+      <div class="footer-links">
+        <h3 data-i18n="footer_support">Support</h3>
+        <a href="#contact" data-i18n="footer_trade">Garage Accounts</a>
+        <a href="#contact" data-i18n="footer_bulk">Bulk Orders</a>
+        <a href="#contact" data-i18n="footer_delivery_info">Delivery Info</a>
+        <a href="#contact" data-i18n="footer_returns">Returns Policy</a>
+        <a href="#contact" data-i18n="footer_tech">Fitment Help</a>
+        <a href="accessibility.html" data-i18n="footer_accessibility">Accessibility</a>
+        <a href="terms.html#privacy" data-i18n="footer_privacy">Privacy Policy</a>
+      </div>
+    </div>
+    <!-- ── SUBSCRIBE TO OFFERS ─────────────────────────────────────────── -->
+    <div class="subscribe-band">
+      <div class="container subscribe-inner">
+        <div class="subscribe-copy">
+          <h3><i class="fa fa-envelope-open-text"></i> Subscribe to our offers</h3>
+          <p>Get deals, new arrivals and garage discounts from German Expert straight to your inbox.</p>
+        </div>
+        <form class="subscribe-form" onsubmit="doSubscribe(event)">
+          <div class="subscribe-row">
+            <input type="email" id="subEmail" placeholder="you@email.com" autocomplete="email" aria-label="Email address" />
+            <button type="submit" id="subBtn"><i class="fa fa-paper-plane"></i> Subscribe</button>
+          </div>
+          <label class="subscribe-consent">
+            <input type="checkbox" id="subConsent" />
+            <span>I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms &amp; Conditions</a> and <a href="terms.html#privacy" target="_blank" rel="noopener">Privacy Policy</a>, and consent to receiving marketing emails. I can unsubscribe anytime.</span>
+          </label>
+          <div class="subscribe-msg" id="subMsg"></div>
+        </form>
+      </div>
+    </div>
+    <div class="footer-location">
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=German+Expert+Sharjah" target="_blank" class="footer-map-btn">
+        <i class="fa fa-map-marker-alt"></i> Find Us — German Expert, Sharjah on Google Maps
+      </a>
+    </div>
+    <div class="footer-bottom">
+      <span data-i18n="footer_copy">© 2026 German Expert. All rights reserved. Sharjah, UAE.</span>
+    </div>
+  </footer>
+
+  <!-- INTRODUCTION -->
+  <section id="intro">
+    <div class="container intro-inner">
+      <div class="intro-logo-row">
+        <img src="logo.svg" width="640" height="200" alt="German Expert" class="intro-logo-img" onerror="this.style.display='none'" />
+        <span class="intro-brand-txt" style="font-size:0.85em">GERMAN EXPERT</span>
+      </div>
+      <span class="section-tag intro-tag" data-i18n="intro_tag">Welcome to German Expert</span>
+      <h2 class="intro-heading" data-i18n-html="intro_h2">
+        Sharjah's <span class="orange">German Car</span> Parts Specialist
+      </h2>
+      <p class="intro-body" data-i18n="intro_p">
+        German Expert supplies engine, brake, suspension, filter, electrical and cooling parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI to drivers and garages across the UAE. Tell us your car and we'll find the right part.
+      </p>
+      <div class="intro-checks">
+        <span class="intro-check"><i class="fa fa-check-circle"></i> <span data-i18n="intro_c1">Genuine &amp; OEM Parts</span></span>
+        <span class="intro-check"><i class="fa fa-check-circle"></i> <span data-i18n="intro_c2">Same-Day Sharjah Delivery</span></span>
+        <span class="intro-check"><i class="fa fa-check-circle"></i> <span data-i18n="intro_c3">Garage &amp; Trade Pricing</span></span>
+        <span class="intro-check"><i class="fa fa-check-circle"></i> <span data-i18n="intro_c4">Arabic &amp; English Support</span></span>
+      </div>
+      <a href="tel:+971500000000" class="intro-cta"><!-- TODO-CONTACT -->
+        <i class="fa fa-phone"></i> <span data-i18n="intro_cta_text">Call Us: +971 50 000 0000</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- CHECKOUT MODAL -->
+  <div class="checkout-overlay" id="checkoutOverlay">
+    <div class="checkout-box">
+      <div class="co-header">
+        <h3>
+          <img src="logo.svg" width="640" height="200" alt="German Expert" class="modal-logo" onerror="this.style.display='none'" />
+          <i class="fab fa-whatsapp"></i> <span data-i18n="co_title">Complete Your Order</span>
+        </h3>
+        <button class="co-close" id="closeCheckout" aria-label="Close checkout"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="co-body" id="coBody">
+        <div class="co-main">
+        <div class="co-section">
+          <div class="co-section-title"><i class="fa fa-user"></i> <span data-i18n="co_your_details">Your Details</span></div>
+          <div class="co-form-row">
+            <div class="co-field"><label data-i18n="co_full_name" for="coName">Full Name *</label><input type="text" id="coName" placeholder="Your full name" /></div>
+            <div class="co-field"><label data-i18n="co_wa_num" for="coPhone">WhatsApp Number *</label><input type="tel" id="coPhone" placeholder="+971 5X XXX XXXX" /></div>
+          </div>
+          <div class="co-field"><label for="coEmail">Email * <small style="font-weight:400;color:#888">— we'll send your order summary and Order ID here</small></label><input type="email" id="coEmail" placeholder="you@example.com" autocomplete="email" /></div>
+        </div>
+        <!-- FULFILMENT TOGGLE -->
+        <div class="co-section">
+          <div class="co-section-title"><i class="fa fa-truck"></i> Fulfilment Method</div>
+          <div class="co-fulfilment-toggle">
+            <button class="co-ft-btn active" id="ftDelivery" onclick="setFulfilment('delivery')">
+              <i class="fa fa-shipping-fast"></i> Delivery
+            </button>
+            <button class="co-ft-btn" id="ftPickup" onclick="setFulfilment('pickup')">
+              <i class="fa fa-store"></i> Pick Up
+            </button>
+          </div>
+          <div id="coPickupInfo" style="display:none" class="co-pickup-info">
+            <i class="fa fa-map-marker-alt"></i>
+            <span>Pick up from our store — <strong>German Expert, Sharjah</strong><br/>
+            We'll confirm the ready time on WhatsApp.</span>
+          </div>
+        </div>
+
+        <div class="co-section" id="coDeliverySection">
+          <div class="co-section-title"><i class="fa fa-map-marker-alt"></i> <span data-i18n="co_delivery_addr">Delivery Address</span></div>
+          <div class="co-field">
+            <label data-i18n="co_area" for="coArea">Emirate *</label>
+            <select id="coArea">
+              <option value="">-- Select Emirate --</option>
+              <option>Sharjah</option><option>Dubai</option><option>Ajman</option>
+              <option>Abu Dhabi</option><option>Umm Al Quwain</option>
+              <option>Ras Al Khaimah</option><option>Fujairah</option>
+            </select>
+          </div>
+          <div class="co-form-row">
+            <div class="co-field"><label data-i18n="co_block" for="coBlock">Area</label><input type="text" id="coBlock" placeholder="Al Nahda" /></div>
+            <div class="co-field"><label data-i18n="co_street" for="coStreet">Street</label><input type="text" id="coStreet" placeholder="Street name / number" /></div>
+          </div>
+          <div class="co-form-row">
+            <div class="co-field"><label data-i18n="co_house" for="coHouse">Building / Villa</label><input type="text" id="coHouse" placeholder="Building or villa" /></div>
+            <div class="co-field"><label data-i18n="co_floor" for="coFloor">Flat / Unit</label><input type="text" id="coFloor" placeholder="Flat 204" /></div>
+          </div>
+          <div class="co-field"><label data-i18n="co_notes" for="coNotes">Notes</label><input type="text" id="coNotes" placeholder="Leave at door, call on arrival..." /></div>
+        </div>
+        </div>
+        <div class="co-aside">
+          <div class="co-section co-summary-card">
+            <div class="co-section-title"><i class="fa fa-shopping-cart"></i> <span data-i18n="co_order_sum">Order Summary</span></div>
+            <div class="co-order-items" id="coItems"></div>
+            <div class="co-total"><span data-i18n="co_total_label">Total Amount</span><strong id="coTotal">0.00 AED</strong></div>
+            <button class="co-wa-btn" id="coSubmitBtn"><i class="fab fa-whatsapp" style="font-size:20px"></i> <span data-i18n="co_submit">Send Order on WhatsApp</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── LIVE SEARCH RESULTS (full-screen) ──────────────────────────────
+       Opens over the whole viewport while typing in the always-visible
+       product search box, ranked closest-match-first (exact name match,
+       then starts-with, then contains, then everything else matchesSearch
+       found via description/category/brand/keywords). Distinct from the
+       small header search dropdown, which still just filters the grid
+       below it. -->
+  <div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)closeSearchOverlay()">
+    <div class="search-overlay-panel">
+      <div class="search-overlay-head">
+        <span class="search-overlay-summary" id="searchOverlaySummary"></span>
+        <button class="search-overlay-close" onclick="closeSearchOverlay()" aria-label="Close search results"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="search-overlay-body" id="searchOverlayBody">
+        <div class="search-overlay-grid" id="searchOverlayGrid"></div>
+        <div class="search-overlay-empty" id="searchOverlayEmpty" style="display:none">
+          <i class="fa fa-box-open"></i>
+          <p id="searchOverlayEmptyText">No products found.</p>
+        </div>
+      </div>
+      <button class="search-overlay-more" id="searchOverlayMore" onclick="viewAllSearchResults()" style="display:none"></button>
+    </div>
+  </div>
+
+  <!-- PRODUCT DETAIL POPUP -->
+  <div class="prod-overlay" id="prodOverlay" onclick="if(event.target===this)closeProduct()">
+    <div class="prod-modal">
+      <div class="prod-modal-topbar">
+        <div class="prod-modal-topbar-inner">
+          <button class="pm-home-btn" onclick="closeProduct()" title="German Expert home" aria-label="German Expert home">
+            <img src="logo.svg" width="640" height="200" alt="German Expert" onerror="this.style.display='none'" />
+          </button>
+          <button class="prod-back-btn" onclick="closeProduct()">
+            <i class="fa fa-arrow-left"></i> <span data-i18n="back_btn">Back to Parts</span>
+          </button>
+          <nav class="pm-crumbs" id="pmCrumbs" aria-label="Breadcrumb"><!-- filled by JS (openProduct) --></nav>
+        </div>
+      </div>
+      <div class="prod-modal-body" id="prodModalBody">
+        <!-- filled by JS — SKU sits near the description (see openProduct) -->
+      </div>
+      <div class="pm-related-section" id="pmRelatedSection">
+        <!-- filled by JS: "Customers Also Bought" -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUBSCRIBE-TO-OFFERS PROMPT ──────────────────────────────────────
+       Replaces the old auto sign-in nudge — that popped the sign-in flow
+       unprompted, which read as intrusive. This offers the same welcome
+       moment for something with a lower ask (an email, not an account) and
+       a clearer payoff (real deals), and never opens the sign-in modal. -->
+  <div id="offersNudge" class="login-prompt" style="display:none">
+    <button class="lp-close" onclick="dismissOffersNudge()" title="Dismiss" aria-label="Dismiss"><i class="fa fa-times"></i></button>
+    <div class="lp-inner">
+      <div class="lp-icon"><i class="fa fa-envelope-open-text"></i></div>
+      <div class="lp-text">
+        <strong>Get Our Best Offers</strong>
+        <span>Deals, new arrivals and trade discounts straight to your inbox.</span>
+        <form class="lp-sub-form" onsubmit="doNudgeSubscribe(event)">
+          <input type="email" id="nudgeSubEmail" placeholder="you@email.com" autocomplete="email" aria-label="Email address" required />
+          <label class="lp-sub-consent">
+            <input type="checkbox" id="nudgeSubConsent" />
+            <span>I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a> &amp; <a href="terms.html#privacy" target="_blank" rel="noopener">Privacy Policy</a>.</span>
+          </label>
+          <button type="submit" class="lp-btn" id="nudgeSubBtn">Subscribe</button>
+          <div class="subscribe-msg" id="nudgeSubMsg"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shown once, right after a brand-new Google sign-up completes — the
+       normal signup form's "Send me offers & updates" checkbox never gets
+       a chance to appear for Google accounts, since that flow is a full-page
+       redirect away and back (see completeGoogleSignupSubscribePrompt() in
+       js/05-accounts.js). Email is already known, so this is just the one
+       checkbox, no form fields. -->
+  <div id="googleSubscribePrompt" class="login-prompt" style="display:none">
+    <button class="lp-close" onclick="dismissGoogleSubscribePrompt()" title="Dismiss" aria-label="Dismiss"><i class="fa fa-times"></i></button>
+    <div class="lp-inner">
+      <div class="lp-icon"><i class="fa fa-envelope-open-text"></i></div>
+      <div class="lp-text">
+        <strong>Welcome!</strong>
+        <span>Want deals, new arrivals and trade discounts in your inbox?</span>
+        <label class="lp-sub-consent">
+          <input type="checkbox" id="googleSubscribeCheck" />
+          <span>Send me offers &amp; updates by email.</span>
+        </label>
+        <button type="button" class="lp-btn" onclick="confirmGoogleSubscribePrompt()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AUTH MODAL (Login / Sign Up / Forgot Password) ────────────────── -->
+  <div class="auth-overlay" id="authOverlay" onclick="if(event.target===this)closeAuthModal()">
+    <div class="auth-modal">
+      <div class="auth-head">
+        <button class="auth-close-x" onclick="closeAuthModal()" aria-label="Close sign in"><i class="fa fa-times"></i></button>
+        <div class="auth-logo-row">
+          <img src="logo.svg" width="640" height="200" alt="German Expert" onerror="this.style.display='none'" />
+          <span style="font-size:0.85em">EXPERT HARDWARE<br>FOR WHOLESALE &amp; RETAIL TRADE</span>
+        </div>
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="authTabLogin"  onclick="switchAuthTab('login')">Sign In</button>
+          <button class="auth-tab"        id="authTabSignup" onclick="switchAuthTab('signup')">Create Account</button>
+        </div>
+      </div>
+      <div class="auth-body">
+        <ul class="auth-benefits" id="authBenefits">
+          <li><i class="fa fa-check-circle"></i> Track your orders from checkout to delivery</li>
+          <li><i class="fa fa-check-circle"></i> Save your address for faster checkout next time</li>
+          <li><i class="fa fa-check-circle"></i> Build a wishlist across your devices</li>
+          <li><i class="fa fa-check-circle"></i> Get order updates by email</li>
+        </ul>
+        <!-- Error / success banners -->
+        <div class="auth-err" id="authErr"></div>
+        <div class="auth-ok"  id="authOk"></div>
+
+        <!-- LOGIN FORM -->
+        <form id="authLoginForm" onsubmit="doAuthLogin();return false;" autocomplete="on">
+          <!-- hidden decoy fields so Chrome doesn't suggest admin credentials here -->
+          <input type="text"     style="display:none" name="decoy-user" autocomplete="username" tabindex="-1" aria-hidden="true" />
+          <input type="password" style="display:none" name="decoy-pass" autocomplete="current-password" tabindex="-1" aria-hidden="true" />
+          <button type="button" class="auth-google" onclick="authGoogleSignIn()">
+            <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.83.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.9 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
+            <span>Continue with Google</span>
+          </button>
+          <div class="auth-divider"><span>or</span></div>
+          <div class="auth-field">
+            <label>Email Address</label>
+            <input type="email" id="authLoginEmail" name="customer-email" placeholder="you@email.com" autocomplete="email" />
+          </div>
+          <div class="auth-field">
+            <label>Password</label>
+            <input type="password" id="authLoginPass" name="customer-password" placeholder="Your password" autocomplete="off" onkeydown="if(event.key==='Enter')doAuthLogin()" />
+          </div>
+          <button class="auth-forgot-link" onclick="switchAuthTab('forgot')">Forgot password?</button>
+          <button class="auth-submit" id="authLoginBtn" onclick="doAuthLogin()">
+            <i class="fa fa-sign-in-alt"></i> Sign In
+          </button>
+          <div class="auth-bottom-note">
+            Don't have an account? <button type="button" onclick="switchAuthTab('signup')">Create one — it's free</button>
+          </div>
+        </form>
+
+        <!-- SIGN UP FORM -->
+        <div id="authSignupForm" style="display:none">
+          <button type="button" class="auth-google" onclick="authGoogleSignIn()">
+            <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.83.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.9 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
+            <span>Sign up with Google</span>
+          </button>
+          <div class="auth-divider"><span>or</span></div>
+          <div class="auth-field">
+            <label>Full Name</label>
+            <input type="text" id="authSignupName" placeholder="Your full name" autocomplete="name" />
+          </div>
+          <div class="auth-field">
+            <label>Email Address</label>
+            <input type="email" id="authSignupEmail" placeholder="you@email.com" autocomplete="email" />
+          </div>
+          <div class="auth-field">
+            <label>Password <small style="font-weight:400;text-transform:none;font-size:10px">(min 8 characters, letters &amp; numbers)</small></label>
+            <input type="password" id="authSignupPass" placeholder="Choose a password" autocomplete="new-password" onkeydown="if(event.key==='Enter')doAuthSignup()" />
+          </div>
+          <label class="auth-consent">
+            <input type="checkbox" id="authSignupConsent" />
+            <span>I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms &amp; Conditions</a> and <a href="terms.html#privacy" target="_blank" rel="noopener">Privacy Policy</a>, and consent to German Expert processing my data as described.</span>
+          </label>
+          <label class="auth-consent">
+            <input type="checkbox" id="authSignupSubscribe" />
+            <span>Send me offers &amp; updates by email.</span>
+          </label>
+          <button class="auth-submit" id="authSignupBtn" onclick="doAuthSignup()">
+            <i class="fa fa-user-plus"></i> Create Account
+          </button>
+          <div class="auth-bottom-note">
+            Already have an account? <button onclick="switchAuthTab('login')">Sign in</button>
+          </div>
+        </div>
+
+        <!-- FORGOT PASSWORD FORM -->
+        <div id="authForgotForm" style="display:none">
+          <p style="font-size:13px;color:#666;margin-bottom:16px;line-height:1.6">
+            Enter your email and we'll send you a link to reset your password.
+          </p>
+          <div class="auth-field">
+            <label>Email Address</label>
+            <input type="email" id="authForgotEmail" placeholder="you@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')doAuthForgot()" />
+          </div>
+          <button class="auth-submit" id="authForgotBtn" onclick="doAuthForgot()">
+            <i class="fa fa-envelope"></i> Send Reset Link
+          </button>
+          <div class="auth-bottom-note">
+            Remembered it? <button onclick="switchAuthTab('login')">Back to sign in</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ACCOUNT MODAL (Profile + My Orders) ───────────────────────────── -->
+  <div class="acct-overlay" id="acctOverlay" onclick="if(event.target===this)closeAcctModal()">
+    <div class="acct-modal">
+      <div class="acct-head">
+        <div class="acct-user-row">
+          <div class="acct-user-info">
+            <div class="acct-avatar" id="acctAvatar">?</div>
+            <div>
+              <div class="acct-uname" id="acctUname">My Account</div>
+              <div class="acct-uemail" id="acctUemail"></div>
+            </div>
+          </div>
+          <button class="acct-signout-btn" onclick="doSignOut()"><i class="fa fa-sign-out-alt"></i> Sign Out</button>
+        </div>
+        <div class="acct-tabs">
+          <button class="acct-tab active" id="acctTabProfile" onclick="switchAcctTab('profile')"><i class="fa fa-user"></i> Profile</button>
+          <button class="acct-tab"        id="acctTabOrders"  onclick="switchAcctTab('orders')"><i class="fa fa-receipt"></i> My Orders</button>
+        </div>
+      </div>
+
+      <!-- PROFILE PANE -->
+      <div class="acct-body" id="acctProfilePane">
+        <div class="acct-ok" id="acctOk"></div>
+        <div class="acct-field">
+          <label>Full Name</label>
+          <input type="text" id="profName" placeholder="Your full name" />
+        </div>
+        <div class="acct-field">
+          <label>WhatsApp / Phone</label>
+          <input type="tel" id="profPhone" placeholder="+971 5X XXX XXXX" />
+        </div>
+        <div class="acct-field">
+          <label>Default Delivery Address</label>
+          <textarea id="profAddress" rows="3" placeholder="Building, street, area, emirate"></textarea>
+        </div>
+        <button class="acct-save-btn" onclick="doSaveProfile()"><i class="fa fa-save"></i> Save Profile</button>
+      </div>
+
+      <!-- MY ORDERS PANE -->
+      <div class="acct-body" id="acctOrdersPane" style="display:none">
+        <div id="myOrdersList"><div class="myo-loading"><i class="fa fa-spinner fa-spin"></i> Loading orders...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING CART BUTTON (mobile only, bottom-left) -->
+  <button class="mob-cart-fab" id="mobCartFab" onclick="openCart()">
+    <i class="fa fa-shopping-cart"></i>
+    <span id="mobCartCount">0</span>
+  </button>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastMsg" class="toast-msg"></div>
+
+  <!-- WHATSAPP CHAT FAB (bottom-right) -->
+  <button class="wa-chat-fab" onclick="openWAChat()" title="Chat with us on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+    <span class="wa-chat-label">Chat</span>
+  </button>
+
+  <!-- WISHLIST MODAL -->
+  <div class="wl-overlay" id="wishlistOverlay" onclick="if(event.target===this)closeWishlist()">
+    <div class="wl-modal">
+      <div class="wl-head">
+        <h3><i class="fa fa-heart" style="color:var(--orange)"></i> My Wishlist <span id="wishlistBadge" class="wl-count-badge" style="display:none">0</span></h3>
+        <button onclick="closeWishlist()" aria-label="Close wishlist"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="wl-body" id="wishlistBody"></div>
+    </div>
+  </div>
+
+  <!-- REVIEWS MODAL -->
+  <div class="review-overlay" id="reviewOverlay" onclick="if(event.target===this)closeReviews()">
+    <div class="review-modal">
+      <div class="review-head">
+        <h3><i class="fa fa-star" style="color:#f5c518"></i> Reviews — <span id="reviewProductName"></span></h3>
+        <button onclick="closeReviews()" aria-label="Close reviews"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="review-body">
+        <div class="rev-write-section">
+          <h4>Leave a Review</h4>
+          <div id="reviewStarInput" style="margin-bottom:10px"></div>
+          <input type="text" id="reviewNameInput" placeholder="Your name (optional)" class="rev-input" />
+          <textarea id="reviewCommentInput" placeholder="Share your experience..." class="rev-textarea" rows="3"></textarea>
+          <div class="rev-err" id="reviewErr"></div>
+          <button class="rev-submit-btn" id="reviewSubmitBtn" onclick="submitReview()"><i class="fa fa-paper-plane"></i> Submit Review</button>
+        </div>
+        <div class="rev-list-section">
+          <h4>Customer Reviews</h4>
+          <div id="reviewList"><p style="color:#aaa;font-size:13px;text-align:center;padding:16px">Loading...</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BULK QUOTE MODAL -->
+  <div class="bulk-overlay" id="bulkOverlay" onclick="if(event.target===this)closeBulkQuote()">
+    <div class="bulk-modal">
+      <div class="bulk-head">
+        <h3><i class="fa fa-clipboard-list" style="color:var(--orange)"></i> Bulk / Trade Quote</h3>
+        <button onclick="closeBulkQuote()" aria-label="Close bulk quote"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="bulk-body">
+        <p style="font-size:13px;color:#666;margin-bottom:16px">Select products and quantities — we'll send your quote request directly on WhatsApp.</p>
+        <div class="bulk-name-row">
+          <input type="text" id="bulkName" placeholder="Your Name (optional)" class="bulk-input" />
+          <input type="tel" id="bulkPhone" placeholder="Your Phone (optional)" class="bulk-input" />
+        </div>
+        <div id="bulkRows"></div>
+        <button class="bulk-add-row-btn" onclick="addBulkRow()"><i class="fa fa-plus"></i> Add Another Item</button>
+        <button class="bulk-send-btn" onclick="sendBulkQuote()"><i class="fab fa-whatsapp"></i> Send Quote on WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDER TRACKING MODAL -->
+  <div class="track-overlay" id="trackOverlay" onclick="if(event.target===this)closeOrderTracker()">
+    <div class="track-modal">
+      <div class="track-head">
+        <h3><i class="fa fa-box"></i> My Orders</h3>
+        <button onclick="closeOrderTracker()" aria-label="Close order tracker"><i class="fa fa-times"></i></button>
+      </div>
+      <!-- TABS -->
+      <div class="track-tabs">
+        <button class="track-tab active" id="tabTrack" onclick="switchOrderTab('track')"><i class="fa fa-search"></i> Track Order</button>
+        <button class="track-tab" id="tabCancel" onclick="switchOrderTab('cancel')"><i class="fa fa-times-circle"></i> Cancel Order</button>
+      </div>
+      <!-- TRACK PANEL -->
+      <div class="track-body" id="panelTrack">
+        <p style="font-size:13px;color:#666;margin-bottom:16px">Paste the Order ID from your confirmation email (or the order confirmation screen) to see what you ordered.</p>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input type="text" id="trackOrderId" placeholder="Order ID  (e.g. K7MQ4-XR2PT)" class="track-input" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')trackOrder()" />
+          <button class="track-btn" onclick="trackOrder()"><i class="fa fa-search"></i> Find</button>
+        </div>
+        <div class="track-err" id="trackErr"></div>
+        <div id="trackResults"></div>
+      </div>
+      <!-- CANCEL PANEL -->
+      <div class="track-body" id="panelCancel" style="display:none">
+        <div class="cancel-info-box">
+          <i class="fa fa-clock"></i>
+          <span>You can only cancel orders placed <strong>within the last hour</strong>. After that, please contact us on WhatsApp.</span>
+        </div>
+        <p style="font-size:13px;color:#666;margin-bottom:16px;margin-top:12px">Paste the Order ID from your confirmation email.</p>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input type="text" id="cancelOrderId" placeholder="Order ID  (e.g. K7MQ4-XR2PT)" class="track-input" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')findCancelOrders()" />
+          <button class="track-btn" onclick="findCancelOrders()"><i class="fa fa-search"></i> Find</button>
+        </div>
+        <div class="track-err" id="cancelErr"></div>
+        <div id="cancelResults"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // DOM appends with async=false keep the same in-order execution
+  // document.write gave us, without being vulnerable to the extensions/
+  // interventions that block document.write (see the CSS loader in <head>)
+  (function() {
+    var v = '';
+    try { v = localStorage.getItem('expert_asset_v') || ''; } catch(e) {}
+    v = /^[0-9]+$/.test(v) ? v : '202608170500';
+    ['01-config-data','02-catalog-render','03-product-cart-checkout','04-i18n-order','05-accounts','06-features','07-subscribe'].forEach(function(f) {
+      var s = document.createElement('script');
+      s.src = 'code/js/' + f + '.js?v=' + v;
+      s.async = false;
+      document.body.appendChild(s);
+    });
+  })();
+  </script>
+</body>
+</html>
