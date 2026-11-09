@@ -95,6 +95,23 @@
 }
 .ge-car-shadow { position: absolute; left: 10%; right: 10%; bottom: -4%; height: 16%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.75), transparent); animation: geCarShadow 6s ease-in-out infinite; z-index: -1; }
 
+/* Prev / next arrows. Sit above the car (.ge-car-tilt is z-index 1, the
+   caption 2) and are vertically centred, which keeps them clear of the
+   caption in the bottom corner. */
+.ge-car-nav {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
+  width: 46px; height: 46px; padding: 0; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .18);
+  color: #fff; font-size: 16px; line-height: 1; cursor: pointer;
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+.ge-car-nav:hover { background: var(--orange); border-color: var(--orange); color: #fff; }
+.ge-car-nav:focus-visible { outline: 2px solid var(--orange-light); outline-offset: 3px; }
+.ge-car-nav.prev { left: 0; }
+.ge-car-nav.next { right: 0; }
+
 /* Caption, bottom corner of the stage */
 .ge-car-cap { position: absolute; right: 2px; bottom: 6px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
 .ge-car-cap-lead { font-size: 13px; letter-spacing: .4px; color: rgba(255,255,255,.62); }
@@ -121,6 +138,8 @@
   .ge-hero-stage { height: clamp(310px, 82vw, 470px); }
   .ge-car { padding-bottom: 104px; }
   .ge-car-tilt { width: min(82%, 500px); }
+  /* Smaller, and pulled above the caption band the car already clears. */
+  .ge-car-nav { width: 38px; height: 38px; font-size: 14px; top: 42%; }
   .ge-car-model { width: 94%; height: 62%; transform: translate(-50%, -78%); }
   .ge-car-cap { left: 0; right: 0; bottom: 0; align-items: center; text-align: center; }
   .ge-hero-title { font-size: clamp(30px, 8vw, 44px); }

@@ -142,7 +142,13 @@ const HERO_SHADER_PRESET = {
         ${caption}
       </figure>`;
     }).join('') + (cars.length > 1
-      ? `<div class="ge-car-dots" role="group" aria-label="Choose car">${cars.map((c, i) =>
+      ? `<button type="button" class="ge-car-nav prev" data-nav="-1" aria-label="Previous car">
+           <i class="fa fa-chevron-left" aria-hidden="true"></i>
+         </button>
+         <button type="button" class="ge-car-nav next" data-nav="1" aria-label="Next car">
+           <i class="fa fa-chevron-right" aria-hidden="true"></i>
+         </button>
+         <div class="ge-car-dots" role="group" aria-label="Choose car">${cars.map((c, i) =>
           `<button type="button" data-go="${i}" aria-label="Car ${i + 1}"${i === 0 ? ' aria-current="true"' : ''}></button>`).join('')}</div>`
       : '');
 
@@ -162,6 +168,12 @@ const HERO_SHADER_PRESET = {
       clearInterval(timer);
       if (figs.length > 1 && !document.hidden) timer = setInterval(() => show((cur + 1) % figs.length), HERO_ROTATE_MS);
     }
+    // Wrap both ways, and push the auto-advance back so a deliberate click
+    // isn't immediately overridden by the timer that was already running.
+    function step(delta) {
+      show((cur + delta + figs.length) % figs.length);
+      restart();
+    }
 
     // Caption → filter the catalog by make and jump to the parts grid; dots → switch car
     stage.addEventListener('click', e => {
@@ -173,7 +185,16 @@ const HERO_SHADER_PRESET = {
         return;
       }
       const dot = e.target.closest('[data-go]');
-      if (dot) { show(+dot.dataset.go); restart(); }
+      if (dot) { show(+dot.dataset.go); restart(); return; }
+      const arrow = e.target.closest('[data-nav]');
+      if (arrow) { step(+arrow.dataset.nav); }
+    });
+
+    // Left/right keys once focus is inside the stage (e.g. after using an arrow).
+    stage.addEventListener('keydown', e => {
+      if (figs.length < 2) return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
     });
 
     if (figs.length > 1) {
