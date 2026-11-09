@@ -15,7 +15,7 @@ The owner will send a link to their existing online product list later; importin
 **Done and live:**
 - The front end and admin are pushed to `main`: commit `d439e8bc` plus the bot's SEO regeneration `283bfe5e`.
 - GitHub Pages is enabled (branch `main`, path `/`).
-- All of these return 200: `/`, `/admin/`, `robots.txt`, `logo.svg`, `og-image.png`, `favicon.svg`, `sitemap.xml`. A missing path returns the custom 404.
+- All of these return 200: `/`, `/admin/`, `robots.txt`, `logo.jpg`, `og-image.jpg`, `favicon.png`, `apple-touch-icon.png`, `sitemap.xml`. A missing path returns the custom 404.
 - Both GitHub Actions runs succeeded (`Generate product SEO pages`, `pages-build-deployment`).
 
 **Database wired (2026-11-09):**
@@ -30,7 +30,7 @@ The owner will send a link to their existing online product list later; importin
 - **No `RESEND_API_KEY`**, so `notify-order` and `send-offers` cannot actually send mail yet. Both deploy and respond correctly; they'd fail only at the Resend call.
 - `TODO-CONTACT` placeholders are still in place (WhatsApp `971500000000`, `info@german-expert.ae`, Maps link, JSON-LD address).
 - The catalog is empty — awaiting the owner's product list.
-- `favicon.svg` and `og-image.png` still carry the old placeholder wordmark, not the real logo.
+- The hero's second car slot is empty: `HERO_CARS` holds only the Audi A6, so the stage is static rather than rotating. `AUDI.jpg` (an R8 on a road) sits untracked in the repo root — it's an outdoor photo and won't cut out cleanly, so it was not used.
 
 **Connections:**
 - The **claude.ai Supabase connector** is signed in as **mkerba2011@gmail.com**. It sees only that account's org: Experts Hardware (Kuwait, `qhebhvllkovfbkqrcnmm`), Epsilon Billing (`mgxhwduuqdtxzxkhgfnc`, which the owner is actively working on) and Dhow Tech (inactive). **Leave it on that account.**
@@ -63,7 +63,8 @@ The owner will send a link to their existing online product list later; importin
 | `supabase/functions/*` | `admin-manage-accounts`, `notify-order`, `order-invoice`, `send-offers`, `unsubscribe` (all re-branded; `admin-login` stub deleted) |
 | `scripts/generate-product-pages.js` | reads `GE_SB_URL`/`GE_SB_KEY_B64`, skips Supabase while the key is a placeholder, `MIN_PRODUCTS` default 0, AED |
 | `.github/workflows/generate-seo.yml` | only `git add`s paths that exist |
-| `logo.svg`, `logo-dark.svg`, `favicon.svg`, `og-image.png` | new brand assets |
+| `logo.jpg`, `favicon.png`, `apple-touch-icon.png`, `og-image.jpg` | real brand assets, all generated from the owner's crest (`logo.svg`/`logo-dark.svg` are the unused placeholders) |
+| `img/hero/audi-a6.webp` (+ `-sm`, + `src/`) | hero cut-out, background removed in a browser canvas; source kept for redoing it |
 | `CLAUDE.md` | project notes (rewritten for German Expert) |
 
 ## 4) Changes made
@@ -76,7 +77,7 @@ The owner will send a link to their existing online product list later; importin
   - SVG wordmark logo with a GE octagon badge and a German-flag stripe.
   - Graphite/brass/gold theme with Barlow Condensed headings.
   - CSS spinners instead of the gear images.
-  - A 1200×630 `og-image.png`.
+  - A 1200×630 share card, now `og-image.jpg` drawn from the real crest.
 - **Localisation:**
   - AED with 2 decimals through `fmtPrice()`.
   - Checkout uses the 7 emirates and Area/Street/Building/Flat.
@@ -146,7 +147,7 @@ The owner will send a link to their existing online product list later; importin
 ## 6) Next steps
 
 1. **Admin accounts (owner runs this, blocks all admin work).** `expert_admin_profiles` is empty, so nobody can log into `/admin/`. The `bootstrap` action only works while that table is empty — one shot. Give the owner a `! curl` POSTing `{"action":"bootstrap","accounts":[{"username":"…","password":"…","role":"super"}, …]}` to `https://qljcyiwkwdfodmabnzol.supabase.co/functions/v1/admin-manage-accounts` with `apikey` + `Authorization: Bearer <publishable key>` headers. Roles: `super` (owner), `bahar15` (manager), `1` (admin), `custom` (team). **The owner fills in their own passwords — never choose, type, or enter them.**
-2. **Regenerate `favicon.svg` and `og-image.png` from `logo.jpg`** — both still show the old placeholder wordmark, so browser tabs and WhatsApp/social share cards are off-brand. The share card is 1200×630.
+2. **More hero cars, when the owner picks them.** The stage auto-rotates with 2+ entries in `HERO_CARS` (`code/js/08-hero.js`). Each needs a **transparent cut-out** plus a `model` string for the giant badge; a photo with its own background will cover the lettering. Studio shots on a plain backdrop cut out cleanly, outdoor photos mostly don't.
 3. **Replace the remaining `TODO-CONTACT`s** — email `info@german-expert.ae`, the Google Maps link and the JSON-LD address in `index.html`, plus the edge-function sender/owner addresses. The phone is done (see §4). The logo's second number, **+971 52 538 7296**, isn't used anywhere — ask whether to add it as a second contact line.
 4. **Import the catalog** when the owner sends the product list (admin CSV import supports `sku` and `makes` columns). Then raise `MIN_PRODUCTS` / set `SEO_MIN_PRODUCTS` in `.github/workflows/generate-seo.yml` above 0, so a Supabase outage returning `[]` can't wipe `sitemap.xml`.
 5. **Owner to-dos to remind about:**

@@ -223,7 +223,7 @@ function renderPage(p) {
   const metaDesc = clip(descBase, 155);
   const priceShown = (p.price > 0 && !p.priceHidden);
   const inStock = p.availability !== 'out-of-stock';
-  const ogImage = isHttp(p.image) ? p.image : SITE_BASE + 'og-image.png';
+  const ogImage = isHttp(p.image) ? p.image : SITE_BASE + 'og-image.jpg';
 
   // JSON-LD Product — same shape as _injectProductSchema() in the storefront
   const product = {
@@ -302,7 +302,8 @@ function renderPage(p) {
   <meta name="twitter:title" content="${esc(titleName)}" />
   <meta name="twitter:description" content="${esc(metaDesc)}" />
   <meta name="twitter:image" content="${esc(ogImage)}" />
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+  <link rel="icon" href="../favicon.png" sizes="any" />
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png" />
   <link rel="stylesheet" href="../code/css/01-base.css" />
   <script type="application/ld+json">${jsonld(product)}</script>
   <script type="application/ld+json">${jsonld(breadcrumb)}</script>

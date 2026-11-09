@@ -2,15 +2,29 @@
 // Animated WebGPU background + 3D car stage for #showcase in index.html.
 // Styles: code/css/10-hero.css.
 
-// Cars shown on the right of the hero. Use transparent cut-out PNG/WebP files
-// (side or 3/4 view, ~1600px wide), stored under img/hero/.
-//   src   — image path (relative to the site root)
-//   alt   — short description for screen readers
-//   make  — optional CAR_MAKES slug ('mercedes', 'bmw', …): makes the caption a
-//           "Shop <Make> parts" button that filters the catalog
-//   label — optional caption text (defaults to the make's name)
+// Cars on the hero stage: the model badge is drawn huge and outlined, with the
+// car standing in front of it. Use transparent cut-out PNG/WebP files (3/4 or
+// side view) stored under img/hero/ — a photo that still has its own
+// background shows up as a rectangle covering the lettering.
+//   src      — image path (relative to the site root)
+//   srcSmall — optional smaller copy of the same cut-out, served to phones
+//   model    — the giant outlined badge behind the car ('A6', 'M4', 'GT3' …)
+//   make     — optional CAR_MAKES slug ('mercedes', 'bmw', …): makes the
+//              caption a "Shop <Make> parts" button that filters the catalog
+//   label    — optional make name (defaults to the CAR_MAKES label)
+//   lead     — optional small line above the name
 // 0 cars = no stage (copy only); 1 car = static; 2+ = auto-rotating showcase.
+//
+// To add the next car: drop its cut-out in img/hero/ and append an entry —
+// nothing else needs touching.
 const HERO_CARS = [
+  {
+    src: 'img/hero/audi-a6.webp',
+    srcSmall: 'img/hero/audi-a6-sm.webp',
+    model: 'A6',
+    make: 'audi',
+    alt: 'Audi A6 sedan',
+  },
 ];
 
 const HERO_ROTATE_MS = 6500;
@@ -55,18 +69,52 @@ const HERO_SHADER_PRESET = {
     };
     stage.innerHTML = cars.map((c, i) => {
       const label = c.label || makeName(c.make);
-      const caption = !label ? '' : c.make
+      const model = String(c.model || '').trim();
+
+      // The badge is SVG rather than styled text because the outline carries a
+      // gradient, and -webkit-text-stroke only takes a flat colour. The glyphs
+      // are drawn at a nominal 280px and the viewBox scales them to the stage,
+      // so the stroke thins out proportionally instead of staying chunky.
+      const vbW = Math.max(360, model.length * 190 + 60);
+      const badge = !model ? '' : `
+          <svg class="ge-car-model" viewBox="0 0 ${vbW} 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="geModelGrad${i}" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#c1121f" />
+                <stop offset="52%" stop-color="#f2b705" />
+                <stop offset="100%" stop-color="#fff1c6" />
+              </linearGradient>
+            </defs>
+            <text x="${vbW / 2}" y="252" text-anchor="middle" fill="none" stroke="url(#geModelGrad${i})"
+                  stroke-width="4" font-family="Inter, system-ui, sans-serif" font-size="280"
+                  font-weight="800" letter-spacing="8">${esc(model)}</text>
+          </svg>`;
+
+      const name = [label, model].filter(Boolean).join(' ');
+      const cta = !label ? '' : c.make
         ? `<button type="button" class="ge-car-caption" data-make="${esc(c.make)}">Shop ${esc(label)} parts <i class="fa fa-arrow-right" aria-hidden="true"></i></button>`
-        : `<span class="ge-car-caption">${esc(label)}</span>`;
+        : '';
+      const caption = !name ? '' : `
+          <figcaption class="ge-car-cap">
+            <span class="ge-car-cap-lead">${esc(c.lead || 'Genuine parts for the')}</span>
+            <strong class="ge-car-cap-name">${esc(name)}</strong>
+            ${cta}
+          </figcaption>`;
+
+      const srcset = c.srcSmall ? ` srcset="${esc(c.srcSmall)} 760w, ${esc(c.src)} 1400w" sizes="(max-width: 900px) 92vw, 920px"` : '';
+      // --car feeds the sheen's mask in code/css/10-hero.css. A relative URL
+      // in a custom property gets resolved against the stylesheet that reads
+      // it, i.e. code/css/, so it has to go in already absolute.
+      const maskUrl = new URL(c.src, document.baseURI).href;
       return `
       <figure class="ge-car${i === 0 ? ' is-active' : ''}"${i ? ' aria-hidden="true"' : ''}>
+        ${badge}
         <div class="ge-car-tilt">
           <div class="ge-car-float">
-            <div class="ge-car-body" style="--car:url('${esc(c.src)}')">
-              <img class="ge-car-img" src="${esc(c.src)}" alt="${esc(c.alt || label || 'German car')}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async" draggable="false" />
+            <div class="ge-car-body" style="--car:url('${esc(maskUrl)}')">
+              <img class="ge-car-img" src="${esc(c.src)}"${srcset} alt="${esc(c.alt || name || 'German car')}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async" draggable="false" />
               <span class="ge-car-sheen" aria-hidden="true"></span>
             </div>
-            <div class="ge-car-reflect" aria-hidden="true"><img src="${esc(c.src)}" alt="" loading="lazy" decoding="async" /></div>
             <span class="ge-car-shadow" aria-hidden="true"></span>
           </div>
         </div>

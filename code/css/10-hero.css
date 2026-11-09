@@ -3,9 +3,14 @@
    strip, Nov 2026). Background: a WebGPU "studio" shader (code/js/08-hero.js,
    shaders@4.0.5 from jsDelivr) fading in over the CSS gradient below, which
    is also the permanent fallback for browsers without WebGPU / reduced
-   motion / Save-Data. Right side: the 3D car stage — HERO_CARS in
-   code/js/08-hero.js. Empty list = no stage (copy only); 2+ cars =
-   auto-rotating "drive-through" showcase. */
+   motion / Save-Data.
+
+   The stage is the showpiece: the car's model number is drawn huge and
+   outlined (SVG, so the stroke can carry a gradient) with the car standing in
+   front of it, and a caption in the bottom corner. Cars come from HERO_CARS in
+   code/js/08-hero.js — empty list = no stage, and the marketing copy falls
+   back to its own left-aligned column; 2+ cars = auto-rotating showcase. In
+   car mode the headline/buttons/trust row sits centred under the stage. */
 
 .ge-hero {
   position: relative; isolation: isolate; overflow: hidden;
@@ -29,10 +34,17 @@
 
 .ge-hero-inner {
   position: relative; z-index: 1; width: 100%; max-width: 1240px; margin: 0 auto;
-  padding: 48px 24px 64px;
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: center; gap: 24px;
+  padding: 34px 24px 56px;
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px;
 }
-.ge-hero.no-car .ge-hero-inner { grid-template-columns: minmax(0, 760px); }
+.ge-hero.no-car .ge-hero-inner { max-width: 1000px; padding-top: 48px; }
+/* Car mode: the stage carries the page, so the copy sits centred beneath it. */
+.ge-hero:not(.no-car) .ge-hero-copy { text-align: center; max-width: 880px; margin: 0 auto; }
+.ge-hero:not(.no-car) .ge-hero-tag { margin-bottom: 16px; }
+.ge-hero:not(.no-car) .ge-hero-title { font-size: clamp(28px, 3.4vw, 44px); margin-bottom: 14px; }
+.ge-hero:not(.no-car) .ge-hero-text { max-width: 560px; margin: 0 auto 26px; }
+.ge-hero:not(.no-car) .ge-hero-btns { justify-content: center; margin-bottom: 26px; }
+.ge-hero:not(.no-car) .ge-hero-trust { justify-content: center; }
 
 /* ── Copy ── */
 .ge-hero-tag { display: inline-flex; align-items: center; gap: 8px; color: var(--gold); background: rgba(242,183,5,.08); border: 1px solid rgba(242,183,5,.28); font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; padding: 6px 14px; border-radius: 999px; margin-bottom: 22px; backdrop-filter: blur(6px); }
@@ -48,17 +60,29 @@
 .ge-hero-trust li { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,.7); }
 .ge-hero-trust i { color: var(--gold); }
 
-/* ── 3D car stage ── */
-.ge-hero-stage { position: relative; height: clamp(260px, 36vw, 500px); perspective: 1400px; perspective-origin: 50% 40%; }
+/* ── Car stage: giant outlined model number, car in front of it ── */
+.ge-hero-stage { position: relative; height: clamp(320px, 46vw, 560px); perspective: 1400px; perspective-origin: 50% 40%; }
 .ge-hero.no-car .ge-hero-stage { display: none; }
 .ge-car {
-  position: absolute; inset: 0; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: absolute; inset: 0; margin: 0; padding-bottom: 16px;
+  display: flex; align-items: flex-end; justify-content: center;
   opacity: 0; transform: translate3d(22%, 0, -120px); pointer-events: none;
   transition: opacity .8s ease, transform 1.1s cubic-bezier(.2,.8,.2,1);
 }
 .ge-car.is-active { opacity: 1; transform: none; pointer-events: auto; }
 .ge-car.is-leaving { opacity: 0; transform: translate3d(-22%, 0, -120px); }
-.ge-car-tilt { position: relative; width: min(100%, 680px); transform-style: preserve-3d; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .35s ease-out; }
+
+/* The badge. Sized in % of the stage so the SVG's own viewBox scales the
+   glyphs and the outline stays hairline-thin at every width. */
+/* The badge has to out-measure the car in both directions, otherwise the car
+   covers it and the composition reads as a plain product shot. */
+.ge-car-model {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -54%);
+  width: min(96%, 1020px); height: 92%; z-index: 0; pointer-events: none; overflow: visible;
+  filter: drop-shadow(0 0 46px rgba(242, 183, 5, .14));
+}
+
+.ge-car-tilt { position: relative; z-index: 1; width: min(66%, 720px); transform-style: preserve-3d; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .35s ease-out; }
 .ge-car-float { position: relative; animation: geCarFloat 6s ease-in-out infinite; }
 .ge-car-body { position: relative; display: block; transform: translateZ(40px); }
 .ge-car-img { display: block; width: 100%; height: auto; filter: drop-shadow(0 26px 24px rgba(0,0,0,.6)) drop-shadow(0 0 40px rgba(242,183,5,.10)); user-select: none; -webkit-user-drag: none; }
@@ -69,12 +93,13 @@
   background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.38) 48%, rgba(242,183,5,.22) 53%, transparent 62%);
   background-size: 300% 100%; animation: geCarSheen 6s ease-in-out infinite;
 }
-/* Mirror on the studio floor */
-.ge-car-reflect { position: absolute; left: 0; right: 0; top: 100%; transform: scaleY(-1); opacity: .2; pointer-events: none;
-  -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 38%); mask-image: linear-gradient(to top, #000 0%, transparent 38%); }
-.ge-car-reflect img { display: block; width: 100%; height: auto; filter: blur(1.5px); }
 .ge-car-shadow { position: absolute; left: 10%; right: 10%; bottom: -4%; height: 16%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.75), transparent); animation: geCarShadow 6s ease-in-out infinite; z-index: -1; }
-.ge-car-caption { margin-top: 34px; display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.85); background: none; border: 0; cursor: pointer; padding: 6px 10px; }
+
+/* Caption, bottom corner of the stage */
+.ge-car-cap { position: absolute; right: 2px; bottom: 6px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
+.ge-car-cap-lead { font-size: 13px; letter-spacing: .4px; color: rgba(255,255,255,.62); }
+.ge-car-cap-name { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: clamp(24px, 2.9vw, 38px); line-height: 1.04; letter-spacing: 1px; color: #fff; }
+.ge-car-caption { margin-top: 10px; display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.85); background: none; border: 0; cursor: pointer; padding: 6px 0; }
 .ge-car-caption i { color: var(--gold); transition: transform .2s; }
 .ge-car-caption:hover i { transform: translateX(4px); }
 .ge-car-caption:not([data-make]) { cursor: default; }
@@ -90,11 +115,16 @@
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .ge-hero { min-height: 0; }
-  .ge-hero-inner, .ge-hero.no-car .ge-hero-inner { grid-template-columns: minmax(0, 1fr); padding: 36px 20px 48px; gap: 8px; }
-  .ge-hero-stage { height: clamp(220px, 62vw, 380px); order: -1; } /* car above the copy on phones */
-  .ge-hero-title { font-size: clamp(36px, 10vw, 56px); }
+  .ge-hero-inner, .ge-hero.no-car .ge-hero-inner { grid-template-columns: minmax(0, 1fr); padding: 28px 20px 48px; gap: 8px; }
+  /* Caption moves under the car and goes full width, so the car has to clear
+     room for it instead of sitting on the stage floor. */
+  .ge-hero-stage { height: clamp(310px, 82vw, 470px); }
+  .ge-car { padding-bottom: 104px; }
+  .ge-car-tilt { width: min(82%, 500px); }
+  .ge-car-model { width: 94%; height: 62%; transform: translate(-50%, -78%); }
+  .ge-car-cap { left: 0; right: 0; bottom: 0; align-items: center; text-align: center; }
+  .ge-hero-title { font-size: clamp(30px, 8vw, 44px); }
   .ge-hero-text { font-size: 15px; margin-bottom: 26px; }
-  .ge-car-caption { margin-top: 22px; }
 }
 @media (max-width: 480px) {
   .ge-hero-btns { flex-direction: column; }

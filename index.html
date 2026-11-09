@@ -35,7 +35,7 @@
   <meta property="og:title" content="German Expert | Genuine German Car Parts in Sharjah" />
   <meta property="og:description" content="Genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI. Based in Sharjah, delivering across the UAE." />
   <meta property="og:url" content="https://mukarramkebra.github.io/German-Expert/" />
-  <meta property="og:image" content="https://mukarramkebra.github.io/German-Expert/og-image.png" />
+  <meta property="og:image" content="https://mukarramkebra.github.io/German-Expert/og-image.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="German Expert — German car parts, Sharjah" />
@@ -43,11 +43,12 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="German Expert | German Car Parts, Sharjah" />
   <meta name="twitter:description" content="Genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, VW, Porsche and MINI — delivered across the UAE." />
-  <meta name="twitter:image" content="https://mukarramkebra.github.io/German-Expert/og-image.png" />
+  <meta name="twitter:image" content="https://mukarramkebra.github.io/German-Expert/og-image.jpg" />
   <meta name="twitter:image:alt" content="German Expert — German car parts, Sharjah" />
   <meta name="geo.region" content="AE-SH" />
   <meta name="geo.placename" content="Sharjah" />
-  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" href="favicon.png" sizes="any" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <!-- Second discovery path for the sitemap. GitHub Pages serves this project
        at /German-Expert/ so our robots.txt lives at /German-Expert/robots.txt,
        which crawlers never read (they only fetch /robots.txt at the host root).
@@ -60,7 +61,7 @@
     "@context": "https://schema.org",
     "@type": "AutoPartsStore",
     "name": "German Expert",
-    "image": "https://mukarramkebra.github.io/German-Expert/og-image.png",
+    "image": "https://mukarramkebra.github.io/German-Expert/og-image.jpg",
     "url": "https://mukarramkebra.github.io/German-Expert/",
     "telephone": "+971 52 536 4791",
     "email": "info@german-expert.ae",
@@ -262,6 +263,11 @@
   <section id="showcase" class="ge-hero no-car" aria-labelledby="heroTitle">
     <div class="ge-hero-bg" aria-hidden="true"><canvas id="heroShader" class="ge-hero-canvas"></canvas></div>
     <div class="ge-hero-inner">
+      <!-- Showpiece: giant outlined model number + the car (HERO_CARS in
+           code/js/08-hero.js). JS drops .no-car from #showcase when that list
+           has entries; with none the stage stays hidden and the copy below
+           falls back to a plain left-aligned hero. -->
+      <div class="ge-hero-stage" id="heroStage"></div>
       <div class="ge-hero-copy">
         <span class="ge-hero-tag" data-i18n-html="hero_tag"><i class="fa fa-car"></i> German Car Parts Specialists — Sharjah</span>
         <h2 class="ge-hero-title" id="heroTitle" data-i18n-html="hero_h1">Engineered in <span>Germany.</span><br/>Delivered in <span>the UAE.</span></h2>
@@ -276,7 +282,6 @@
           <li><i class="fa fa-barcode" aria-hidden="true"></i> <span data-i18n="hero_t3">Search by part number</span></li>
         </ul>
       </div>
-      <div class="ge-hero-stage" id="heroStage"></div>
     </div>
   </section>
 
