@@ -111,7 +111,7 @@
     var v = '';
     try { v = localStorage.getItem('expert_asset_v') || ''; } catch(e) {}
     v = /^[0-9]+$/.test(v) ? v : '202608170500';
-    ['01-base','02-sections','03-cart-features-contact','04-footer','05-responsive','06-lang-rtl','07-modals','08-account-auth','09-widgets'].forEach(function(f) {
+    ['01-base','02-sections','03-cart-features-contact','04-footer','05-responsive','06-lang-rtl','07-modals','08-account-auth','09-widgets','10-hero'].forEach(function(f) {
       var l = document.createElement('link');
       l.rel = 'stylesheet';
       l.href = 'code/css/' + f + '.css?v=' + v;
@@ -129,6 +129,7 @@
     <link rel="stylesheet" href="code/css/07-modals.css" />
     <link rel="stylesheet" href="code/css/08-account-auth.css" />
     <link rel="stylesheet" href="code/css/09-widgets.css" />
+    <link rel="stylesheet" href="code/css/10-hero.css" />
   </noscript>
   <!-- Opens the connection to these origins early (DNS + TLS), in parallel
        with everything else, instead of waiting until the stylesheet
@@ -250,38 +251,29 @@
   <main id="main-content">
   <h1 class="visually-hidden">German Expert — Genuine German Car Parts in Sharjah, UAE</h1>
 
-  <!-- OFFERS — moving carousel of offer cards (images fill the frame) -->
-  <section id="offers">
-    <div class="offers-band">
-      <div class="offers-track" id="offersTrack"></div>
+  <!-- HERO SHOWCASE — animated WebGPU background + 3D car stage (code/js/08-hero.js,
+       code/css/10-hero.css). Replaced the moving offers strip (#offers) in Nov 2026;
+       initOffersTicker() in js/02-catalog-render.js no-ops without #offersTrack. -->
+  <section id="showcase" class="ge-hero no-car" aria-labelledby="heroTitle">
+    <div class="ge-hero-bg" aria-hidden="true"><canvas id="heroShader" class="ge-hero-canvas"></canvas></div>
+    <div class="ge-hero-inner">
+      <div class="ge-hero-copy">
+        <span class="ge-hero-tag" data-i18n-html="hero_tag"><i class="fa fa-car"></i> German Car Parts Specialists — Sharjah</span>
+        <h2 class="ge-hero-title" id="heroTitle" data-i18n-html="hero_h1">Engineered in <span>Germany.</span><br/>Delivered in <span>the UAE.</span></h2>
+        <p class="ge-hero-text" data-i18n="hero_p">Genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI — delivered fast across the UAE.</p>
+        <div class="ge-hero-btns">
+          <a href="#products" class="btn btn-primary"><i class="fa fa-gears" aria-hidden="true"></i> <span data-i18n="hero_shop">Shop Parts</span></a>
+          <a href="#makes" class="btn ge-btn-ghost"><i class="fa fa-car-side" aria-hidden="true"></i> <span data-i18n="hero_make">Shop by Make</span></a>
+        </div>
+        <ul class="ge-hero-trust">
+          <li><i class="fa fa-shield-halved" aria-hidden="true"></i> <span data-i18n-html="hero_t1">Genuine &amp; OEM</span></li>
+          <li><i class="fa fa-truck-fast" aria-hidden="true"></i> <span data-i18n="hero_t2">Delivery across the UAE</span></li>
+          <li><i class="fa fa-barcode" aria-hidden="true"></i> <span data-i18n="hero_t3">Search by part number</span></li>
+        </ul>
+      </div>
+      <div class="ge-hero-stage" id="heroStage"></div>
     </div>
   </section>
-  <!-- Fills the ticker synchronously from whatever initOffersTicker() cached
-       on the last visit (see js/02-catalog-render.js), before the JS bundle
-       even loads, let alone the network fetch that normally builds it. On a
-       returning visit this is what makes the strip already-there instead of
-       popping in — the async path still runs afterward and replaces this
-       with fresh data (price/sale changes, newly picked offers, etc.), same
-       duplication math initOffersTicker() itself uses for the seamless loop. -->
-  <script>
-  (function() {
-    try {
-      var cards = localStorage.getItem('offers_ticker_cache');
-      if (!cards) return;
-      var track = document.getElementById('offersTrack');
-      if (!track) return;
-      track.innerHTML = cards;
-      var singleW = track.scrollWidth;
-      if (!singleW) { track.innerHTML = cards + cards; return; }
-      var vw = window.innerWidth || 1280;
-      var copies = Math.max(2, Math.ceil(vw / singleW) + 1);
-      var half = '';
-      for (var i = 0; i < copies; i++) half += cards;
-      track.innerHTML = half + half;
-      track.style.animationDuration = Math.round((singleW * copies) / 70) + 's';
-    } catch (e) {}
-  })();
-  </script>
 
   <div class="marquee-wrap">
     <div class="marquee-track">
@@ -1232,7 +1224,7 @@
     var v = '';
     try { v = localStorage.getItem('expert_asset_v') || ''; } catch(e) {}
     v = /^[0-9]+$/.test(v) ? v : '202608170500';
-    ['01-config-data','02-catalog-render','03-product-cart-checkout','04-i18n-order','05-accounts','06-features','07-subscribe'].forEach(function(f) {
+    ['01-config-data','02-catalog-render','03-product-cart-checkout','04-i18n-order','05-accounts','06-features','07-subscribe','08-hero'].forEach(function(f) {
       var s = document.createElement('script');
       s.src = 'code/js/' + f + '.js?v=' + v;
       s.async = false;
