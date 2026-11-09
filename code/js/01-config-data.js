@@ -8,8 +8,8 @@ const GE_SB_KEY_B64 = 'c2JfcHVibGlzaGFibGVfV244b1BpZW5TWHlMR0NhR2JZSVk5Z185RWhLd
 // Decoded once; '' while the key above is still the placeholder (atob would throw).
 const GE_SB_KEY = (function() { try { return atob(GE_SB_KEY_B64); } catch (e) { return ''; } })();
 
-// ── SHOP CONTACT / SITE (TODO-CONTACT: replace the placeholder WhatsApp number) ──
-const SHOP_WA  = '971500000000';   // international format, digits only, used for wa.me links
+// ── SHOP CONTACT / SITE ──────────────────────────────────────────────────
+const SHOP_WA  = '971525364791';   // international format, digits only, used for wa.me links
 const SITE_URL = 'https://mukarramkebra.github.io/German-Expert/';
 
 // ── PRICE FORMAT (AED, 2 decimals) ────────────────────────────────────────

@@ -42,7 +42,9 @@ Forked on 2026-11-08 from the Expert Hardware Kuwait store (repo `MukarramKebra/
 
 ## Placeholders still to replace (search `TODO-CONTACT`)
 
-WhatsApp/phone `+971 50 000 0000` (`SHOP_WA` + `index.html` + `terms.html`/`accessibility.html`), email `info@german-expert.ae`, Google Maps link, JSON-LD address in `index.html`, edge-function sender/owner emails.
+Email `info@german-expert.ae`, Google Maps link, JSON-LD address in `index.html`, edge-function sender/owner emails.
+
+**Done:** the phone/WhatsApp number is real — `SHOP_WA = '971525364791'` (+971 52 536 4791), wired through `code/js/01-config-data.js`, every `wa.me` link and the `tel:` CTA in `index.html`, `terms.html`, `accessibility.html`, the `intro_cta_text` i18n strings (en + ar) and the JSON-LD `telephone`/`sameAs`. The owner's logo also carries a second number, **+971 52 538 7296**, which is not used anywhere yet — ask before adding it as a second contact line.
 
 ## Hard-won gotchas (inherited, still true)
 
