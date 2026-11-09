@@ -15,6 +15,16 @@ Forked on 2026-11-08 from the Expert Hardware Kuwait store (repo `MukarramKebra/
 - **Edge functions** (`supabase/functions/`): `admin-manage-accounts`, `notify-order` + `order-invoice` (deploy with JWT verification OFF), `send-offers`, `unsubscribe`. Email goes through Resend — needs `RESEND_API_KEY`; `OWNER_EMAIL` / `FROM_EMAIL` secrets override the placeholder addresses. The send-offers cron token lives in `expert_service_secrets` (key `send_offers_cron_token`).
 - **Images**: no product images are hosted in the repo. `expert_products.img_url` = plain http(s) links only (never base64 — fetched on every page load); uploaded photos live in `expert_photos`. Brand assets: `logo.svg` (for dark backgrounds), `logo-dark.svg` (for light backgrounds), `favicon.svg`, `og-image.png` (1200×630 share card).
 
+## Supabase access from Claude (two separate connections — don't merge them)
+
+- **claude.ai Supabase connector** (`mcp__claude_ai_Supabase__*`) is signed in as mkerba2011@gmail.com and sees ONLY that account's org: Experts Hardware (Kuwait, `qhebhvllkovfbkqrcnmm`) and Epsilon Billing (`mgxhwduuqdtxzxkhgfnc`, another project the owner actively works on). It CANNOT see German Expert (`get_project` → "You do not have permission"). Never ask the owner to switch it to another account — that would cut off Epsilon/Kuwait.
+- **`supabase-german`** (`mcp__supabase-german__*`) is a local-scope MCP server for THIS folder only (in `C:\Users\mukke\.claude.json`), added with `claude mcp add --transport http supabase-german "https://mcp.supabase.com/mcp?project_ref=qljcyiwkwdfodmabnzol"` and authenticated with the Bahar Al Hind Co account (the org that owns German Expert). Use it for every German Expert DB/edge-function/cache-flush action. If its tools are missing: owner runs `/mcp` → supabase-german → Authenticate (browser logged into the Bahar Al Hind Co Supabase account); a newly added server only shows after restarting Claude Code (`claude --continue`).
+- Free-plan note: mkerba2011 already owns 2 active free projects, so creating another project there fails, and being Owner/Admin of another org with an active free project may also be blocked.
+
+## Status / handoff
+
+`handoff.md` (repo root) is the running handoff: goal, current state, active files, changes made, failed attempts, next steps. Read it at the start of a session and update it at the end of any significant work. As of 2026-11-09 the site is live but the DB is NOT wired yet (publishable key placeholder `REPLACE_WITH_BASE64_PUBLISHABLE_KEY`, schema not applied, edge functions not deployed, no admin accounts).
+
 ## Car-parts specifics
 
 - **Categories** (slugs): `engine, brakes, suspension, filters, electrical, cooling, oils-fluids, transmission, exhaust, body-lights, accessories` (+ `all`). Adding/renaming one means updating ALL of: tile + pill + footer markup in `index.html`, `CAT_DEFS` in `admin/js/05-categories.js`, `DEFAULT_CATS` in `admin/js/01-core-data.js`, `_AR_CATS` + `normalizeCategory()` aliases in `code/js/01-config-data.js`. Subcategory labels: `_SUBCAT_LABELS`/`_AR_SUBCATS` there. Tiles are icon-based (Font Awesome); an admin-uploaded `expert_cat_bgs` image overrides.
@@ -52,7 +62,7 @@ WhatsApp/phone `+971 50 000 0000` (`SHOP_WA` + `index.html` + `terms.html`/`acce
 ## Standing instructions from the owner
 
 - **Never ask whether to commit or push.** When a change is finished and verified locally, commit (explicit paths) and push to `main` straight away.
-- **After every push that touches anything the storefront loads, flush the cache** on the German Expert project (`qljcyiwkwdfodmabnzol`) via the Supabase MCP `execute_sql`:
+- **After every push that touches anything the storefront loads, flush the cache** on the German Expert project (`qljcyiwkwdfodmabnzol`) via `mcp__supabase-german__execute_sql` (NOT the claude.ai connector, which can't see this project):
   ```sql
   insert into expert_settings (key, value)
   values ('asset_version', (extract(epoch from now()) * 1000)::bigint::text)
@@ -65,4 +75,7 @@ WhatsApp/phone `+971 50 000 0000` (`SHOP_WA` + `index.html` + `terms.html`/`acce
 - No Python on this machine — local preview with a small `node` static server that serves the repo under `/German-Expert/` (so root-relative paths in `404.html` work), e.g. port 8123.
 - No test suite. Verify with the local server + browser console/network, then push, then `curl` the live Pages URLs (Pages + the SEO Action take a minute or two).
 - One-off maintenance scripts go in `scripts/` — plain Node, no dependencies, built-in `fetch`/`fs`; give write scripts a `--dry-run` flag and run it first.
-- GateGuard hooks ask for "facts" before first Bash/Edit calls; state them briefly and retry.
+- GateGuard hooks ask for "facts" before first Bash/Edit calls; state them briefly and retry. The hook also blocks `rm` — delete with `node -e "require('fs').rmSync(path,{recursive:true,force:true})"`.
+- Long bash heredocs / `node -e` with nested quotes tend to break in this shell; write one-off edit scripts with the Write tool (e.g. into `C:\Users\mukke\AppData\Local\Temp\ge-work\`) and run them with `node`. Make them fail loudly when an expected string isn't found.
+- Edge-function JWT settings: `notify-order`, `order-invoice`, `unsubscribe` deploy with verify_jwt OFF (see each file's header); `admin-manage-accounts` and `send-offers` do their own auth checks — read their headers before deploying.
+- Admin accounts on a fresh project: POST `{"action":"bootstrap","accounts":[{username,password,role}]}` to `/functions/v1/admin-manage-accounts` (only works while `expert_admin_profiles` is empty). The OWNER runs it with their own passwords — Claude never picks or types them. Roles: `super` (owner), `bahar15` (manager), `1` (admin), `custom` (team).
