@@ -38,7 +38,11 @@
   --light2: #eceef1;
   --gray-100: #eceef1;
   --gray-200: #dde1e6;
-  --gray-400: #8a929c;
+  /* Carries real text (.products-empty, .empty-cart, .search-overlay-empty,
+     .product-price small) and white text on .btn-add-loading, so it has to
+     clear 4.5:1. #8a929c managed only 2.88:1 on --light2; this is 4.8:1 on
+     --light2 and 5.2:1 on white. */
+  --gray-400: #656d77;
   --gray-600: #4b5563;
   --yellow: #f59e0b;        /* status amber (low stock) — deliberately NOT the accent */
   --green: #16a34a;

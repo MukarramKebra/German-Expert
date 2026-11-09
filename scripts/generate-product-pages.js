@@ -372,10 +372,23 @@ function renderPage(p) {
 // Each product's lastmod comes from the manifest-derived value on `p`, not
 // from TODAY — so unchanged products keep their old date and Google can
 // actually trust this field. Homepage stays "today" because it's dynamic.
+// Hand-written pages that are never regenerated. They were missing from the
+// sitemap entirely, so with an empty catalog the whole file advertised a
+// single URL. Both are real, indexable pages (each carries its own
+// canonical and neither is noindex), and a terms page is a trust signal for
+// a shop. No lastmod: there's no honest change date for them, and Google
+// ignores a lastmod it can't trust — better omitted than invented.
+const STATIC_PAGES = ['terms.html', 'accessibility.html'];
+
 function renderSitemap(products) {
   const urls = [
     `  <url>\n    <loc>${SITE_BASE}</loc>\n    <lastmod>${TODAY}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>`
   ];
+  for (const page of STATIC_PAGES) {
+    urls.push(
+      `  <url>\n    <loc>${SITE_BASE}${page}</loc>\n    <changefreq>yearly</changefreq>\n    <priority>0.3</priority>\n  </url>`
+    );
+  }
   for (const p of products) {
     urls.push(
       `  <url>\n    <loc>${SITE_BASE}product/${p.slug}.html</loc>\n    <lastmod>${p.lastmod || TODAY}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`

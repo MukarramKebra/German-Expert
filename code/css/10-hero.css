@@ -124,9 +124,21 @@
 .ge-car-caption:hover i { transform: translateX(4px); }
 .ge-car-caption:not([data-make]) { cursor: default; }
 
-.ge-car-dots { position: absolute; left: 0; right: 0; bottom: -6px; display: flex; justify-content: center; gap: 8px; }
-.ge-car-dots button { width: 26px; height: 4px; border-radius: 4px; border: 0; padding: 0; background: rgba(255,255,255,.25); cursor: pointer; transition: background .25s, width .25s; }
-.ge-car-dots button[aria-current="true"] { background: var(--gold); width: 40px; }
+/* The dots are 4px-tall bars, far under the 24px minimum touch target that
+   WCAG 2.2 / Lighthouse want. Rather than fatten the visible bar, each
+   button keeps the bar as a ::before and takes its height from transparent
+   space, so the tap area is 26x24 while the mark stays a hairline. */
+.ge-car-dots { position: absolute; left: 0; right: 0; bottom: -16px; display: flex; justify-content: center; gap: 8px; }
+.ge-car-dots button {
+  width: 26px; height: 24px; border: 0; padding: 0; background: none; cursor: pointer;
+  display: grid; place-items: center; transition: width .25s;
+}
+.ge-car-dots button::before {
+  content: ''; display: block; width: 100%; height: 4px; border-radius: 4px;
+  background: rgba(255, 255, 255, .25); transition: background .25s;
+}
+.ge-car-dots button[aria-current="true"] { width: 40px; }
+.ge-car-dots button[aria-current="true"]::before { background: var(--gold); }
 
 @keyframes geCarFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 @keyframes geCarShadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(.9); opacity: .7; } }

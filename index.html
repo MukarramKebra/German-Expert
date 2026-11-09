@@ -260,13 +260,20 @@
   <!-- HERO SHOWCASE — animated WebGPU background + 3D car stage (code/js/08-hero.js,
        code/css/10-hero.css). Replaced the moving offers strip (#offers) in Nov 2026;
        initOffersTicker() in js/02-catalog-render.js no-ops without #offersTrack. -->
-  <section id="showcase" class="ge-hero no-car" aria-labelledby="heroTitle">
+  <section id="showcase" class="ge-hero" aria-labelledby="heroTitle">
     <div class="ge-hero-bg" aria-hidden="true"><canvas id="heroShader" class="ge-hero-canvas"></canvas></div>
     <div class="ge-hero-inner">
-      <!-- Showpiece: giant outlined model number + the car (HERO_CARS in
-           code/js/08-hero.js). JS drops .no-car from #showcase when that list
-           has entries; with none the stage stays hidden and the copy below
-           falls back to a plain left-aligned hero. -->
+      <!-- Showpiece: the giant outlined make + the car (HERO_CARS in
+           code/js/08-hero.js). JS ADDS .no-car to #showcase only when that
+           list is empty; with none the stage collapses and the copy below
+           falls back to a plain left-aligned hero.
+           The default here must stay car-mode, NOT .no-car. Shipping
+           .no-car left the stage at display:none until the runtime-injected
+           JS arrived, and un-hiding a 320-560px stage mid-load shoved the
+           whole page down: a measured CLS of 0.336 on Slow 4G, against a
+           target of < 0.1. Car-mode by default reserves the stage's height
+           in the first paint. The cost if JS never runs is an empty
+           stage-sized gap, which is much the cheaper failure. -->
       <div class="ge-hero-stage" id="heroStage"></div>
       <div class="ge-hero-copy">
         <span class="ge-hero-tag" data-i18n-html="hero_tag"><i class="fa fa-car"></i> German Car Parts Specialists — Sharjah</span>
