@@ -10,7 +10,16 @@
 //   w        — that file's real pixel width (drives the srcset descriptor)
 //   srcSmall — optional smaller copy of the same cut-out, served to phones
 //   wSmall   — its real pixel width
-//   model    — the giant outlined badge behind the car ('A6', 'M4', 'GT3' …)
+//   model    — the car's model, shown in the caption ('A6', 'M4', 'GT3' …)
+//   badge    — the giant outlined word behind the car. Defaults to the make
+//              label; set it explicitly to keep it SHORT, because the badge
+//              scales to fit its own viewBox — a 13-character
+//              'MERCEDES-BENZ' renders short and weedy next to 'BMW'.
+//   cat      — for an entry advertising a PART rather than a car: a category
+//              slug, which gives the caption a "Shop …" button wired to
+//              jumpCat() instead of setMakeFilter(). Pair with name/ctaText.
+//   name     — caption heading override (a part slide has no make + model)
+//   ctaText  — caption button label override
 //   make     — optional CAR_MAKES slug ('mercedes', 'bmw', …): makes the
 //              caption a "Shop <Make> parts" button that filters the catalog
 //   label    — optional make name (defaults to the CAR_MAKES label)
@@ -31,6 +40,7 @@ const HERO_CARS = [
     srcSmall: 'img/hero/mercedes-e-class-sm.webp', wSmall: 760,
     model: 'E-CLASS',
     make: 'mercedes',
+    badge: 'MERCEDES',
     scale: 1,
     alt: 'Mercedes-Benz E-Class sedan',
   },
@@ -39,14 +49,28 @@ const HERO_CARS = [
     srcSmall: 'img/hero/bmw-m4-sm.webp', wSmall: 756,
     model: 'M4',
     make: 'bmw',
+    badge: 'BMW',
     scale: 1.09,
     alt: 'BMW M4 coupe',
+  },
+  {
+    // A PART slide, not a car. Vector artwork rather than a photo — drop a
+    // transparent cut-out photo in its place and nothing else changes.
+    src: 'img/hero/brake-kit.svg',
+    badge: 'BRAKE PADS',
+    name: 'Brake pads & discs',
+    lead: 'We stock and fit',
+    cat: 'brakes',
+    ctaText: 'Shop brakes',
+    scale: 0.97,
+    alt: 'Brake discs, caliper and pads',
   },
   {
     src: 'img/hero/porsche-911.webp', w: 1400,
     srcSmall: 'img/hero/porsche-911-sm.webp', wSmall: 760,
     model: '911',
     make: 'porsche',
+    badge: 'PORSCHE',
     scale: 1.15,
     alt: 'Porsche 911 Turbo coupe',
   },
@@ -58,14 +82,27 @@ const HERO_CARS = [
     srcSmall: 'img/hero/audi-a6-sm.webp', wSmall: 337,
     model: 'A6',
     make: 'audi',
+    badge: 'AUDI',
     scale: 0.97,
     alt: 'Audi A6 sedan',
+  },
+  {
+    // A PART slide — see the brake entry above.
+    src: 'img/hero/headlight.svg',
+    badge: 'HEADLIGHTS',
+    name: 'Headlights & lamps',
+    lead: 'We stock and fit',
+    cat: 'body-lights',
+    ctaText: 'Shop body & lights',
+    scale: 1.14,
+    alt: 'LED projector headlight unit',
   },
   {
     src: 'img/hero/vw-touareg.webp', w: 1400,
     srcSmall: 'img/hero/vw-touareg-sm.webp', wSmall: 760,
     model: 'TOUAREG',
     make: 'volkswagen',
+    badge: 'VOLKSWAGEN',
     scale: 0.84,
     alt: 'Volkswagen Touareg SUV',
   },
@@ -78,6 +115,7 @@ const HERO_CARS = [
     srcSmall: 'img/hero/range-rover-sport-sm.webp', wSmall: 760,
     model: 'SPORT',
     label: 'Range Rover',
+    badge: 'RANGE ROVER',
     scale: 0.9,
     alt: 'Range Rover Sport SUV',
   },
@@ -127,13 +165,15 @@ const HERO_SHADER_PRESET = {
       const label = c.label || makeName(c.make);
       const scale = Number(c.scale) > 0 ? Number(c.scale) : 1;
       const model = String(c.model || '').trim();
+      // The giant badge is the MAKE; the model stays down in the caption.
+      const badgeText = String(c.badge || label || model).trim().toUpperCase();
 
       // The badge is SVG rather than styled text because the outline carries a
       // gradient, and -webkit-text-stroke only takes a flat colour. The glyphs
       // are drawn at a nominal 280px and the viewBox scales them to the stage,
       // so the stroke thins out proportionally instead of staying chunky.
-      const vbW = Math.max(360, model.length * 190 + 60);
-      const badge = !model ? '' : `
+      const vbW = Math.max(360, badgeText.length * 190 + 60);
+      const badge = !badgeText ? '' : `
           <svg class="ge-car-model" viewBox="0 0 ${vbW} 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
             <defs>
               <linearGradient id="geModelGrad${i}" x1="0%" y1="100%" x2="100%" y2="0%">
@@ -144,12 +184,16 @@ const HERO_SHADER_PRESET = {
             </defs>
             <text x="${vbW / 2}" y="252" text-anchor="middle" fill="none" stroke="url(#geModelGrad${i})"
                   stroke-width="4" font-family="Inter, system-ui, sans-serif" font-size="280"
-                  font-weight="800" letter-spacing="8">${esc(model)}</text>
+                  font-weight="800" letter-spacing="8">${esc(badgeText)}</text>
           </svg>`;
 
-      const name = [label, model].filter(Boolean).join(' ');
-      const cta = !label ? '' : c.make
-        ? `<button type="button" class="ge-car-caption" data-make="${esc(c.make)}">Shop ${esc(label)} parts <i class="fa fa-arrow-right" aria-hidden="true"></i></button>`
+      const name = c.name || [label, model].filter(Boolean).join(' ');
+      const arw = '<i class="fa fa-arrow-right" aria-hidden="true"></i>';
+      // A car filters by make; a part slide filters by category instead.
+      const cta = c.make
+        ? `<button type="button" class="ge-car-caption" data-make="${esc(c.make)}">${esc(c.ctaText || ('Shop ' + label + ' parts'))} ${arw}</button>`
+        : c.cat
+        ? `<button type="button" class="ge-car-caption" data-cat="${esc(c.cat)}">${esc(c.ctaText || ('Shop ' + name))} ${arw}</button>`
         : '';
       const caption = !name ? '' : `
           <figcaption class="ge-car-cap">
@@ -213,13 +257,23 @@ const HERO_SHADER_PRESET = {
       restart();
     }
 
-    // Caption → filter the catalog by make and jump to the parts grid; dots → switch car
+    // Caption → filter the catalog (by make for a car, by category for a
+    // part slide) and jump to the parts grid; dots/arrows → switch slide.
+    const toProducts = () => {
+      const p = document.getElementById('products');
+      if (p) p.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+    };
     stage.addEventListener('click', e => {
       const cap = e.target.closest('.ge-car-caption[data-make]');
       if (cap && typeof setMakeFilter === 'function') {
         setMakeFilter(cap.dataset.make);
-        const p = document.getElementById('products');
-        if (p) p.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+        toProducts();
+        return;
+      }
+      const catCap = e.target.closest('.ge-car-caption[data-cat]');
+      if (catCap && typeof jumpCat === 'function') {
+        jumpCat(catCap.dataset.cat);
+        toProducts();
         return;
       }
       const dot = e.target.closest('[data-go]');

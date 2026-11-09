@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 560" width="1160" height="560" role="img" aria-label="Brake discs, caliper and pads">
+  <defs>
+    <linearGradient id="rotorFace" x1="12%" y1="2%" x2="88%" y2="98%">
+      <stop offset="0%" stop-color="#eef2f6"/>
+      <stop offset="24%" stop-color="#b6bfc9"/>
+      <stop offset="50%" stop-color="#737c86"/>
+      <stop offset="76%" stop-color="#a7b0ba"/>
+      <stop offset="100%" stop-color="#555d66"/>
+    </linearGradient>
+    <linearGradient id="rotorEdge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8e97a1"/>
+      <stop offset="50%" stop-color="#454c54"/>
+      <stop offset="100%" stop-color="#6d757e"/>
+    </linearGradient>
+    <linearGradient id="hubFace" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#d7dee5"/>
+      <stop offset="55%" stop-color="#8d96a0"/>
+      <stop offset="100%" stop-color="#5e666f"/>
+    </linearGradient>
+    <linearGradient id="caliperBody" x1="8%" y1="0%" x2="92%" y2="100%">
+      <stop offset="0%" stop-color="#ff5a60"/>
+      <stop offset="34%" stop-color="#ef3b42"/>
+      <stop offset="70%" stop-color="#c1121f"/>
+      <stop offset="100%" stop-color="#78090f"/>
+    </linearGradient>
+    <linearGradient id="padFric" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#9aa4b0"/>
+      <stop offset="55%" stop-color="#6b747f"/>
+      <stop offset="100%" stop-color="#434a53"/>
+    </linearGradient>
+    <linearGradient id="padBack" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f2f6f9"/>
+      <stop offset="55%" stop-color="#b9c2cb"/>
+      <stop offset="100%" stop-color="#7f8891"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ef3b42" stop-opacity=".30"/>
+      <stop offset="100%" stop-color="#ef3b42" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <ellipse cx="520" cy="300" rx="480" ry="252" fill="url(#glow)"/>
+
+  <!-- Rear rotor, dimmed and rim-lit for depth -->
+  <g opacity=".40">
+    <circle cx="950" cy="350" r="155" fill="url(#rotorEdge)"/>
+    <circle cx="950" cy="350" r="140" fill="url(#rotorFace)"/>
+    <circle cx="950" cy="350" r="155" fill="none" stroke="#dde3ea" stroke-opacity=".45" stroke-width="3"/>
+    <circle cx="950" cy="350" r="62" fill="url(#hubFace)"/>
+    <circle cx="950" cy="350" r="21" fill="#262b33"/>
+    <g fill="#2b3038" fill-opacity=".62">
+      <circle cx="1063" cy="350" r="10"/><circle cx="1038" cy="407" r="10"/>
+      <circle cx="985" cy="441" r="10"/><circle cx="915" cy="441" r="10"/>
+      <circle cx="862" cy="407" r="10"/><circle cx="837" cy="350" r="10"/>
+      <circle cx="862" cy="293" r="10"/><circle cx="915" cy="259" r="10"/>
+      <circle cx="985" cy="259" r="10"/><circle cx="1038" cy="293" r="10"/>
+    </g>
+  </g>
+
+  <!-- Front rotor -->
+  <g>
+    <circle cx="470" cy="268" r="246" fill="url(#rotorEdge)"/>
+    <circle cx="470" cy="268" r="226" fill="url(#rotorFace)"/>
+    <circle cx="470" cy="268" r="224" fill="none" stroke="#262b33" stroke-opacity=".45" stroke-width="3"/>
+    <circle cx="470" cy="268" r="246" fill="none" stroke="#e6ebf0" stroke-opacity=".40" stroke-width="3"/>
+    <circle cx="470" cy="268" r="196" fill="none" stroke="#ffffff" stroke-opacity=".16" stroke-width="2"/>
+
+    <g fill="#23272e" fill-opacity=".72">
+      <circle cx="648.7" cy="315.9" r="13"/><circle cx="600.8" cy="398.8" r="13"/>
+      <circle cx="517.9" cy="446.7" r="13"/><circle cx="422.1" cy="446.7" r="13"/>
+      <circle cx="339.2" cy="398.8" r="13"/><circle cx="291.3" cy="315.9" r="13"/>
+      <circle cx="291.3" cy="220.1" r="13"/><circle cx="339.2" cy="137.2" r="13"/>
+      <circle cx="422.1" cy="89.3" r="13"/><circle cx="517.9" cy="89.3" r="13"/>
+      <circle cx="600.8" cy="137.2" r="13"/><circle cx="648.7" cy="220.1" r="13"/>
+    </g>
+    <g fill="#23272e" fill-opacity=".62">
+      <circle cx="610" cy="268" r="11"/><circle cx="591.2" cy="338" r="11"/>
+      <circle cx="540" cy="389.2" r="11"/><circle cx="470" cy="408" r="11"/>
+      <circle cx="400" cy="389.2" r="11"/><circle cx="348.8" cy="338" r="11"/>
+      <circle cx="330" cy="268" r="11"/><circle cx="348.8" cy="198" r="11"/>
+      <circle cx="400" cy="146.8" r="11"/><circle cx="470" cy="128" r="11"/>
+      <circle cx="540" cy="146.8" r="11"/><circle cx="591.2" cy="198" r="11"/>
+    </g>
+
+    <circle cx="470" cy="268" r="98" fill="url(#hubFace)"/>
+    <circle cx="470" cy="268" r="98" fill="none" stroke="#262b33" stroke-opacity=".5" stroke-width="3"/>
+    <circle cx="470" cy="268" r="34" fill="#20242b"/>
+    <g fill="#20242b" fill-opacity=".85">
+      <circle cx="470" cy="210" r="13"/><circle cx="525.2" cy="250.1" r="13"/>
+      <circle cx="504.1" cy="314.9" r="13"/><circle cx="435.9" cy="314.9" r="13"/>
+      <circle cx="414.8" cy="250.1" r="13"/>
+    </g>
+    <path d="M470 42 A226 226 0 0 1 696 268 L470 268 Z" fill="#ffffff" fill-opacity=".10"/>
+  </g>
+
+  <!-- Caliper: a solid block straddling the rim, not a thin arc -->
+  <g transform="translate(707 214) rotate(-12)">
+    <rect x="-78" y="-98" width="156" height="196" rx="28" fill="url(#caliperBody)"/>
+    <rect x="-78" y="-98" width="156" height="196" rx="28" fill="none" stroke="#5e080f" stroke-opacity=".6" stroke-width="3"/>
+    <rect x="-62" y="-30" width="124" height="60" rx="14" fill="#2a1013" fill-opacity=".45"/>
+    <rect x="-60" y="-86" width="120" height="12" rx="6" fill="#ffffff" fill-opacity=".34"/>
+    <rect x="-24" y="-124" width="30" height="30" rx="9" fill="#9aa3ad"/>
+    <g fill="#20242b" fill-opacity=".72">
+      <circle cx="-44" cy="-62" r="11"/><circle cx="44" cy="-62" r="11"/>
+      <circle cx="-44" cy="62" r="11"/><circle cx="44" cy="62" r="11"/>
+    </g>
+    <rect x="-78" y="-98" width="16" height="196" rx="8" fill="#ffffff" fill-opacity=".20"/>
+  </g>
+
+  <!-- Brake pads: friction face with the steel backing plate offset behind it.
+       Drawn square-ish and flat on purpose — rounded, gradient-shaded bars
+       with protruding ears read as pipes, not pads. -->
+  <g transform="translate(96 330) rotate(-8)">
+    <rect x="16" y="18" width="266" height="148" rx="12" fill="url(#padBack)"/>
+    <rect x="16" y="18" width="266" height="148" rx="12" fill="none" stroke="#ffffff" stroke-opacity=".42" stroke-width="2.5"/>
+    <rect x="0" y="0" width="266" height="148" rx="10" fill="url(#padFric)"/>
+    <rect x="0" y="0" width="266" height="148" rx="10" fill="none" stroke="#e3e9ef" stroke-opacity=".45" stroke-width="2.5"/>
+    <rect x="125" y="14" width="16" height="120" rx="8" fill="#20242b" fill-opacity=".55"/>
+    <rect x="18" y="12" width="88" height="8" rx="4" fill="#ffffff" fill-opacity=".22"/>
+    <rect x="236" y="-16" width="34" height="22" rx="6" fill="url(#padBack)"/>
+  </g>
+  <g transform="translate(262 406) rotate(-8)" opacity=".88">
+    <rect x="14" y="16" width="228" height="128" rx="11" fill="url(#padBack)"/>
+    <rect x="14" y="16" width="228" height="128" rx="11" fill="none" stroke="#ffffff" stroke-opacity=".34" stroke-width="2.5"/>
+    <rect x="0" y="0" width="228" height="128" rx="9" fill="url(#padFric)"/>
+    <rect x="0" y="0" width="228" height="128" rx="9" fill="none" stroke="#e3e9ef" stroke-opacity=".36" stroke-width="2.5"/>
+    <rect x="107" y="12" width="14" height="104" rx="7" fill="#20242b" fill-opacity=".5"/>
+  </g>
+</svg>
