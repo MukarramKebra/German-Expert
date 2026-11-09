@@ -38,7 +38,7 @@
 .auth-close-x { position:absolute; top:14px; right:16px; background:none; border:none; color:rgba(255,255,255,.45); font-size:20px; cursor:pointer; line-height:1; }
 .auth-close-x:hover { color:#fff; }
 .auth-logo-row { display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:16px; }
-.auth-logo-row img { height:42px; width:auto; object-fit:contain; border-radius:7px; background:transparent; padding:0; }
+.auth-logo-row img { height:42px; width:auto; object-fit:contain; border-radius:50%; background:transparent; padding:0; }
 .auth-logo-row span { color:#fff; font-size:16px; font-weight:900; }
 .auth-logo-row span em { color:var(--orange); font-style:normal; }
 .auth-tabs { display:flex; }
