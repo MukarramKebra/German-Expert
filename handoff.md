@@ -30,7 +30,10 @@ The owner will send a link to their existing online product list later; importin
 - **No `RESEND_API_KEY`**, so `notify-order` and `send-offers` cannot actually send mail yet. Both deploy and respond correctly; they'd fail only at the Resend call.
 - `TODO-CONTACT` placeholders are still in place (WhatsApp `971500000000`, `info@german-expert.ae`, Maps link, JSON-LD address).
 - The catalog is empty — awaiting the owner's product list.
-- The hero rotates three cars (Mercedes E-Class, BMW M4, Audi A6), all light-coloured so they read against the near-black stage. The Audi's supplied cut-out is only 612px wide, so it's visibly softer than the other two at desktop size — a larger press shot would fix it.
+- The hero rotates six cars in this order: Mercedes E-Class, BMW M4, Porsche 911, Audi A6, VW Touareg, Range Rover Sport — all light-coloured (silver/white) so they read against the near-black stage. Left/right arrows plus dots plus arrow keys drive it; it auto-advances every 6.5s and restarts the timer after any manual step.
+- **Every entry carries a `scale`**, a width multiplier handed to `.ge-car-tilt` as `--scale`. The cut-outs run from 1.75:1 (Touareg) to 2.75:1 (911), so at one shared CSS width the Touareg stood 57% taller than the 911 and the stage jolted on each rotation. Current scales put every car at 301–346px tall on desktop, SUVs marginally taller. Rule of thumb for a new car: `scale ≈ aspect ÷ 2.2` (the E-Class is the 1.0 reference).
+- The Audi's supplied cut-out is only 612px wide, so it's visibly softer than the rest at desktop size — a larger press shot would fix it.
+- **The Range Rover has no `make`.** Land Rover isn't in `CAR_MAKES`, so a "Shop Land Rover parts" button would filter the catalog to nothing; it ships with `label: 'Range Rover'` and a caption but no CTA. **Open question for the owner: do they stock Land Rover / Range Rover parts?** If yes, add `landrover` to `CAR_MAKES` in BOTH `code/js/01-config-data.js` and `admin/js/01-core-data.js`, add a `#makeRow` button in `index.html`, then set `make: 'landrover'` on that hero entry.
 
 **Connections:**
 - The **claude.ai Supabase connector** is signed in as **mkerba2011@gmail.com**. It sees only that account's org: Experts Hardware (Kuwait, `qhebhvllkovfbkqrcnmm`), Epsilon Billing (`mgxhwduuqdtxzxkhgfnc`, which the owner is actively working on) and Dhow Tech (inactive). **Leave it on that account.**
@@ -64,7 +67,7 @@ The owner will send a link to their existing online product list later; importin
 | `scripts/generate-product-pages.js` | reads `GE_SB_URL`/`GE_SB_KEY_B64`, skips Supabase while the key is a placeholder, `MIN_PRODUCTS` default 0, AED |
 | `.github/workflows/generate-seo.yml` | only `git add`s paths that exist |
 | `logo.jpg`, `favicon.png`, `apple-touch-icon.png`, `og-image.jpg` | real brand assets, all generated from the owner's crest (`logo.svg`/`logo-dark.svg` are the unused placeholders) |
-| `img/hero/{mercedes-e-class,bmw-m4,audi-a6}.webp` (+ `-sm`, + `src/`) | the three rotating hero cars; originals kept in `src/` for reprocessing |
+| `img/hero/{mercedes-e-class,bmw-m4,porsche-911,audi-a6,vw-touareg,range-rover-sport}.webp` (+ `-sm`, + `src/`) | the six rotating hero cars; originals kept in `src/` for reprocessing |
 | `CLAUDE.md` | project notes (rewritten for German Expert) |
 
 ## 4) Changes made
@@ -147,7 +150,7 @@ The owner will send a link to their existing online product list later; importin
 ## 6) Next steps
 
 1. **Admin accounts (owner runs this, blocks all admin work).** `expert_admin_profiles` is empty, so nobody can log into `/admin/`. The `bootstrap` action only works while that table is empty — one shot. Give the owner a `! curl` POSTing `{"action":"bootstrap","accounts":[{"username":"…","password":"…","role":"super"}, …]}` to `https://qljcyiwkwdfodmabnzol.supabase.co/functions/v1/admin-manage-accounts` with `apikey` + `Authorization: Bearer <publishable key>` headers. Roles: `super` (owner), `bahar15` (manager), `1` (admin), `custom` (team). **The owner fills in their own passwords — never choose, type, or enter them.**
-2. **More hero cars, when the owner picks them.** The stage auto-rotates with 2+ entries in `HERO_CARS` (`code/js/08-hero.js`). Each needs a **transparent cut-out** plus a `model` string for the giant badge; a photo with its own background will cover the lettering. Studio shots on a plain backdrop cut out cleanly, outdoor photos mostly don't.
+2. **More hero cars, when the owner picks them.** The stage auto-rotates with 2+ entries in `HERO_CARS` (`code/js/08-hero.js`). Each needs a **transparent cut-out**, a `model` string for the giant badge, and a `scale` (see above) — a photo with its own background will cover the lettering, and a missing scale makes a tall car tower over the others. Studio shots on a plain backdrop cut out cleanly, outdoor photos mostly don't. MINI and Opel are the two `CAR_MAKES` with no car on the stage yet.
 3. **Replace the remaining `TODO-CONTACT`s** — email `info@german-expert.ae`, the Google Maps link and the JSON-LD address in `index.html`, plus the edge-function sender/owner addresses. The phone is done (see §4). The logo's second number, **+971 52 538 7296**, isn't used anywhere — ask whether to add it as a second contact line.
 4. **Import the catalog** when the owner sends the product list (admin CSV import supports `sku` and `makes` columns). Then raise `MIN_PRODUCTS` / set `SEO_MIN_PRODUCTS` in `.github/workflows/generate-seo.yml` above 0, so a Supabase outage returning `[]` can't wipe `sitemap.xml`.
 5. **Owner to-dos to remind about:**
