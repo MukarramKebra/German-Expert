@@ -165,6 +165,6 @@ The owner will send a link to their existing online product list later; importin
 6. **Owner to-dos to remind about:**
    - `RESEND_API_KEY` (plus optional `OWNER_EMAIL`/`FROM_EMAIL`) secrets — without it `notify-order` and `send-offers` deploy fine but can't send.
    - Supabase Auth → URL Configuration: Site URL `https://mukarramkebra.github.io/German-Expert/` plus the same as a Redirect URL, and Google sign-in if wanted. (Only matters for customer accounts; with ordering off, accounts are just wishlist + profile.)
-6. **If online ordering is ever turned back on**, do both halves — see the catalog-only entry in §4. Then re-test a real checkout to Sharjah and confirm the `expert_orders` row has a 2-decimal AED total, stock was decremented, and the invoice email arrived.
+7. **If online ordering is ever turned back on**, do both halves — see the catalog-only entry in §4. Then re-test a real checkout to Sharjah and confirm the `expert_orders` row has a 2-decimal AED total, stock was decremented, and the invoice email arrived.
 
 **Local preview:** no Python on this machine. A small node static server under `/German-Expert/` on port 8123 works; a copy is at `C:\Users\mukke\AppData\Local\Temp\claude\…\scratchpad\serve.js` (session scratch — recreate it if temp was cleared). One may already be listening on 8123 from an earlier session; it serves from disk, so it picks up edits without a restart.
