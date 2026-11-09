@@ -91,6 +91,10 @@ The owner will send a link to their existing online product list later; importin
   - `supabase/schema.sql` rebuilt from the **live** Kuwait schema rather than its stale files, with locked-down RLS, `revoke … from public` and grants.
   - Edge functions re-branded; `OWNER_EMAIL`/`FROM_EMAIL` env overrides added; `EMAIL_DOMAIN` set to `german-expert.internal`.
 - **Docs:** `CLAUDE.md` rewritten for German Expert.
+- **Hero showcase (2026-11-09):**
+  - New top section `#showcase` replaces the moving offers strip (`#offers` and its cache script were removed from `index.html`; `initOffersTicker()` no-ops without `#offersTrack`, and the admin Featured tab has no storefront effect for now).
+  - Animated WebGPU studio background from `shaders@4.0.5`, loaded from jsDelivr after page load in `code/js/08-hero.js`, with a CSS-gradient fallback (no WebGPU / reduced motion / Save-Data).
+  - 3D car stage: pointer tilt, float, light sheen, floor reflection. It's driven by `HERO_CARS` in `08-hero.js`, which is **empty until the owner sends a car image** (cut-out PNG/WebP into `img/hero/`). 2+ cars rotate automatically. Styles are in `code/css/10-hero.css`.
 
 ## 5) Failed attempts
 
