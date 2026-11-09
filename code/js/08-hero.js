@@ -15,6 +15,12 @@
 //              caption a "Shop <Make> parts" button that filters the catalog
 //   label    — optional make name (defaults to the CAR_MAKES label)
 //   lead     — optional small line above the name
+//   scale    — optional width multiplier (default 1). The cut-outs differ
+//              wildly in shape — a 911 is long and low, a Touareg short and
+//              tall — so one shared CSS width would make the SUVs tower over
+//              the sports cars and jolt the stage on every rotation. Tune
+//              this so each car lands at roughly the same HEIGHT instead:
+//              divide the car's aspect ratio by ~2.2 (the E-Class, scale 1).
 // 0 cars = no stage (copy only); 1 car = static; 2+ = auto-rotating showcase.
 //
 // To add the next car: drop its cut-out in img/hero/ and append an entry —
@@ -25,6 +31,7 @@ const HERO_CARS = [
     srcSmall: 'img/hero/mercedes-e-class-sm.webp', wSmall: 760,
     model: 'E-CLASS',
     make: 'mercedes',
+    scale: 1,
     alt: 'Mercedes-Benz E-Class sedan',
   },
   {
@@ -32,17 +39,47 @@ const HERO_CARS = [
     srcSmall: 'img/hero/bmw-m4-sm.webp', wSmall: 756,
     model: 'M4',
     make: 'bmw',
+    scale: 1.09,
     alt: 'BMW M4 coupe',
   },
   {
+    src: 'img/hero/porsche-911.webp', w: 1400,
+    srcSmall: 'img/hero/porsche-911-sm.webp', wSmall: 760,
+    model: '911',
+    make: 'porsche',
+    scale: 1.15,
+    alt: 'Porsche 911 Turbo coupe',
+  },
+  {
     // Supplied at 640x480, so the cut-out is only 612px wide — noticeably
-    // softer than the other two on a large screen. Swap in a bigger press
-    // shot when one turns up.
+    // softer than the rest on a large screen. Swap in a bigger press shot
+    // when one turns up.
     src: 'img/hero/audi-a6.webp', w: 612,
     srcSmall: 'img/hero/audi-a6-sm.webp', wSmall: 337,
     model: 'A6',
     make: 'audi',
+    scale: 0.97,
     alt: 'Audi A6 sedan',
+  },
+  {
+    src: 'img/hero/vw-touareg.webp', w: 1400,
+    srcSmall: 'img/hero/vw-touareg-sm.webp', wSmall: 760,
+    model: 'TOUAREG',
+    make: 'volkswagen',
+    scale: 0.84,
+    alt: 'Volkswagen Touareg SUV',
+  },
+  {
+    // Deliberately no `make`: Land Rover is not in CAR_MAKES, so a
+    // "Shop Land Rover parts" button would filter the catalog to nothing.
+    // The caption shows the name only. Add make: 'landrover' here AND to
+    // CAR_MAKES in both config files once the shop actually stocks it.
+    src: 'img/hero/range-rover-sport.webp', w: 1400,
+    srcSmall: 'img/hero/range-rover-sport-sm.webp', wSmall: 760,
+    model: 'SPORT',
+    label: 'Range Rover',
+    scale: 0.9,
+    alt: 'Range Rover Sport SUV',
   },
 ];
 
@@ -88,6 +125,7 @@ const HERO_SHADER_PRESET = {
     };
     stage.innerHTML = cars.map((c, i) => {
       const label = c.label || makeName(c.make);
+      const scale = Number(c.scale) > 0 ? Number(c.scale) : 1;
       const model = String(c.model || '').trim();
 
       // The badge is SVG rather than styled text because the outline carries a
@@ -121,7 +159,7 @@ const HERO_SHADER_PRESET = {
           </figcaption>`;
 
       const srcset = (c.srcSmall && c.w && c.wSmall)
-        ? ` srcset="${esc(c.srcSmall)} ${c.wSmall}w, ${esc(c.src)} ${c.w}w" sizes="(max-width: 900px) 92vw, 720px"`
+        ? ` srcset="${esc(c.srcSmall)} ${c.wSmall}w, ${esc(c.src)} ${c.w}w" sizes="(max-width: 900px) 92vw, ${Math.round(720 * scale)}px"`
         : '';
       // --car feeds the sheen's mask in code/css/10-hero.css. A relative URL
       // in a custom property gets resolved against the stylesheet that reads
@@ -130,7 +168,7 @@ const HERO_SHADER_PRESET = {
       return `
       <figure class="ge-car${i === 0 ? ' is-active' : ''}"${i ? ' aria-hidden="true"' : ''}>
         ${badge}
-        <div class="ge-car-tilt">
+        <div class="ge-car-tilt" style="--scale:${scale}">
           <div class="ge-car-float">
             <div class="ge-car-body" style="--car:url('${esc(maskUrl)}')">
               <img class="ge-car-img" src="${esc(c.src)}"${srcset} alt="${esc(c.alt || name || 'German car')}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async" draggable="false" />
