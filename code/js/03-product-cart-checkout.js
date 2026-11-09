@@ -108,6 +108,13 @@ function openProduct(id, _fromHistory) {
 
   // The inline buy button and the phone's sticky one share the same states
   const buyBtn = function(btnId, extraCls) {
+    // Catalog-only mode (ONLINE_ORDERING_ENABLED = false): one enquiry button,
+    // shown for out-of-stock parts too since nothing is being reserved. The
+    // stock line above the button still states availability.
+    if (!ONLINE_ORDERING_ENABLED) {
+      return '<button type="button" class="pm-add-btn pm-wa-btn' + extraCls + '" id="' + btnId + '" onclick="enquireOnWhatsApp(' + id + ', _pmVariantIdx)">' +
+        '<i class="fab fa-whatsapp" aria-hidden="true"></i> <span>' + (hasPrice ? 'Enquire on WhatsApp' : 'Ask Price on WhatsApp') + '</span></button>';
+    }
     if (!hasPrice) {
       return '<button type="button" class="pm-add-btn pm-wa-btn' + extraCls + '" id="' + btnId + '" onclick="askPriceOnWhatsApp(' + id + ', _pmVariantIdx)">' +
         '<i class="fab fa-whatsapp" aria-hidden="true"></i> <span>Ask Price on WhatsApp</span></button>';
@@ -358,6 +365,10 @@ function pmQtyBlur(el) {
 }
 
 function pmAddToCart() {
+  // Safety net for catalog-only mode — the modal renders an enquiry button
+  // instead of this one, so reaching here means a stale handler or an old
+  // cached script. Send the enquiry rather than silently building a cart.
+  if (!ONLINE_ORDERING_ENABLED) return enquireOnWhatsApp(_pmId, _pmVariantIdx);
   const product  = getAllProducts().find(p => p.id === _pmId);
   const liveQty  = getLiveQty(_pmId);
   // Each size/pack option is its own cart line; options share the parent
@@ -426,6 +437,14 @@ document.addEventListener('keydown', function(e) {
 // loading spinner -> checkmark sequence before the toast pops up.
 function addToCart(id, btn) {
   if (btn && btn.dataset.busy === '1') return;
+  // Safety net for catalog-only mode (see ONLINE_ORDERING_ENABLED). Cards
+  // render an enquiry button, but the wishlist and any cached/older markup
+  // could still call this — turn it into an enquiry instead of a cart add.
+  if (!ONLINE_ORDERING_ENABLED) {
+    trackView(id);
+    const _sel = document.getElementById('cardVarSel' + id);
+    return enquireOnWhatsApp(id, _sel ? _sel.value : undefined);
+  }
   trackView(id);
   const product = getAllProducts().find(p => p.id === id);
   // If this product has size/pack options, read whichever one is selected
@@ -517,7 +536,13 @@ function updateCartUI() {
     </div>`;
   }).join('');
 }
-function openCart() { document.getElementById('cartModal').classList.add('open'); }
+function openCart() {
+  // Catalog-only mode: the cart icon, mobile cart button and nav cart link are
+  // all hidden by CSS, so this should be unreachable — but a bookmarked
+  // handler or stale cached script must not open an empty cart. No-op instead.
+  if (!ONLINE_ORDERING_ENABLED) return;
+  document.getElementById('cartModal').classList.add('open');
+}
 
 // ── CHECKOUT ──────────────────────────────────────────────────────────────
 // Signed-in customers skip straight to the order form (pre-filled from their
@@ -525,6 +550,10 @@ function openCart() { document.getElementById('cartModal').classList.add('open')
 // first — replaces the old post-order "Create Account" nudge, which showed
 // the prompt only after the order was already sent, too late to be useful.
 function openCheckout() {
+  // Hard stop for catalog-only mode — nothing may reach the order form while
+  // ONLINE_ORDERING_ENABLED is false (see handleCheckoutSubmit below, which is
+  // what would write expert_orders / decrement stock / email the invoice).
+  if (!ONLINE_ORDERING_ENABLED) return;
   if (!cart.length) return;
   document.getElementById('cartModal').classList.remove('open');
   document.getElementById('checkoutOverlay').classList.add('open');
@@ -595,6 +624,10 @@ function setFulfilment(mode) {
 }
 
 function handleCheckoutSubmit() {
+  // Final backstop: this is the function that inserts into expert_orders,
+  // calls the decrement_stock RPC and triggers the notify-order email. While
+  // ONLINE_ORDERING_ENABLED is false no order may be created by any path.
+  if (!ONLINE_ORDERING_ENABLED) return;
   const name  = document.getElementById('coName').value.trim();
   const phone = document.getElementById('coPhone').value.trim();
   // coEmail can be missing for a visitor still holding a cached copy of

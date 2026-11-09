@@ -18,13 +18,19 @@ The owner will send a link to their existing online product list later; importin
 - All of these return 200: `/`, `/admin/`, `robots.txt`, `logo.svg`, `og-image.png`, `favicon.svg`, `sitemap.xml`. A missing path returns the custom 404.
 - Both GitHub Actions runs succeeded (`Generate product SEO pages`, `pages-build-deployment`).
 
-**Not done (database not wired):**
-- `GE_SB_KEY_B64` in `code/js/01-config-data.js` and `SB_KEY` in `admin/js/01-core-data.js` are still the placeholder `REPLACE_WITH_BASE64_PUBLISHABLE_KEY`. Supabase calls fail with 401 and the catalog shows empty. That's expected until wired.
-- `supabase/schema.sql` has **not** been applied by Claude.
-  - The owner may have pasted it into the SQL Editor by hand; check first with `select count(*) from information_schema.tables where table_schema='public'`.
-- No edge functions are deployed.
-- There are no admin accounts.
-- `asset_version` has never been bumped on the new project. `schema.sql` seeds it.
+**Database wired (2026-11-09):**
+- The schema is applied: all 15 tables (`expert_*`, `offer_*`) exist with RLS on, and all 10 functions (`is_admin`, `decrement_stock`, …) are present.
+- `GE_SB_KEY_B64` (`code/js/01-config-data.js`) and `SB_KEY` (`admin/js/01-core-data.js`) now hold the base64 of the real publishable key `sb_publishable_Wn8…` — verified: anon `SELECT` returns 200, anon `INSERT` into `expert_products` is rejected `401 / 42501` by RLS.
+- All 5 edge functions are deployed and smoke-tested, **all with `verify_jwt: false`** (`admin-manage-accounts` and `send-offers` do their own auth in-body, so JWT verification would break the cron caller and the bootstrap action):
+  `unsubscribe` 302→`unsubscribed.html?status=invalid` · `order-invoice` 400 "Missing order id" · `notify-order` 400 "order_id required" · `admin-manage-accounts` 403 `forbidden` · `send-offers` 401 `Unauthorized` (both the no-auth and the wrong-cron-token paths, which proves the `expert_service_secrets` read works).
+- Verified end to end in a browser against the live DB: inserted a temporary product, confirmed it rendered with an AED price and the Enquire button, then deleted it. The catalog is empty again (0 products, 0 orders).
+
+**Still not done:**
+- **No admin accounts** (`expert_admin_profiles` is empty) — the owner must run the `bootstrap` call with their own passwords. Claude never picks or types them.
+- **No `RESEND_API_KEY`**, so `notify-order` and `send-offers` cannot actually send mail yet. Both deploy and respond correctly; they'd fail only at the Resend call.
+- `TODO-CONTACT` placeholders are still in place (WhatsApp `971500000000`, `info@german-expert.ae`, Maps link, JSON-LD address).
+- The catalog is empty — awaiting the owner's product list.
+- **Pre-existing, unrelated to this session:** the two side banners 404. `SIDE_BANNERS` in `code/js/02-catalog-render.js:380-386` still points at the Kuwait fork's `Banners/dck1.jpg`, `covax1.jpg`, `itrust*.jpg`, `bigred*.jpg`, and that folder was deleted from this repo — 10 broken image requests per page load, showing as two grey placeholder panels. Needs either German-brand banner images or for `SIDE_BANNERS` to be emptied.
 
 **Connections:**
 - The **claude.ai Supabase connector** is signed in as **mkerba2011@gmail.com**. It sees only that account's org: Experts Hardware (Kuwait, `qhebhvllkovfbkqrcnmm`), Epsilon Billing (`mgxhwduuqdtxzxkhgfnc`, which the owner is actively working on) and Dhow Tech (inactive). **Leave it on that account.**
@@ -96,6 +102,17 @@ The owner will send a link to their existing online product list later; importin
   - Animated WebGPU studio background from `shaders@4.0.5`, loaded from jsDelivr after page load in `code/js/08-hero.js`, with a CSS-gradient fallback (no WebGPU / reduced motion / Save-Data).
   - 3D car stage: pointer tilt, float, light sheen, floor reflection. It's driven by `HERO_CARS` in `08-hero.js`, which is **empty until the owner sends a car image** (cut-out PNG/WebP into `img/hero/`). 2+ cars rotate automatically. Styles are in `code/css/10-hero.css`.
 
+- **Database wired + online ordering switched off (2026-11-09):**
+  - Real publishable key written into both config points; all 5 edge functions deployed (see "Current state").
+  - **Catalog-only mode.** The owner asked to "disable all online purchasing ways" and chose *remove cart entirely — catalog only*. One switch does it: `ONLINE_ORDERING_ENABLED = false` in `code/js/01-config-data.js`. Every "Add to Cart" is now an **Enquire on WhatsApp** button; nothing writes to `expert_orders`, no stock is deducted, no order email is sent.
+  - New `enquireOnWhatsApp(id, variantIdx)` in `code/js/06-features.js` — sibling of `askPriceOnWhatsApp()`, but quotes the price actually on screen (variant price + Featured Sale applied, via the same rule as `_pmCurrentPrice()`); items with no visible price fall through to the ask-for-price wording so nothing sends "0.00 AED".
+  - Buttons swapped at: the product card (`02-catalog-render.js`), the product modal's `buyBtn` (`03-product-cart-checkout.js`) and the wishlist (`06-features.js`). Enquiry is deliberately offered for **out-of-stock** parts too — nothing is reserved, the shop can order one in, and the stock badge still states availability.
+  - Defence in depth, because stale cached scripts keep running the old markup: `addToCart()` and `pmAddToCart()` redirect to the enquiry, and `openCart()`, `openCheckout()` and `handleCheckoutSubmit()` return immediately. `handleCheckoutSubmit()` is the one that would insert the order, call `decrement_stock` and trigger `notify-order`.
+  - CSS block at the end of `code/css/03-cart-features-contact.css` hides the markup-only surfaces: `#navCart`, `.mob-cart-fab`, `#cartModal`, `#checkoutOverlay`, plus `#navTrackOrder` / `#navCancelOrder` / `#navMyOrders` / `#trackOverlay`. Track/Cancel Order went too because an order can only be created by checkout — the admin panel manages existing orders but has no "create order" action, so every lookup would return "not found". Gave the two nav anchors ids in `index.html` to target them.
+  - FAQ Q5 rewritten (en + ar) from "use Track Order" to the Enquire flow.
+  - **Restoring ordering is two steps, do both:** flip `ONLINE_ORDERING_ENABLED` to `true` **and** delete the "CATALOG-ONLY MODE" block in `code/css/03-cart-features-contact.css`. The flag alone re-enables checkout with no way to reach the cart.
+  - Verified in-browser: all 7 surfaces computed `display:none`; `openCart()`/`openCheckout()` left their overlays closed; `addToCart()` left `cart.length === 0` and opened WhatsApp instead; visible nav reduced to About/Parts/FAQ/Contact/Wishlist.
+
 ## 5) Failed attempts
 
 - **`create_project` failed:** the free plan allows only 2 active projects per owner (mkerba2011 already has Experts Hardware and Epsilon Billing). The owner then created the project themselves under another account/org (Bahar Al Hind Co).
@@ -110,25 +127,13 @@ The owner will send a link to their existing online product list later; importin
 
 ## 6) Next steps
 
-1. **Confirm access:** call `mcp__supabase-german__get_project` (or `list_projects`) for `qljcyiwkwdfodmabnzol`. If its tools don't exist, ask the owner to `/mcp` → supabase-german → Authenticate.
-2. **Apply the schema:** first check whether the owner already ran it (`select table_name from information_schema.tables where table_schema='public'`). If it's empty, `apply_migration` with the contents of `supabase/schema.sql`. Then run `get_advisors` (security) and fix anything flagged.
-3. **Wire the key:**
-   - Call `get_publishable_keys` and use the non-disabled `sb_publishable_…` key.
-   - Base64 it into `GE_SB_KEY_B64` (`code/js/01-config-data.js`) and into the `atob('…')` inside `SB_KEY` (`admin/js/01-core-data.js`).
-   - Confirm `order-invoice.html`'s `SB_URL` matches.
-4. **Deploy the edge functions** from `supabase/functions/*/index.ts`:
-   - `notify-order`, `order-invoice` and `unsubscribe` with `verify_jwt: false`, as their header comments say.
-   - `admin-manage-accounts` and `send-offers` with the default (true), unless their code says otherwise; read each header first.
-5. **Verify:**
-   - Serve locally with `node C:\Users\mukke\AppData\Local\Temp\ge-work\serve.js <repo>` (port 8123, path `/German-Expert/`); recreate the script if temp was cleared. Check there are no 401s and the catalog loads empty without errors.
-   - Insert a test product with a `fitment_map` and a `sku_map` entry via SQL, then check AED prices, the BMW filter and a spaced part-number search.
-   - Place a test checkout to Sharjah and confirm the `expert_orders` row has a 2-decimal total.
-   - Delete the test rows afterwards.
-   - Confirm an anon `POST` to `expert_products` is rejected.
-6. **Commit and push** with explicit paths (merge `origin/main` first if rejected). Then **flush the cache** on `qljcyiwkwdfodmabnzol` (the `asset_version` upsert in `CLAUDE.md`) via `supabase-german`, and poll the live URL.
-7. **Admin accounts:** give the owner a `! curl` command that POSTs `{"action":"bootstrap","accounts":[{"username":"…","password":"…","role":"super"}, …]}` to `https://qljcyiwkwdfodmabnzol.supabase.co/functions/v1/admin-manage-accounts`, with `apikey` and `Authorization: Bearer <publishable key>` headers. The owner fills in their own passwords. **Never choose or type admin passwords.** Roles: `super` (owner), `bahar15` (manager), `1` (admin).
-8. **Owner to-dos to remind about:**
-   - Supabase Auth → URL Configuration: Site URL `https://mukarramkebra.github.io/German-Expert/` plus the same as a Redirect URL, and Google sign-in if wanted.
-   - `RESEND_API_KEY` (plus optional `OWNER_EMAIL`/`FROM_EMAIL`) secrets for order and offer emails.
-   - The real contact details, to replace `TODO-CONTACT`.
-   - The product-list link for the catalog import.
+1. **Admin accounts (owner runs this, blocks all admin work).** `expert_admin_profiles` is empty, so nobody can log into `/admin/`. The `bootstrap` action only works while that table is empty — one shot. Give the owner a `! curl` POSTing `{"action":"bootstrap","accounts":[{"username":"…","password":"…","role":"super"}, …]}` to `https://qljcyiwkwdfodmabnzol.supabase.co/functions/v1/admin-manage-accounts` with `apikey` + `Authorization: Bearer <publishable key>` headers. Roles: `super` (owner), `bahar15` (manager), `1` (admin), `custom` (team). **The owner fills in their own passwords — never choose, type, or enter them.**
+2. **Fix the broken side banners.** `SIDE_BANNERS` (`code/js/02-catalog-render.js:380-386`) still lists the Kuwait fork's `Banners/*.jpg`; the folder doesn't exist here, so every page load fires 10 404s and shows two grey panels. Either set `SIDE_BANNERS = []` or get German-brand images from the owner.
+3. **Replace `TODO-CONTACT`** once the owner sends the real WhatsApp number, email, Maps link and address — `SHOP_WA` in `code/js/01-config-data.js`, the `wa.me/971500000000` links in `index.html`, `terms.html`, `accessibility.html`, and the JSON-LD block.
+4. **Import the catalog** when the owner sends the product list (admin CSV import supports `sku` and `makes` columns). Then raise `MIN_PRODUCTS` / set `SEO_MIN_PRODUCTS` in `.github/workflows/generate-seo.yml` above 0, so a Supabase outage returning `[]` can't wipe `sitemap.xml`.
+5. **Owner to-dos to remind about:**
+   - `RESEND_API_KEY` (plus optional `OWNER_EMAIL`/`FROM_EMAIL`) secrets — without it `notify-order` and `send-offers` deploy fine but can't send.
+   - Supabase Auth → URL Configuration: Site URL `https://mukarramkebra.github.io/German-Expert/` plus the same as a Redirect URL, and Google sign-in if wanted. (Only matters for customer accounts; with ordering off, accounts are just wishlist + profile.)
+6. **If online ordering is ever turned back on**, do both halves — see the catalog-only entry in §4. Then re-test a real checkout to Sharjah and confirm the `expert_orders` row has a 2-decimal AED total, stock was decremented, and the invoice email arrived.
+
+**Local preview:** no Python on this machine. A small node static server under `/German-Expert/` on port 8123 works; a copy is at `C:\Users\mukke\AppData\Local\Temp\claude\…\scratchpad\serve.js` (session scratch — recreate it if temp was cleared). One may already be listening on 8123 from an earlier session; it serves from disk, so it picks up edits without a restart.

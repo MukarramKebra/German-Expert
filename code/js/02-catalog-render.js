@@ -1288,7 +1288,12 @@ function _productCardHTML(p) {
               <div class="product-price" id="cardPrice${p.id}">${_priceHtml(_cardRawPrice(p), p.id)}</div>
               <div class="stock-badge ${stockClass}">${stockLabel}</div>
             </div>
-            ${isOut
+            ${!ONLINE_ORDERING_ENABLED
+              // Catalog-only mode: enquiry is offered even for out-of-stock
+              // parts (nothing is reserved or deducted, and the shop can order
+              // one in) — the stock badge above still shows availability.
+              ? `<button class="btn-add" style="background:#25D366" onclick="event.stopPropagation();enquireOnWhatsApp(${p.id}, (document.getElementById('cardVarSel${p.id}')||{}).value)"><i class="fab fa-whatsapp"></i> ${isAr ? 'استفسر' : 'Enquire'}</button>`
+              : isOut
               ? `<button class="btn-add btn-disabled" disabled onclick="event.stopPropagation()">${unavail}</button>`
               : `<button class="btn-add" onclick="event.stopPropagation();addToCart(${p.id}, this)"><i class="fa fa-plus"></i> ${addBtn}</button>`}
             ` : `

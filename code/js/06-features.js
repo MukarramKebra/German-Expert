@@ -84,7 +84,9 @@ function openWishlist() {
           '<div class="wl-price">'+fmtPrice(applySale(p.price, p.id))+'</div>' +
         '</div>' +
         '<div class="wl-actions">' +
-          '<button class="wl-add-btn" onclick="addToCart('+p.id+')"><i class="fa fa-cart-plus"></i> Add to Cart</button>' +
+          (ONLINE_ORDERING_ENABLED
+            ? '<button class="wl-add-btn" onclick="addToCart('+p.id+')"><i class="fa fa-cart-plus"></i> Add to Cart</button>'
+            : '<button class="wl-add-btn wl-wa-btn" onclick="enquireOnWhatsApp('+p.id+')"><i class="fab fa-whatsapp"></i> Enquire</button>') +
           '<button class="wl-remove-btn" onclick="toggleWishlist('+p.id+', event)" aria-label="Remove from wishlist"><i class="fa fa-trash"></i></button>' +
         '</div>' +
       '</div>';
@@ -122,6 +124,34 @@ function askPriceOnWhatsApp(id, variantIdx) {
   // formatted string, so it's inserted directly rather than wrapped in
   // another "(SKU: ...)" label, which used to print "SKU: SKU: ..." twice.
   var msg = 'Hi, I want this ' + p.name + (v ? ' — ' + v.label : '') + ' (' + (v ? _variantSku(v, id) : getProductSku(id)) + ') price';
+  window.open('https://wa.me/' + SHOP_WA + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FEATURE: ENQUIRE ON WHATSAPP (catalog-only mode — see ONLINE_ORDERING_ENABLED)
+// ══════════════════════════════════════════════════════════════════════════════
+// Replaces "Add to Cart" everywhere while online ordering is switched off.
+// Same shape as askPriceOnWhatsApp() above, but quotes the price the customer
+// is looking at (option price and any Featured Sale included) so the message
+// matches the page. Items with no visible price fall through to the
+// ask-for-price wording instead of sending "0.00 AED".
+function enquireOnWhatsApp(id, variantIdx) {
+  var p = getAllProducts().find(function(x){ return x.id === id; });
+  if (!p) return;
+  if (!hasVisiblePrice(p)) return askPriceOnWhatsApp(id, variantIdx);
+  var opts = getVariants(id);
+  var v = (variantIdx !== undefined && variantIdx !== null && variantIdx !== '' && opts.length) ? (opts[parseInt(variantIdx, 10) || 0] || opts[0]) : null;
+  // Mirrors _pmCurrentPrice(): an option without its own price sells at the
+  // product's base price. Featured Sale % is applied the same way the card
+  // and the modal apply it, so the quoted figure is what's on screen.
+  var base = (v && v.price > 0) ? v.price : p.price;
+  var sale = (typeof getFeaturedSale === 'function') ? getFeaturedSale(id) : 0;
+  if (sale > 0 && base > 0) base = base * (1 - sale / 100);
+  var msg = 'Hi, I would like to order this from German Expert:\n\n'
+    + '*' + p.name + (v ? ' — ' + v.label : '') + '*\n'
+    + 'Part No: ' + (v ? _variantSku(v, id) : getProductSku(id)) + '\n'
+    + 'Price: ' + fmtPrice(roundMoney(base)) + '\n\n'
+    + 'Is it available?';
   window.open('https://wa.me/' + SHOP_WA + '?text=' + encodeURIComponent(msg), '_blank');
 }
 

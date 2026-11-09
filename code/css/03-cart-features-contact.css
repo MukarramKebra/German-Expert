@@ -110,3 +110,31 @@
   #intro .intro-check .fa-check-circle { color: var(--orange); }
 }
 
+
+/* ── CATALOG-ONLY MODE (DISABLED ON PURPOSE) ──────────────────────────────
+   The shop isn't taking orders through the website yet. ONLINE_ORDERING_ENABLED
+   = false in code/js/01-config-data.js turns every "Add to Cart" into an
+   "Enquire on WhatsApp" button; these rules remove the cart surfaces that are
+   plain markup in index.html and so can't be switched off from JS.
+
+   RESTORE TOGETHER — don't half-restore: flipping ONLINE_ORDERING_ENABLED back
+   to true while this block stays would re-enable checkout with no way to reach
+   the cart. Delete this whole block at the same time.
+
+   #cartModal / #checkoutOverlay are forced hidden rather than just unreachable,
+   so a stray .open class (bookmarklet, stale cached script) still can't show a
+   cart or an order form. */
+#navCart,
+.mob-cart-fab,
+#cartModal,
+#checkoutOverlay { display: none !important; }
+
+/* Track Order / Cancel Order / My Orders go with it. An order can only ever be
+   created by checkout (the admin panel manages existing orders but cannot
+   create one), so with checkout off these are guaranteed dead ends — every
+   lookup would return "order not found". Restore them together with the
+   cart rules above. */
+#navTrackOrder,
+#navCancelOrder,
+#navMyOrders,
+#trackOverlay { display: none !important; }

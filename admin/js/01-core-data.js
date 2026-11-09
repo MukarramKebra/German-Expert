@@ -54,7 +54,7 @@
 // SB_HDRS = the headers sent with every database request (authentication)
 // Keep in sync with GE_SB_URL / GE_SB_KEY_B64 in code/js/01-config-data.js (the storefront).
 const SB_URL  = 'https://qljcyiwkwdfodmabnzol.supabase.co';
-const SB_KEY  = (function() { try { return atob('REPLACE_WITH_BASE64_PUBLISHABLE_KEY'); } catch (e) { return ''; } })();
+const SB_KEY  = (function() { try { return atob('c2JfcHVibGlzaGFibGVfV244b1BpZW5TWHlMR0NhR2JZSVk5Z185RWhLdXJacA=='); } catch (e) { return ''; } })();
 // Mutated in place by setAdminSession()/clearAdminSession() (js/03-auth.js)
 // once logged in — every write in this admin panel sends this same object
 // as its headers, so that's what makes them all authenticated.

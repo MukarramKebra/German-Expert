@@ -230,8 +230,8 @@
         <a href="#" id="navSignIn" onclick="document.getElementById('nav').classList.remove('open');openAuthModal('login');return false;"><i class="fa fa-user" style="margin-right:6px"></i>Sign In</a>
         <a href="#" onclick="document.getElementById('nav').classList.remove('open');openWishlist();return false;"><i class="fa fa-heart" style="margin-right:6px"></i>Wishlist <span id="navWishlistBadge" style="display:none;background:var(--orange);color:#fff;border-radius:50%;padding:0 5px;font-size:10px;font-weight:900"></span></a>
         <a href="#" id="navCart" onclick="document.getElementById('nav').classList.remove('open');openCart();return false;"><i class="fa fa-shopping-cart" style="margin-right:6px"></i>Cart <span id="navCartBadge" class="nav-cart-badge" style="display:none">0</span></a>
-        <a href="#" onclick="document.getElementById('nav').classList.remove('open');openOrderTracker();return false;"><i class="fa fa-search" style="margin-right:6px"></i>Track Order</a>
-        <a href="#" onclick="document.getElementById('nav').classList.remove('open');openOrderTracker();switchOrderTab('cancel');return false;"><i class="fa fa-times-circle" style="margin-right:6px"></i>Cancel Order</a>
+        <a href="#" id="navTrackOrder" onclick="document.getElementById('nav').classList.remove('open');openOrderTracker();return false;"><i class="fa fa-search" style="margin-right:6px"></i>Track Order</a>
+        <a href="#" id="navCancelOrder" onclick="document.getElementById('nav').classList.remove('open');openOrderTracker();switchOrderTab('cancel');return false;"><i class="fa fa-times-circle" style="margin-right:6px"></i>Cancel Order</a>
       </nav>
       <div class="header-actions">
         <div class="header-search-wrap" id="headerSearchWrap">
@@ -590,8 +590,8 @@
           <p data-i18n="faq_a4">Yes. Unused, uninstalled parts in their original packaging can be returned or exchanged within 7 days of delivery. Electrical parts can only be exchanged if faulty. Contact us on WhatsApp to arrange it.</p>
         </details>
         <details class="faq-item">
-          <summary data-i18n="faq_q5">How do I track my order or get help?</summary>
-          <p data-i18n="faq_a5">Use the "Track Order" button in the menu and enter the Order ID from your confirmation, or message us on WhatsApp anytime — our team replies fast.</p>
+          <summary data-i18n="faq_q5">How do I order or get help?</summary>
+          <p data-i18n="faq_a5">Find the part you need and tap Enquire — it opens WhatsApp with the part details ready to send. Our team confirms availability, price and delivery, and you pay on delivery or by bank transfer.</p>
         </details>
       </div>
     </div>

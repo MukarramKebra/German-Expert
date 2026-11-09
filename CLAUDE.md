@@ -24,7 +24,13 @@ Forked on 2026-11-08 from the Expert Hardware Kuwait store (repo `MukarramKebra/
 
 ## Status / handoff
 
-`handoff.md` (repo root) is the running handoff: goal, current state, active files, changes made, failed attempts, next steps. Read it at the start of a session and update it at the end of any significant work. As of 2026-11-09 the site is live but the DB is NOT wired yet (publishable key placeholder `REPLACE_WITH_BASE64_PUBLISHABLE_KEY`, schema not applied, edge functions not deployed, no admin accounts).
+`handoff.md` (repo root) is the running handoff: goal, current state, active files, changes made, failed attempts, next steps. Read it at the start of a session and update it at the end of any significant work. As of 2026-11-09 the site is live and **the DB is wired**: schema applied (15 tables, RLS on), the real publishable key is in both config points, and all 5 edge functions are deployed with `verify_jwt: false`. Still open: **no admin accounts** (owner must run `bootstrap`), no `RESEND_API_KEY`, empty catalog, `TODO-CONTACT` placeholders, and the side banners 404 (`SIDE_BANNERS` still points at the deleted Kuwait `Banners/` folder).
+
+## Online ordering is OFF — catalog-only mode
+
+`ONLINE_ORDERING_ENABLED = false` (`code/js/01-config-data.js`) is the single switch. Every "Add to Cart" is an **Enquire on WhatsApp** button (`enquireOnWhatsApp()` in `code/js/06-features.js`); nothing writes to `expert_orders`, no stock is deducted, no order email is sent. `addToCart()`/`pmAddToCart()` redirect to the enquiry and `openCart()`/`openCheckout()`/`handleCheckoutSubmit()` return immediately, so stale cached scripts can't create an order. The cart, checkout, Track Order, Cancel Order and My Orders surfaces are hidden by the "CATALOG-ONLY MODE" block at the end of `code/css/03-cart-features-contact.css`.
+
+**Restore = two steps, don't half-restore** (same rule as the sort dropdown and Arabic toggle below): flip the flag to `true` AND delete that CSS block. The flag alone re-enables checkout with no way to reach the cart.
 
 ## Car-parts specifics
 
@@ -78,5 +84,5 @@ WhatsApp/phone `+971 50 000 0000` (`SHOP_WA` + `index.html` + `terms.html`/`acce
 - One-off maintenance scripts go in `scripts/` — plain Node, no dependencies, built-in `fetch`/`fs`; give write scripts a `--dry-run` flag and run it first.
 - GateGuard hooks ask for "facts" before first Bash/Edit calls; state them briefly and retry. The hook also blocks `rm` — delete with `node -e "require('fs').rmSync(path,{recursive:true,force:true})"`.
 - Long bash heredocs / `node -e` with nested quotes tend to break in this shell; write one-off edit scripts with the Write tool (e.g. into `C:\Users\mukke\AppData\Local\Temp\ge-work\`) and run them with `node`. Make them fail loudly when an expected string isn't found.
-- Edge-function JWT settings: `notify-order`, `order-invoice`, `unsubscribe` deploy with verify_jwt OFF (see each file's header); `admin-manage-accounts` and `send-offers` do their own auth checks — read their headers before deploying.
+- Edge-function JWT settings: **all five deploy with `verify_jwt: false`** (settled 2026-11-09, currently deployed that way). `notify-order`, `order-invoice` and `unsubscribe` are public by design. `admin-manage-accounts` and `send-offers` authenticate in-body instead — the former's `bootstrap` action must work with nobody logged in, and the latter's cron caller sends a static `x-admin-token`, not a JWT; turning platform JWT verification on would break both. Every other action in those two still resolves the caller's token and checks `expert_admin_profiles.role`.
 - Admin accounts on a fresh project: POST `{"action":"bootstrap","accounts":[{username,password,role}]}` to `/functions/v1/admin-manage-accounts` (only works while `expert_admin_profiles` is empty). The OWNER runs it with their own passwords — Claude never picks or types them. Roles: `super` (owner), `bahar15` (manager), `1` (admin), `custom` (team).

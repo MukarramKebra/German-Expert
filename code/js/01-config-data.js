@@ -4,7 +4,7 @@
 // main SB_URL/SB_KEY reuse it. scripts/generate-product-pages.js parses
 // GE_SB_URL / GE_SB_KEY_B64 out of this file — keep the literals simple.
 const GE_SB_URL = 'https://qljcyiwkwdfodmabnzol.supabase.co';
-const GE_SB_KEY_B64 = 'REPLACE_WITH_BASE64_PUBLISHABLE_KEY';
+const GE_SB_KEY_B64 = 'c2JfcHVibGlzaGFibGVfV244b1BpZW5TWHlMR0NhR2JZSVk5Z185RWhLdXJacA==';
 // Decoded once; '' while the key above is still the placeholder (atob would throw).
 const GE_SB_KEY = (function() { try { return atob(GE_SB_KEY_B64); } catch (e) { return ''; } })();
 
@@ -22,6 +22,20 @@ function fmtPrice(n) {
   return v.toFixed(2) + ' ' + CURRENCY;
 }
 function roundMoney(n) { return Math.round((Number(n) || 0) * 100) / 100; }
+
+// ── ONLINE ORDERING (DISABLED ON PURPOSE — catalog-only mode) ─────────────
+// The shop isn't taking orders through the website yet, so the whole
+// cart → checkout → order flow is switched off and every "buy" affordance
+// becomes an "Enquire on WhatsApp" button instead. Nothing is written to
+// expert_orders, no stock is deducted, no order emails are sent.
+//
+// The code for ordering is all still here and working — this is the only
+// switch. To RESTORE online ordering, flip this to true AND delete the
+// "CATALOG-ONLY MODE" block at the end of code/css/03-cart-features-contact.css
+// that hides the nav cart link, the mobile cart button, the cart modal and the
+// checkout overlay. Don't half-restore: the flag alone would re-enable
+// checkout while every way to reach the cart stays hidden.
+const ONLINE_ORDERING_ENABLED = false;
 
 // ── SITE DISABLE CHECK ───────────────────────────────────────────────────
 // Owner can close the site to visitors via the admin Owner Controls panel.
