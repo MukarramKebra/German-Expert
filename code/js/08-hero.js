@@ -7,7 +7,9 @@
 // side view) stored under img/hero/ — a photo that still has its own
 // background shows up as a rectangle covering the lettering.
 //   src      — image path (relative to the site root)
+//   w        — that file's real pixel width (drives the srcset descriptor)
 //   srcSmall — optional smaller copy of the same cut-out, served to phones
+//   wSmall   — its real pixel width
 //   model    — the giant outlined badge behind the car ('A6', 'M4', 'GT3' …)
 //   make     — optional CAR_MAKES slug ('mercedes', 'bmw', …): makes the
 //              caption a "Shop <Make> parts" button that filters the catalog
@@ -19,8 +21,25 @@
 // nothing else needs touching.
 const HERO_CARS = [
   {
-    src: 'img/hero/audi-a6.webp',
-    srcSmall: 'img/hero/audi-a6-sm.webp',
+    src: 'img/hero/mercedes-e-class.webp', w: 1400,
+    srcSmall: 'img/hero/mercedes-e-class-sm.webp', wSmall: 760,
+    model: 'E-CLASS',
+    make: 'mercedes',
+    alt: 'Mercedes-Benz E-Class sedan',
+  },
+  {
+    src: 'img/hero/bmw-m4.webp', w: 1374,
+    srcSmall: 'img/hero/bmw-m4-sm.webp', wSmall: 756,
+    model: 'M4',
+    make: 'bmw',
+    alt: 'BMW M4 coupe',
+  },
+  {
+    // Supplied at 640x480, so the cut-out is only 612px wide — noticeably
+    // softer than the other two on a large screen. Swap in a bigger press
+    // shot when one turns up.
+    src: 'img/hero/audi-a6.webp', w: 612,
+    srcSmall: 'img/hero/audi-a6-sm.webp', wSmall: 337,
     model: 'A6',
     make: 'audi',
     alt: 'Audi A6 sedan',
@@ -101,7 +120,9 @@ const HERO_SHADER_PRESET = {
             ${cta}
           </figcaption>`;
 
-      const srcset = c.srcSmall ? ` srcset="${esc(c.srcSmall)} 760w, ${esc(c.src)} 1400w" sizes="(max-width: 900px) 92vw, 920px"` : '';
+      const srcset = (c.srcSmall && c.w && c.wSmall)
+        ? ` srcset="${esc(c.srcSmall)} ${c.wSmall}w, ${esc(c.src)} ${c.w}w" sizes="(max-width: 900px) 92vw, 720px"`
+        : '';
       // --car feeds the sheen's mask in code/css/10-hero.css. A relative URL
       // in a custom property gets resolved against the stylesheet that reads
       // it, i.e. code/css/, so it has to go in already absolute.

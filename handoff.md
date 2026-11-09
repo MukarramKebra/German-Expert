@@ -30,7 +30,7 @@ The owner will send a link to their existing online product list later; importin
 - **No `RESEND_API_KEY`**, so `notify-order` and `send-offers` cannot actually send mail yet. Both deploy and respond correctly; they'd fail only at the Resend call.
 - `TODO-CONTACT` placeholders are still in place (WhatsApp `971500000000`, `info@german-expert.ae`, Maps link, JSON-LD address).
 - The catalog is empty — awaiting the owner's product list.
-- The hero's second car slot is empty: `HERO_CARS` holds only the Audi A6, so the stage is static rather than rotating. `AUDI.jpg` (an R8 on a road) sits untracked in the repo root — it's an outdoor photo and won't cut out cleanly, so it was not used.
+- The hero rotates three cars (Mercedes E-Class, BMW M4, Audi A6), all light-coloured so they read against the near-black stage. The Audi's supplied cut-out is only 612px wide, so it's visibly softer than the other two at desktop size — a larger press shot would fix it.
 
 **Connections:**
 - The **claude.ai Supabase connector** is signed in as **mkerba2011@gmail.com**. It sees only that account's org: Experts Hardware (Kuwait, `qhebhvllkovfbkqrcnmm`), Epsilon Billing (`mgxhwduuqdtxzxkhgfnc`, which the owner is actively working on) and Dhow Tech (inactive). **Leave it on that account.**
@@ -64,7 +64,7 @@ The owner will send a link to their existing online product list later; importin
 | `scripts/generate-product-pages.js` | reads `GE_SB_URL`/`GE_SB_KEY_B64`, skips Supabase while the key is a placeholder, `MIN_PRODUCTS` default 0, AED |
 | `.github/workflows/generate-seo.yml` | only `git add`s paths that exist |
 | `logo.jpg`, `favicon.png`, `apple-touch-icon.png`, `og-image.jpg` | real brand assets, all generated from the owner's crest (`logo.svg`/`logo-dark.svg` are the unused placeholders) |
-| `img/hero/audi-a6.webp` (+ `-sm`, + `src/`) | hero cut-out, background removed in a browser canvas; source kept for redoing it |
+| `img/hero/{mercedes-e-class,bmw-m4,audi-a6}.webp` (+ `-sm`, + `src/`) | the three rotating hero cars; originals kept in `src/` for reprocessing |
 | `CLAUDE.md` | project notes (rewritten for German Expert) |
 
 ## 4) Changes made
