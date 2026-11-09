@@ -34,3 +34,21 @@ footer { background: var(--bar); padding: 64px 0 0; border-top: 1px solid rgba(0
 .footer-bottom { border-top: 1px solid rgba(255,255,255,0.07); padding: 20px 0; text-align: center; }
 .footer-bottom span { color: rgba(255,255,255,0.75); font-size: 12px; }
 
+
+/* ── EMAIL OFFERS OFF (DISABLED ON PURPOSE) ───────────────────────────────
+   The shop isn't running email marketing. EMAIL_OFFERS_ENABLED = false in
+   code/js/01-config-data.js guards every write to offer_subscribers; these
+   rules remove the three places that collect an address:
+     .subscribe-band        footer "Subscribe our offers" form
+     #offersNudge           slide-in offers popup (already unreachable —
+                            showOffersNudge() has no callers)
+     #googleSubscribePrompt shown to brand-new Google sign-ups
+   Forced hidden rather than just guarded, so a stale cached script that
+   flips one of them to display:block still can't show a dead form.
+
+   NOT the Sale % feature — product discounts ('featured_offers') are
+   untouched. RESTORE TOGETHER with the flag and the admin block in
+   admin/css/01-layout.css; the flag alone leaves these hidden. */
+.subscribe-band,
+#offersNudge,
+#googleSubscribePrompt { display: none !important; }

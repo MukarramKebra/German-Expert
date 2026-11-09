@@ -296,6 +296,7 @@ function onAccountBtnClick(tab) {
 
 // ── Offers subscribe nudge ─────────────────────────────────────────────────────
 function showOffersNudge() {
+  if (!EMAIL_OFFERS_ENABLED) return;   // offers are off — never pop this
   const el = document.getElementById('offersNudge');
   if (el) el.style.display = 'block';
 }
@@ -307,6 +308,10 @@ function dismissOffersNudge() {
 
 // ── Post-Google-signup offers prompt — see _handleOAuthHash() above ────────
 function showGoogleSubscribePrompt() {
+  // Offers are off (EMAIL_OFFERS_ENABLED) — don't greet a brand-new Google
+  // sign-up by asking to email them things we're not sending. This is the
+  // only one of the three subscribe surfaces that opens by itself.
+  if (!EMAIL_OFFERS_ENABLED) return;
   const el = document.getElementById('googleSubscribePrompt');
   if (el) el.style.display = 'block';
 }

@@ -32,6 +32,16 @@ Forked on 2026-11-08 from the Expert Hardware Kuwait store (repo `MukarramKebra/
 
 **Restore = two steps, don't half-restore** (same rule as the sort dropdown and Arabic toggle below): flip the flag to `true` AND delete that CSS block. The flag alone re-enables checkout with no way to reach the cart.
 
+## Email offers are OFF — no subscriber collection
+
+`EMAIL_OFFERS_ENABLED = false` (`code/js/01-config-data.js`). Three surfaces collected addresses and all are hidden by the "EMAIL OFFERS OFF" block in `code/css/04-footer.css`: `.subscribe-band` (footer form), `#offersNudge` (popup — note `showOffersNudge()` already had no callers), and `#googleSubscribePrompt` (shown to new Google sign-ups, the only one that opened by itself). The admin Offers tab is hidden by the matching block in `admin/css/01-layout.css`, where **`!important` is required**: `admin/js/03-auth.js:172` sets `tabOffers.style.display = ''` on every privileged login and would otherwise reveal it.
+
+**Two independent write paths to `offer_subscribers`**, both guarded — `_submitSubscribe()` (used by both visible forms, POSTs its own payload) and `subscribeEmailToOffers()`. One does not call the other; guarding only the latter leaves the forms live.
+
+Everything behind it is intact: `offer_subscribers`, `offer_campaigns`, the `send-offers` and `unsubscribe` edge functions, `code/js/07-subscribe.js`, `admin/js/13-offers.js`, `unsubscribed.html`. **Restore = flip the flag AND delete both CSS blocks.**
+
+⚠️ **This is NOT the Sale % feature.** Product discounts live in the `expert_settings` key `featured_offers` (`getFeaturedSale()`/`applySale()`, the admin's **Featured** tab) and are deliberately untouched — confusingly similar name, completely separate system.
+
 ## Car-parts specifics
 
 - **Categories** (slugs): `engine, brakes, suspension, filters, electrical, cooling, oils-fluids, transmission, exhaust, body-lights, accessories` (+ `all`). Adding/renaming one means updating ALL of: tile + pill + footer markup in `index.html`, `CAT_DEFS` in `admin/js/05-categories.js`, `DEFAULT_CATS` in `admin/js/01-core-data.js`, `_AR_CATS` + `normalizeCategory()` aliases in `code/js/01-config-data.js`. Subcategory labels: `_SUBCAT_LABELS`/`_AR_SUBCATS` there. Tiles are icon-based (Font Awesome); an admin-uploaded `expert_cat_bgs` image overrides.

@@ -37,6 +37,25 @@ function roundMoney(n) { return Math.round((Number(n) || 0) * 100) / 100; }
 // checkout while every way to reach the cart stays hidden.
 const ONLINE_ORDERING_ENABLED = false;
 
+// ── EMAIL OFFERS / CAMPAIGNS (DISABLED ON PURPOSE) ────────────────────────
+// The shop isn't running email marketing, so every way to collect a
+// subscriber is switched off: the "Subscribe our offers" band in the footer,
+// the offers nudge popup, and the prompt shown to new Google sign-ups. The
+// admin's Offers tab is hidden too.
+//
+// This only hides the UI — offer_subscribers / offer_campaigns, the
+// send-offers and unsubscribe edge functions and all the code are still in
+// place, so nothing has to be rebuilt to switch it back on.
+//
+// NOTE this is NOT the Sale % feature. Product discounts live in the
+// expert_settings key 'featured_offers' (confusingly similar name) and are
+// untouched — see getFeaturedSale()/applySale() below.
+//
+// To RESTORE: flip this to true AND delete the "EMAIL OFFERS OFF" blocks in
+// code/css/04-footer.css and admin/css/01-layout.css. The flag alone leaves
+// the subscribe band and the admin tab hidden.
+const EMAIL_OFFERS_ENABLED = false;
+
 // ── SITE DISABLE CHECK ───────────────────────────────────────────────────
 // Owner can close the site to visitors via the admin Owner Controls panel.
 // This runs on every page load and shows a "closed" overlay if the flag is set.

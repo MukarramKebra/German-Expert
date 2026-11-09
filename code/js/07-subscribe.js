@@ -17,6 +17,12 @@ function _subMsg(msgElId, text, ok) {
 // Supabase call, just parameterized by which set of form element ids to
 // read from/report into, so there's one source of truth for the logic.
 async function _submitSubscribe(ids, onSuccess) {
+  // Email offers are switched off (see EMAIL_OFFERS_ENABLED). This is the
+  // path both visible forms use — the footer band and the nudge popup — and
+  // it POSTs its own payload rather than going through
+  // subscribeEmailToOffers(), so it needs its own guard. Both forms are
+  // hidden by CSS; this stops a stale cached page from inserting a row.
+  if (!EMAIL_OFFERS_ENABLED) return;
   const emailEl   = document.getElementById(ids.email);
   const consentEl = document.getElementById(ids.consent);
   const btn       = document.getElementById(ids.btn);
@@ -90,6 +96,10 @@ async function _submitSubscribe(ids, onSuccess) {
 // comes from the Google account). Same table/insert as _submitSubscribe,
 // just without any DOM ids to read from or report into.
 async function subscribeEmailToOffers(email) {
+  // Email offers are switched off (see EMAIL_OFFERS_ENABLED). Guarded here
+  // as well as in _submitSubscribe() — the two are independent paths to
+  // offer_subscribers, not one calling the other.
+  if (!EMAIL_OFFERS_ENABLED) return;
   email = (email || '').trim().toLowerCase();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
   try {
