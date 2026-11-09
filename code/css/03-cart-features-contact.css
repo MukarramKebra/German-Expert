@@ -56,12 +56,12 @@
 
 /* ── INTRO LOGO ──────────────────────────────────────────────────────────── */
 .intro-logo-row { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 18px; }
-.intro-logo-img { height: 72px; width: auto; object-fit: contain; border-radius: 50%; background: transparent; padding: 0; box-shadow: 0 4px 18px rgba(168,123,0,0.3); }
+.intro-logo-img { height: 72px; width: auto; object-fit: contain; border-radius: 50%; background: transparent; padding: 0; box-shadow: 0 4px 18px rgba(193,18,31,0.3); }
 .intro-brand-txt { font-size: 32px; font-weight: 900; color: var(--orange); letter-spacing: 5px; text-transform: uppercase; line-height: 1; }
 
 /* CONTACT LOGO */
 .contact-logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-.contact-logo-img { height: 58px; width: auto; object-fit: contain; border-radius: 50%; background: transparent; padding: 0; box-shadow: 0 4px 16px rgba(168,123,0,0.28); }
+.contact-logo-img { height: 58px; width: auto; object-fit: contain; border-radius: 50%; background: transparent; padding: 0; box-shadow: 0 4px 16px rgba(193,18,31,0.28); }
 .contact-brand-txt { font-size: 26px; font-weight: 900; color: var(--orange); letter-spacing: 4px; text-transform: uppercase; line-height: 1; }
 
 /* MODAL LOGO */

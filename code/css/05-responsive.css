@@ -45,13 +45,13 @@
   #hero .btn-primary { background: var(--orange); color: #fff; border-color: var(--orange); }
   #hero .btn-primary:hover { background: var(--orange-dark); }
   #hero .btn-outline { color: #fff; border-color: rgba(255,255,255,0.6); }
-  #hero .btn-outline:hover { background: rgba(168,123,0,0.25); border-color: #fff; }
+  #hero .btn-outline:hover { background: rgba(193,18,31,0.25); border-color: #fff; }
   .hero-btns { margin-bottom: 36px; }
   .hero-stats { gap: 20px; }
   .stat span { font-size: 22px; color: #fff; }
   .stat small { color: rgba(255,255,255,0.7); }
   .stat small { color: var(--gray-400); }
-  .hero-tag { background: rgba(168,123,0,0.1); border-color: rgba(168,123,0,0.25); }
+  .hero-tag { background: rgba(193,18,31,0.1); border-color: rgba(193,18,31,0.25); }
 
   /* Sections */
   #about, #categories, #products, #contact, #features { padding: 60px 0; }

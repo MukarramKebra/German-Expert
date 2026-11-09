@@ -22,7 +22,7 @@
 .ge-hero-bg {
   position: absolute; inset: 0; z-index: -1;
   background:
-    radial-gradient(55% 45% at 68% 80%, rgba(242,183,5,.18), transparent 70%),
+    radial-gradient(55% 45% at 68% 80%, rgba(239,59,66,.18), transparent 70%),
     radial-gradient(40% 55% at 95% 5%, rgba(193,18,31,.20), transparent 70%),
     radial-gradient(70% 80% at 15% 0%, #2b313a 0%, transparent 60%),
     linear-gradient(180deg, #16191f 0%, #0f1115 100%);
@@ -47,13 +47,13 @@
 .ge-hero:not(.no-car) .ge-hero-trust { justify-content: center; }
 
 /* ── Copy ── */
-.ge-hero-tag { display: inline-flex; align-items: center; gap: 8px; color: var(--gold); background: rgba(242,183,5,.08); border: 1px solid rgba(242,183,5,.28); font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; padding: 6px 14px; border-radius: 999px; margin-bottom: 22px; backdrop-filter: blur(6px); }
+.ge-hero-tag { display: inline-flex; align-items: center; gap: 8px; color: var(--gold); background: rgba(239,59,66,.08); border: 1px solid rgba(239,59,66,.28); font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; padding: 6px 14px; border-radius: 999px; margin-bottom: 22px; backdrop-filter: blur(6px); }
 .ge-hero-title { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: clamp(40px, 4.6vw, 64px); line-height: 1; letter-spacing: .5px; margin-bottom: 20px; text-shadow: 0 4px 30px rgba(0,0,0,.45); }
 .ge-hero-title span { color: var(--gold); white-space: nowrap; }
 .ge-hero-text { font-size: 16px; line-height: 1.7; color: rgba(255,255,255,.78); max-width: 480px; margin-bottom: 32px; }
 .ge-hero-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 34px; }
-.ge-hero .btn-primary { background: var(--gold); border-color: var(--gold); color: #16191f; }
-.ge-hero .btn-primary:hover { background: #ffc928; border-color: #ffc928; }
+.ge-hero .btn-primary { background: var(--orange); border-color: var(--orange); color: #fff; }
+.ge-hero .btn-primary:hover { background: #e01b2b; border-color: #e01b2b; }
 .ge-btn-ghost { background: rgba(255,255,255,.06); color: #fff; border: 2px solid rgba(255,255,255,.35); backdrop-filter: blur(6px); }
 .ge-btn-ghost:hover { border-color: #fff; background: rgba(255,255,255,.12); }
 .ge-hero-trust { display: flex; flex-wrap: wrap; gap: 10px 22px; list-style: none; }
@@ -79,18 +79,18 @@
 .ge-car-model {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -54%);
   width: min(96%, 1020px); height: 92%; z-index: 0; pointer-events: none; overflow: visible;
-  filter: drop-shadow(0 0 46px rgba(242, 183, 5, .14));
+  filter: drop-shadow(0 0 46px rgba(239,59,66, .14));
 }
 
 .ge-car-tilt { position: relative; z-index: 1; width: min(66%, 720px); transform-style: preserve-3d; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .35s ease-out; }
 .ge-car-float { position: relative; animation: geCarFloat 6s ease-in-out infinite; }
 .ge-car-body { position: relative; display: block; transform: translateZ(40px); }
-.ge-car-img { display: block; width: 100%; height: auto; filter: drop-shadow(0 26px 24px rgba(0,0,0,.6)) drop-shadow(0 0 40px rgba(242,183,5,.10)); user-select: none; -webkit-user-drag: none; }
+.ge-car-img { display: block; width: 100%; height: auto; filter: drop-shadow(0 26px 24px rgba(0,0,0,.6)) drop-shadow(0 0 40px rgba(239,59,66,.10)); user-select: none; -webkit-user-drag: none; }
 /* Light sweep clipped to the car's own silhouette (mask = the same image) */
 .ge-car-sheen {
   position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen;
   -webkit-mask: var(--car) center / 100% 100% no-repeat; mask: var(--car) center / 100% 100% no-repeat;
-  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.38) 48%, rgba(242,183,5,.22) 53%, transparent 62%);
+  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.38) 48%, rgba(239,59,66,.22) 53%, transparent 62%);
   background-size: 300% 100%; animation: geCarSheen 6s ease-in-out infinite;
 }
 .ge-car-shadow { position: absolute; left: 10%; right: 10%; bottom: -4%; height: 16%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.75), transparent); animation: geCarShadow 6s ease-in-out infinite; z-index: -1; }

@@ -49,20 +49,20 @@ const HERO_CARS = [
 const HERO_ROTATE_MS = 6500;
 const HERO_SHADERS_URL = 'https://cdn.jsdelivr.net/npm/shaders@4.0.5/dist/js/bundle.js';
 
-// German palette: graphite studio, gold key light, red back wash.
+// German palette: graphite studio, neutral silver key light, red back wash.
 const HERO_SHADER_PRESET = {
   components: [
     { type: 'StudioBackground', props: {
-      color: '#1b1f26', keyColor: '#ffd36b', keyIntensity: 34, keySoftness: 62,
+      color: '#1b1f26', keyColor: '#eef1f5', keyIntensity: 34, keySoftness: 62,
       fillColor: '#8a95a5', fillIntensity: 12, fillSoftness: 75, fillAngle: 70,
       backColor: '#c1121f', backIntensity: 20, backSoftness: 85,
       brightness: 12, vignette: 25, center: { x: 0.7, y: 0.8 }, lightTarget: 85,
       wallCurvature: 18, ambientIntensity: 45, ambientSpeed: 1.2, seed: 7 } },
     { type: 'Godrays', props: {
       center: { x: 0.72, y: -0.15 }, density: 0.2, intensity: 0.4, spotty: 0.2, speed: 0.2,
-      rayColor: '#f2b705', blendMode: 'screen', opacity: 0.07 } },
+      rayColor: '#e8eaed', blendMode: 'screen', opacity: 0.07 } },
     { type: 'CursorTrail', props: {
-      colorA: '#f2b705', colorB: '#c1121f', radius: 0.7, length: 0.6, shrink: 1, softness: 0.85,
+      colorA: '#ef3b42', colorB: '#8a95a5', radius: 0.7, length: 0.6, shrink: 1, softness: 0.85,
       colorSpace: 'oklab', blendMode: 'screen', opacity: 0.3 } },
     { type: 'Vignette', props: { color: '#0f1115', center: { x: 0.55, y: 0.55 }, radius: 0.7, falloff: 0.65, intensity: 0.75 } },
     { type: 'FilmGrain', props: { strength: 0.04, bias: 3 } },
@@ -100,8 +100,8 @@ const HERO_SHADER_PRESET = {
             <defs>
               <linearGradient id="geModelGrad${i}" x1="0%" y1="100%" x2="100%" y2="0%">
                 <stop offset="0%" stop-color="#c1121f" />
-                <stop offset="52%" stop-color="#f2b705" />
-                <stop offset="100%" stop-color="#fff1c6" />
+                <stop offset="52%" stop-color="#ef3b42" />
+                <stop offset="100%" stop-color="#ffffff" />
               </linearGradient>
             </defs>
             <text x="${vbW / 2}" y="252" text-anchor="middle" fill="none" stroke="url(#geModelGrad${i})"

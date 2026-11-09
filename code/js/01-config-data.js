@@ -80,7 +80,7 @@ const EMAIL_OFFERS_ENABLED = false;
           <div style="font-size:15px;color:rgba(255,255,255,0.55);margin-bottom:28px;line-height:1.7">
             We are currently performing maintenance.<br>We'll be back shortly. Thank you for your patience.
           </div>
-          <div style="font-size:15px;font-weight:800;color:#f2b705;line-height:1.3;letter-spacing:2px">GERMAN EXPERT</div>
+          <div style="font-size:15px;font-weight:800;color:#ef3b42;line-height:1.3;letter-spacing:2px">GERMAN EXPERT</div>
           <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:6px;">German Car Parts — Sharjah, UAE</div>
         </div>`;
       document.body.appendChild(overlay);

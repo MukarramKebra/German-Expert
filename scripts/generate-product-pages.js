@@ -311,14 +311,14 @@ function renderPage(p) {
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#1a1a1a;background:#f6f7f9}
     .p-header{display:flex;align-items:center;gap:10px;padding:14px 20px;background:#fff;border-bottom:1px solid #e5e7eb}
     .p-header img{height:34px;width:auto}
-    .p-header a{display:flex;align-items:center;gap:10px;text-decoration:none;color:#a87b00;font-weight:800;font-size:18px}
+    .p-header a{display:flex;align-items:center;gap:10px;text-decoration:none;color:#c1121f;font-weight:800;font-size:18px}
     main{max-width:960px;margin:0 auto;padding:22px 20px 60px}
     .crumb{font-size:13px;color:#6b7280;margin:4px 0 18px}
     .crumb a{color:#6b7280;text-decoration:none}
     .p-wrap{display:flex;gap:32px;flex-wrap:wrap;background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:24px}
     .p-img{width:min(420px,100%);height:auto;object-fit:contain;border-radius:10px;background:#fafafa;border:1px solid #eee}
     .p-info{flex:1;min-width:260px}
-    .p-brand{font-size:12px;font-weight:700;letter-spacing:.5px;color:#a87b00;text-transform:uppercase;margin:0 0 6px}
+    .p-brand{font-size:12px;font-weight:700;letter-spacing:.5px;color:#c1121f;text-transform:uppercase;margin:0 0 6px}
     h1{font-size:26px;line-height:1.25;margin:0 0 8px}
     .p-sku{font-size:12px;color:#9ca3af;margin:0 0 14px}
     .p-price{font-size:28px;font-weight:800;margin:0 0 4px}
@@ -331,7 +331,7 @@ function renderPage(p) {
     .p-variants-list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
     .p-variants-list li{font-size:13px;color:#374151;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;padding:6px 12px}
     .p-desc{font-size:15px;line-height:1.7;color:#374151;margin:0 0 22px;white-space:pre-line}
-    .p-btn{display:inline-block;background:#a87b00;color:#fff;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:10px;font-size:15px}
+    .p-btn{display:inline-block;background:#c1121f;color:#fff;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:10px;font-size:15px}
     .p-back{display:inline-block;margin-left:14px;color:#6b7280;text-decoration:none;font-size:14px}
     footer{max-width:960px;margin:0 auto;padding:24px 20px;color:#6b7280;font-size:13px;line-height:1.7}
     @media(max-width:640px){.p-wrap{padding:16px}h1{font-size:22px}}
