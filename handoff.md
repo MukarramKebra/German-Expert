@@ -30,7 +30,7 @@ The owner will send a link to their existing online product list later; importin
 - **No `RESEND_API_KEY`**, so `notify-order` and `send-offers` cannot actually send mail yet. Both deploy and respond correctly; they'd fail only at the Resend call.
 - `TODO-CONTACT` placeholders are still in place (WhatsApp `971500000000`, `info@german-expert.ae`, Maps link, JSON-LD address).
 - The catalog is empty — awaiting the owner's product list.
-- **Pre-existing, unrelated to this session:** the two side banners 404. `SIDE_BANNERS` in `code/js/02-catalog-render.js:380-386` still points at the Kuwait fork's `Banners/dck1.jpg`, `covax1.jpg`, `itrust*.jpg`, `bigred*.jpg`, and that folder was deleted from this repo — 10 broken image requests per page load, showing as two grey placeholder panels. Needs either German-brand banner images or for `SIDE_BANNERS` to be emptied.
+- `favicon.svg` and `og-image.png` still carry the old placeholder wordmark, not the real logo.
 
 **Connections:**
 - The **claude.ai Supabase connector** is signed in as **mkerba2011@gmail.com**. It sees only that account's org: Experts Hardware (Kuwait, `qhebhvllkovfbkqrcnmm`), Epsilon Billing (`mgxhwduuqdtxzxkhgfnc`, which the owner is actively working on) and Dhow Tech (inactive). **Leave it on that account.**
@@ -113,6 +113,15 @@ The owner will send a link to their existing online product list later; importin
   - **Restoring ordering is two steps, do both:** flip `ONLINE_ORDERING_ENABLED` to `true` **and** delete the "CATALOG-ONLY MODE" block in `code/css/03-cart-features-contact.css`. The flag alone re-enables checkout with no way to reach the cart.
   - Verified in-browser: all 7 surfaces computed `display:none`; `openCart()`/`openCheckout()` left their overlays closed; `addToCart()` left `cart.length === 0` and opened WhatsApp instead; visible nav reduced to About/Parts/FAQ/Contact/Wishlist.
 
+- **Real logo + side banners removed (2026-11-09):**
+  - `DEFAULT_BANNERS` in `code/js/02-catalog-render.js` is now deliberately `[]`. It listed the Kuwait fork's hardware brands against a `Banners/` folder that doesn't exist here, firing 10 404s per page load. Two guards were needed, not one: `initSideBanners()` returns early and hides the rails when there are no slides, and `_sizeSideBanners()` — which runs on every resize, independently — bails when `#bannerLeft` has no children. Without the second, `.side-banner-rail` (CSS `display:none`) was being force-set back to `display:block`, painting two empty shadowed boxes.
+  - Owner's real logo added as **`logo.jpg`** (renamed from `LOGO.jpeg`; lowercase because GitHub Pages is case-sensitive). 520×520 circular crest, white JPEG corners. Replaced `logo.svg` / `logo-dark.svg` in all 9 `index.html` slots, `admin/index.html` ×2, `404.html`, `terms.html`, `accessibility.html` and the product-page generator. Intrinsic `width`/`height` attributes changed 640×200 → 520×520 so the browser reserves the right box.
+  - **`border-radius: 50%` is what makes it work.** The circle touches all four edges, so a 50% clip removes exactly the white corners — no transparent PNG needed, and no image-processing dependency. Applied in `01-base.css` (`.logo-img`), `02-sections.css` (`.about-img-card img`), `03-cart-features-contact.css` (`.intro-logo-img`, `.contact-logo-img`, `.modal-logo`), `04-footer.css` (`.footer-logo`), the two inline admin styles, `404.html`, `terms.html`, `accessibility.html` and the generator. **Any new logo slot needs this rule**, or white corners show on dark backgrounds. 404.html mattered most — it used the dark-background logo.
+  - Header: the ring lettering is unreadable at 52px, so the `.logo-text-fallback` "GERMAN EXPERT" wordmark is now always shown instead of only on `onerror`, and the `<img>` took `alt=""` so a screen reader doesn't announce the name twice for one link.
+  - Admin login logo capped at 168px (was `max-width:280px`, which made an oversized circle on the login card).
+  - Verified: all 9 logo images load, every slot computes `border-radius: 50%` and a square box, both banner rails compute `display:none` with 0 slides, and the console is clean — the 10 404s are gone.
+  - **Noticed:** the logo itself carries two phone numbers, **+971 052 536 4791** and **+971 052 538 7296**. `SHOP_WA` is still the placeholder `971500000000`; ask the owner which number takes WhatsApp before wiring it.
+
 ## 5) Failed attempts
 
 - **`create_project` failed:** the free plan allows only 2 active projects per owner (mkerba2011 already has Experts Hardware and Epsilon Billing). The owner then created the project themselves under another account/org (Bahar Al Hind Co).
@@ -128,7 +137,7 @@ The owner will send a link to their existing online product list later; importin
 ## 6) Next steps
 
 1. **Admin accounts (owner runs this, blocks all admin work).** `expert_admin_profiles` is empty, so nobody can log into `/admin/`. The `bootstrap` action only works while that table is empty — one shot. Give the owner a `! curl` POSTing `{"action":"bootstrap","accounts":[{"username":"…","password":"…","role":"super"}, …]}` to `https://qljcyiwkwdfodmabnzol.supabase.co/functions/v1/admin-manage-accounts` with `apikey` + `Authorization: Bearer <publishable key>` headers. Roles: `super` (owner), `bahar15` (manager), `1` (admin), `custom` (team). **The owner fills in their own passwords — never choose, type, or enter them.**
-2. **Fix the broken side banners.** `SIDE_BANNERS` (`code/js/02-catalog-render.js:380-386`) still lists the Kuwait fork's `Banners/*.jpg`; the folder doesn't exist here, so every page load fires 10 404s and shows two grey panels. Either set `SIDE_BANNERS = []` or get German-brand images from the owner.
+2. **Regenerate `favicon.svg` and `og-image.png` from `logo.jpg`** — both still show the old placeholder wordmark, so browser tabs and WhatsApp/social share cards are off-brand. The share card is 1200×630.
 3. **Replace `TODO-CONTACT`** once the owner sends the real WhatsApp number, email, Maps link and address — `SHOP_WA` in `code/js/01-config-data.js`, the `wa.me/971500000000` links in `index.html`, `terms.html`, `accessibility.html`, and the JSON-LD block.
 4. **Import the catalog** when the owner sends the product list (admin CSV import supports `sku` and `makes` columns). Then raise `MIN_PRODUCTS` / set `SEO_MIN_PRODUCTS` in `.github/workflows/generate-seo.yml` above 0, so a Supabase outage returning `[]` can't wipe `sitemap.xml`.
 5. **Owner to-dos to remind about:**

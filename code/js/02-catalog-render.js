@@ -375,18 +375,18 @@ function initOffersTicker() {
 
 // ── SIDE BANNERS ──────────────────────────────────────────────────────────
 // Default set used until (or unless) the admin adds banners in Supabase —
-// see admin/js/05-categories.js. Images live in the Banners/ folder.
+// see admin/js/05-categories.js. Images would live in a Banners/ folder.
+//
+// Deliberately EMPTY. This used to list the Kuwait fork's hardware brands
+// (DCK, Covax, iTrust, BIG RED) pointing at a Banners/ folder that doesn't
+// exist in this repo, so every page load fired 10 404s and painted two grey
+// placeholder panels down the sides of the catalog. initSideBanners() hides
+// the rails when there's nothing to show.
+//
+// To bring them back: drop the images in a Banners/ folder at the repo root
+// and list them here as { brand, img } — or, better, add them through the
+// admin panel (expert_banners), which overrides this list anyway.
 const DEFAULT_BANNERS = [
-  { brand: 'DCK',    img: 'Banners/dck1.jpg' },
-  { brand: 'DCK',    img: 'Banners/dck2.jpg' },
-  { brand: 'Covax',  img: 'Banners/covax1.jpg' },
-  { brand: 'Covax',  img: 'Banners/covax2.jpg' },
-  { brand: 'iTrust', img: 'Banners/itrust1.jpg' },
-  { brand: 'iTrust', img: 'Banners/itrust2.jpg' },
-  { brand: 'iTrust', img: 'Banners/itrust3.jpg' },
-  { brand: 'iTrust', img: 'Banners/itrust4.jpg' },
-  { brand: 'BIG RED', img: 'Banners/bigred1.jpg' },
-  { brand: 'BIG RED', img: 'Banners/bigred2.jpg' }
 ];
 
 // Groups banners by brand and interleaves them (one per brand per pass) so no
@@ -481,6 +481,11 @@ function _sizeSideBanners() {
     catContainer.style.maxWidth = prodContainer.style.maxWidth = '';
     rails.forEach(function(r) { r.style.display = 'none'; });
   }
+  // No slides rendered (no banners configured) — stay hidden. This runs on
+  // every resize, independently of initSideBanners(), so without the check a
+  // resize would re-show two empty rails.
+  const leftRail = document.getElementById('bannerLeft');
+  if (!leftRail || !leftRail.children.length) { hideAll(); return; }
   // Measure the natural gutter first (reset any shrink from a previous run)
   catContainer.style.maxWidth = prodContainer.style.maxWidth = '';
   const naturalW = prodContainer.offsetWidth;
@@ -547,6 +552,14 @@ function initSideBanners() {
   const source = (_sbBanners && _sbBanners.length)
     ? _sbBanners.map(function(b) { return { id: b.id, brand: b.brand, img: b.img_url }; })
     : DEFAULT_BANNERS;
+  // Nothing to show (DEFAULT_BANNERS is empty and the admin hasn't added any):
+  // clear the rails and leave them hidden. Without this the slots would still
+  // be sized and shown by _sizeSideBanners(), painting two empty boxes.
+  if (!source.length) {
+    leftEl.innerHTML = rightEl.innerHTML = '';
+    document.querySelectorAll('.side-banner-rail').forEach(function(r) { r.style.display = 'none'; });
+    return;
+  }
   const split = _splitBanners(source);
   _bannerIdx = 0;
   _renderBannerSlides(leftEl,  split.left.length  ? split.left  : DEFAULT_BANNERS);

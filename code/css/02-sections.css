@@ -3,7 +3,7 @@
 .about-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 72px; align-items: center; }
 .about-img-wrap { position: relative; }
 .about-img-card { width: 400px; max-width: 100%; height: auto; border-radius: 18px; padding: 28px; background: #fff; box-shadow: 0 10px 40px rgba(168,123,0,0.22); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border); aspect-ratio: unset; }
-.about-img-card img { width: 100%; height: auto; object-fit: contain; border-radius: 10px; background: #fff; padding: 0; box-shadow: none; }
+.about-img-card img { width: 100%; height: auto; object-fit: contain; border-radius: 50%; background: #fff; padding: 0; box-shadow: none; }
 .about-badge { position: absolute; bottom: -18px; right: -18px; background: var(--orange); color: #fff; font-size: 12px; font-weight: 800; letter-spacing: 0.5px; padding: 12px 18px; border-radius: 8px; box-shadow: 0 4px 16px rgba(168,123,0,0.35); display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
 .about-text h2 { font-size: clamp(22px, 3vw, 32px); font-weight: 800; color: var(--dark); margin-bottom: 16px; margin-top: 8px; line-height: 1.2; }
 .about-text p { color: var(--gray-600); line-height: 1.78; margin-bottom: 14px; font-size: 15px; }

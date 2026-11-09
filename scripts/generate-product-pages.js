@@ -338,7 +338,7 @@ function renderPage(p) {
 </head>
 <body>
   <header class="p-header">
-    <a href="../"><img src="../logo-dark.svg" alt="German Expert" style="height:44px" /></a>
+    <a href="../"><img src="../logo.jpg" alt="German Expert" style="height:44px;border-radius:50%" /></a>
   </header>
   <main>
     <nav class="crumb"><a href="../">Home</a> &rsaquo; ${esc(catTxt || 'Products')} &rsaquo; ${esc(clip(p.name, 40))}</nav>
