@@ -30,9 +30,15 @@
 //              { x, y, dx, dy, run, brand, part, cat, img }.
 //              dx/dy are the label's pixel offset FROM the dot. The line
 //              is an elbow: a diagonal leg off the dot, then a flat
-//              horizontal leg of `run` px (default 70) into the label —
-//              so put x/y exactly on the part and aim dx/dy at whatever
-//              black space is actually free.
+//              horizontal leg of `run` px (default 70) into the label.
+//              To place a dot on a NEW car, do not guess: render a 10%
+//              grid inside .ge-car-float (the dots' own coordinate space,
+//              so the stage's 3D transform carries the labels along with
+//              the car), screenshot it and read the part's percentages off
+//              it. getBoundingClientRect() is useless here — that same
+//              transform puts the rects 200-300px out.
+//              dx/dy are plain px, so aim them at the black space that is
+//              free at 1440px; narrower windows fall back to the chip row.
 //              Mind the caption in the bottom-right and the giant badge.
 //              x/y are percentages of the CAR IMAGE box, so a callout
 //              tracks the car at every width.
@@ -58,8 +64,8 @@ const HERO_CARS = [
     scale: 1,
     alt: 'Mercedes-Benz E-Class sedan',
     callouts: [
-      { x: '42%', y: '50%', dx: -315, dy: 70,   img: 'img/parts/audi-headlight.webp',       brand: 'OEM', part: 'Headlight unit', cat: 'body-lights' },
-      { x: '92%', y: '78%', dx: 150,  dy: -90,  img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
+      { x: '42%', y: '45%', dx: -295, dy: 70,  img: 'img/parts/audi-headlight.webp',       brand: 'OEM', part: 'Headlight unit', cat: 'body-lights' },
+      { x: '94%', y: '66%', dx: 120,  dy: -60, img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
     ],
   },
   {
@@ -71,8 +77,8 @@ const HERO_CARS = [
     scale: 1.09,
     alt: 'BMW M4 coupe',
     callouts: [
-      { x: '30%', y: '50%', dx: -230, dy: 80,   img: 'img/parts/audi-headlight.webp',       brand: 'OEM', part: 'Headlight unit', cat: 'body-lights' },
-      { x: '90%', y: '75%', dx: 150,  dy: -90,  img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake discs', cat: 'brakes' },
+      { x: '29%', y: '50%', dx: -225, dy: 80,  img: 'img/parts/audi-headlight.webp',       brand: 'OEM', part: 'Headlight unit', cat: 'body-lights' },
+      { x: '93%', y: '69%', dx: 95,   dy: -65, img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake discs', cat: 'brakes' },
     ],
   },
   {
@@ -84,8 +90,8 @@ const HERO_CARS = [
     scale: 1.15,
     alt: 'Porsche 911 Turbo coupe',
     callouts: [
-      { x: '34%', y: '82%', dx: -275, dy: 14,   img: 'img/parts/lemforder-control-arm.webp', brand: 'Lemförder', part: 'Control arm', cat: 'suspension' },
-      { x: '84%', y: '74%', dx: 160,  dy: -85,  img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
+      { x: '41%', y: '85%', dx: -340, dy: 8,   img: 'img/parts/lemforder-control-arm.webp', brand: 'Lemförder', part: 'Control arm', cat: 'suspension' },
+      { x: '93%', y: '71%', dx: 85,   dy: -75, img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
     ],
   },
   {
@@ -100,8 +106,8 @@ const HERO_CARS = [
     scale: 0.97,
     alt: 'Audi A6 sedan',
     callouts: [
-      { x: '40%', y: '48%', dx: -292, dy: 80,   img: 'img/parts/audi-headlight.webp',       brand: 'OEM', part: 'Headlight unit', cat: 'body-lights' },
-      { x: '90%', y: '76%', dx: 150,  dy: -90,  img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
+      { x: '40%', y: '46%', dx: -280, dy: 75,  img: 'img/parts/audi-headlight.webp',       brand: 'OEM', part: 'Headlight unit', cat: 'body-lights' },
+      { x: '94%', y: '69%', dx: 125,  dy: -70, img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
     ],
   },
   {
@@ -113,8 +119,8 @@ const HERO_CARS = [
     scale: 0.84,
     alt: 'Volkswagen Touareg SUV',
     callouts: [
-      { x: '30%', y: '78%', dx: -265, dy: 25,   img: 'img/parts/febi-control-arm.webp',      brand: 'febi', part: 'Control arm kit', cat: 'suspension' },
-      { x: '90%', y: '66%', dx: 150,  dy: -70,  img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
+      { x: '56%', y: '85%', dx: -335, dy: 8,   img: 'img/parts/febi-control-arm.webp',      brand: 'febi', part: 'Control arm kit', cat: 'suspension' },
+      { x: '95%', y: '69%', dx: 150,  dy: -60, img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
     ],
   },
   {
@@ -130,8 +136,8 @@ const HERO_CARS = [
     scale: 0.9,
     alt: 'Range Rover Sport SUV',
     callouts: [
-      { x: '26%', y: '74%', dx: -215, dy: 30,   img: 'img/parts/febi-control-arm.webp',      brand: 'febi', part: 'Control arm kit', cat: 'suspension' },
-      { x: '88%', y: '64%', dx: 150,  dy: -70,  img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
+      { x: '47%', y: '84%', dx: -305, dy: 8,   img: 'img/parts/febi-control-arm.webp',      brand: 'febi', part: 'Control arm kit', cat: 'suspension' },
+      { x: '93%', y: '68%', dx: 150,  dy: -60, img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
     ],
   },
 ];

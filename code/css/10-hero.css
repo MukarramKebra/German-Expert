@@ -119,6 +119,9 @@
 .ge-callout {
   position: absolute; left: var(--cx, 50%); top: var(--cy, 50%);
   width: 0; height: 0; z-index: 4;
+  /* Every px offset below is multiplied by --k so the whole elbow
+     scales with the stage. See the band overrides further down. */
+  --k: 1;
 }
 .ge-callout-dot {
   position: absolute; left: -5px; top: -5px; width: 10px; height: 10px;
@@ -140,10 +143,16 @@
   background: linear-gradient(90deg, var(--gold), rgba(239, 59, 66, .55));
 }
 .ge-callout-line {
-  left: 0; top: 0; width: var(--len, 120px);
+  left: 0; top: 0; width: calc(var(--len, 120px) * var(--k));
+  /* --ang is an angle, so it is NOT scaled: scaling --len, --lx, --dx
+     and --dy by the same factor already keeps the corner on the line. */
   transform-origin: 0 50%; transform: rotate(var(--ang, 0deg));
 }
-.ge-callout-leg { left: var(--lx, 0); top: var(--dy, 0); width: var(--run, 70px); }
+.ge-callout-leg {
+  left: calc(var(--lx, 0px) * var(--k));
+  top: calc(var(--dy, 0px) * var(--k));
+  width: calc(var(--run, 70px) * var(--k));
+}
 /* A hairline dot marks the corner so the bend reads as deliberate. */
 .ge-callout-leg::before {
   content: ''; position: absolute; top: -1.5px; width: 4px; height: 4px;
@@ -154,7 +163,8 @@
 /* The label is placed at the line's far end (--dx/--dy from the dot) and
    then pushed clear of it, away from the car. */
 .ge-callout-card {
-  position: absolute; left: var(--dx, 0); top: var(--dy, 0);
+  position: absolute;
+  left: calc(var(--dx, 0px) * var(--k)); top: calc(var(--dy, 0px) * var(--k));
   display: flex; align-items: center; gap: 14px;
   padding: 0; border: 0; background: none; color: inherit;
   font: inherit; text-align: left; white-space: nowrap; cursor: default;
@@ -178,6 +188,20 @@ button.ge-callout-card { cursor: pointer; }
 .ge-callout-part { font-size: 13.5px; font-weight: 600; color: rgba(255, 255, 255, .92); }
 button.ge-callout-card:hover .ge-callout-part { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
 button.ge-callout-card:focus-visible { outline: 2px solid var(--orange-light); outline-offset: 4px; border-radius: 6px; }
+
+/* The cards need free stage either side of the car, and that margin
+   shrinks faster than the viewport does. Pull the labels in towards the
+   car as the window narrows rather than letting them run off the edge.
+   Below 1025px there is no room for a leader line at all and .ge-callout
+   is hidden outright - the chip row under the car takes over. */
+@media (max-width: 1359px) { .ge-callout { --k: .62; } }
+@media (max-width: 1199px) {
+  .ge-callout { --k: .42; }
+  /* A narrower card buys back the margin --k alone cannot. */
+  .ge-callout-img { width: 86px; height: 70px; }
+  .ge-callout-card { gap: 10px; }
+  .ge-callout-part { font-size: 12.5px; }
+}
 
 /* ── Part chips (phone only) ────────────────────────────────────────────
    The callouts above need empty stage either side of the car, which a
@@ -266,7 +290,7 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
 @keyframes geCarSheen { 0% { background-position: 100% 0; } 55%, 100% { background-position: 0 0; } }
 
 /* ── Responsive ── */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .ge-hero { min-height: 0; }
   .ge-hero-inner, .ge-hero.no-car .ge-hero-inner { grid-template-columns: minmax(0, 1fr); padding: 28px 20px 48px; gap: 8px; }
   /* Caption moves under the car and goes full width, so the car has to clear

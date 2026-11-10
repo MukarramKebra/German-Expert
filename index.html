@@ -162,12 +162,18 @@
        requests below discover them — shaves real time off the
        render-blocking critical path for both. -->
   <!-- The first hero car is the LCP element, and it is only requested once
-       the runtime loader has injected and run code/js/08-hero.js — about 4s
+       the runtime loader has injected and run code/js/08-hero.js - about 4s
        of pure discovery delay on a throttled phone. Preloading it here makes
        it discoverable in the HTML straight away. Keep in sync with
-       HERO_CARS[0] in code/js/08-hero.js; the widths match the srcset there. -->
-  <link rel="preload" as="image" href="img/hero/mercedes-e-class-sm.webp" media="(max-width: 900px)" fetchpriority="high" />
-  <link rel="preload" as="image" href="img/hero/mercedes-e-class.webp" media="(min-width: 901px)" fetchpriority="high" />
+       HERO_CARS[0] in code/js/08-hero.js: imagesrcset/imagesizes must repeat
+       that car's srcset and sizes EXACTLY, or the preload scanner resolves a
+       different candidate than the <img> does and the download is thrown
+       away. Two media-split href preloads used to do that - on a DPR-1
+       desktop the 720px slot resolves to the 760w file, so the full-size
+       1400w image was fetched and never used on every such machine. -->
+  <link rel="preload" as="image"
+        imagesrcset="img/hero/mercedes-e-class-sm.webp 760w, img/hero/mercedes-e-class.webp 1400w"
+        imagesizes="(max-width: 900px) 92vw, 720px" fetchpriority="high" />
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
