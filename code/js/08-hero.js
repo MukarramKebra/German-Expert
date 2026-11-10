@@ -24,6 +24,18 @@
 //              caption a "Shop <Make> parts" button that filters the catalog
 //   label    — optional make name (defaults to the CAR_MAKES label)
 //   lead     — optional small line above the name
+//   callouts — parts to annotate ON the car: a red dot on the part, a red
+//              leader line out into the empty black space beside the car,
+//              and a labelled card at the end. Each one is
+//              { x, y, dx, dy, brand, part, cat, img }.
+//              dx/dy are the label's pixel offset FROM the dot, and the
+//              line is rotated to match — so put x/y exactly on the part
+//              and aim dx/dy at whatever black space is actually free.
+//              Mind the caption in the bottom-right and the giant badge.
+//              x/y are percentages of the CAR IMAGE box, so a callout
+//              tracks the car at every width.
+//              `cat` makes the card clickable (filters that category).
+//              `img` is an optional product photo for the card.
 //   scale    — optional width multiplier (default 1). The cut-outs differ
 //              wildly in shape — a 911 is long and low, a Touareg short and
 //              tall — so one shared CSS width would make the SUVs tower over
@@ -43,6 +55,10 @@ const HERO_CARS = [
     badge: 'MERCEDES',
     scale: 1,
     alt: 'Mercedes-Benz E-Class sedan',
+    callouts: [
+      { x: '42%', y: '50%', dx: -315, dy: 70,   brand: 'Hella', part: 'Headlight unit', cat: 'body-lights' },
+      { x: '92%', y: '78%', dx: 150,  dy: -165, brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
+    ],
   },
   {
     src: 'img/hero/bmw-m4.webp', w: 1374,
@@ -52,18 +68,10 @@ const HERO_CARS = [
     badge: 'BMW',
     scale: 1.09,
     alt: 'BMW M4 coupe',
-  },
-  {
-    // A PART slide, not a car. Vector artwork rather than a photo — drop a
-    // transparent cut-out photo in its place and nothing else changes.
-    src: 'img/hero/brake-kit.svg',
-    badge: 'BRAKE PADS',
-    name: 'Brake pads & discs',
-    lead: 'We stock and fit',
-    cat: 'brakes',
-    ctaText: 'Shop brakes',
-    scale: 0.97,
-    alt: 'Brake discs, caliper and pads',
+    callouts: [
+      { x: '30%', y: '50%', dx: -230, dy: 80,   brand: 'Hella', part: 'Headlight unit', cat: 'body-lights' },
+      { x: '90%', y: '75%', dx: 150,  dy: -160, brand: 'Remsa', part: 'Brake discs', cat: 'brakes' },
+    ],
   },
   {
     src: 'img/hero/porsche-911.webp', w: 1400,
@@ -73,6 +81,10 @@ const HERO_CARS = [
     badge: 'PORSCHE',
     scale: 1.15,
     alt: 'Porsche 911 Turbo coupe',
+    callouts: [
+      { x: '18%', y: '40%', dx: -200, dy: 90,   brand: 'Hella', part: 'Headlight unit', cat: 'body-lights' },
+      { x: '84%', y: '74%', dx: 160,  dy: -150, brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
+    ],
   },
   {
     // Supplied at 640x480, so the cut-out is only 612px wide — noticeably
@@ -85,17 +97,10 @@ const HERO_CARS = [
     badge: 'AUDI',
     scale: 0.97,
     alt: 'Audi A6 sedan',
-  },
-  {
-    // A PART slide — see the brake entry above.
-    src: 'img/hero/headlight.svg',
-    badge: 'HEADLIGHTS',
-    name: 'Headlights & lamps',
-    lead: 'We stock and fit',
-    cat: 'body-lights',
-    ctaText: 'Shop body & lights',
-    scale: 1.14,
-    alt: 'LED projector headlight unit',
+    callouts: [
+      { x: '40%', y: '48%', dx: -292, dy: 80,   brand: 'Hella', part: 'Headlight unit', cat: 'body-lights' },
+      { x: '90%', y: '76%', dx: 150,  dy: -160, brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
+    ],
   },
   {
     src: 'img/hero/vw-touareg.webp', w: 1400,
@@ -105,6 +110,10 @@ const HERO_CARS = [
     badge: 'VOLKSWAGEN',
     scale: 0.84,
     alt: 'Volkswagen Touareg SUV',
+    callouts: [
+      { x: '46%', y: '45%', dx: -292, dy: 70,   brand: 'Hella', part: 'Headlight unit', cat: 'body-lights' },
+      { x: '90%', y: '66%', dx: 150,  dy: -140, brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
+    ],
   },
   {
     // Deliberately no `make`: Land Rover is not in CAR_MAKES, so a
@@ -118,6 +127,10 @@ const HERO_CARS = [
     badge: 'RANGE ROVER',
     scale: 0.9,
     alt: 'Range Rover Sport SUV',
+    callouts: [
+      { x: '22%', y: '40%', dx: -210, dy: 90,   brand: 'Hella', part: 'Headlight unit', cat: 'body-lights' },
+      { x: '88%', y: '64%', dx: 150,  dy: -140, brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
+    ],
   },
 ];
 
@@ -209,6 +222,37 @@ const HERO_SHADER_PRESET = {
       // in a custom property gets resolved against the stylesheet that reads
       // it, i.e. code/css/, so it has to go in already absolute.
       const maskUrl = new URL(c.src, document.baseURI).href;
+
+      // Part callouts. Rendered inside .ge-car-float so each dot stays
+      // glued to its part while the car bobs instead of drifting off it.
+      const callouts = (Array.isArray(c.callouts) ? c.callouts : []).map(co => {
+        if (!co || !co.part) return '';
+        // dx/dy place the LABEL relative to the dot, in px. The line is a
+        // single div rotated to match, so a callout can point in any
+        // direction and the dot can stay exactly on the part.
+        const dx = Number.isFinite(co.dx) ? co.dx : -200;
+        const dy = Number.isFinite(co.dy) ? co.dy : 0;
+        const sideCls = dx < 0 ? 'left' : 'right';
+        const len = Math.round(Math.hypot(dx, dy));
+        const ang = (Math.atan2(dy, dx) * 180 / Math.PI).toFixed(2);
+        const thumb = co.img
+          ? `<img class="ge-callout-img" src="${esc(co.img)}" alt="" loading="lazy" decoding="async" />`
+          : '';
+        const inner =
+          `${thumb}<span class="ge-callout-txt">` +
+            (co.brand ? `<span class="ge-callout-brand">${esc(co.brand)}</span>` : '') +
+            `<span class="ge-callout-part">${esc(co.part)}</span>` +
+          `</span>`;
+        const card = co.cat
+          ? `<button type="button" class="ge-callout-card" data-cat="${esc(co.cat)}">${inner}</button>`
+          : `<span class="ge-callout-card">${inner}</span>`;
+        return `
+            <div class="ge-callout ${sideCls}" style="--cx:${esc(co.x || '50%')};--cy:${esc(co.y || '50%')};--dx:${dx}px;--dy:${dy}px;--len:${len}px;--ang:${ang}deg">
+              <span class="ge-callout-dot" aria-hidden="true"></span>
+              <span class="ge-callout-line" aria-hidden="true"></span>
+              ${card}
+            </div>`;
+      }).join('');
       return `
       <figure class="ge-car${i === 0 ? ' is-active' : ''}"${i ? ' aria-hidden="true"' : ''}>
         ${badge}
@@ -219,6 +263,7 @@ const HERO_SHADER_PRESET = {
               <span class="ge-car-sheen" aria-hidden="true"></span>
             </div>
             <span class="ge-car-shadow" aria-hidden="true"></span>
+            ${callouts}
           </div>
         </div>
         ${caption}
@@ -270,7 +315,8 @@ const HERO_SHADER_PRESET = {
         toProducts();
         return;
       }
-      const catCap = e.target.closest('.ge-car-caption[data-cat]');
+      // Matches the caption button AND the part-callout cards.
+      const catCap = e.target.closest('[data-cat]');
       if (catCap && typeof jumpCat === 'function') {
         jumpCat(catCap.dataset.cat);
         toProducts();
