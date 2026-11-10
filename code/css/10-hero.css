@@ -104,10 +104,10 @@
    Positioned with --cx/--cy (percentages of the car image) from the
    `callouts` array in code/js/08-hero.js.
 
-   The card can carry a product photo (the `img` field). None are set yet:
-   that photography has to come from the shop or from a supplier/manufacturer
-   media pack the shop is licensed to use — see handoff.md. Drop a path into
-   `img` and .ge-callout-img renders it with no other change. */
+   Each card carries a product photo (the `img` field) from img/parts/ —
+   supplier shots the owner supplied, cropped to their alpha box and
+   written out at 240px. They are photographed on WHITE, so the thumbnail
+   is deliberately a white tile rather than a transparent cut-out. */
 .ge-callout {
   position: absolute; left: var(--cx, 50%); top: var(--cy, 50%);
   width: 0; height: 0; z-index: 4;
@@ -122,13 +122,27 @@
   border: 1px solid var(--gold); opacity: .75;
   animation: geCalloutPing 2.6s ease-out infinite;
 }
-/* One div rotated to --ang and sized to --len, so the line runs from the dot
-   to exactly where the label sits, at any angle. */
-.ge-callout-line {
-  position: absolute; left: 0; top: 0; height: 1px; width: var(--len, 120px);
-  transform-origin: 0 50%; transform: rotate(var(--ang, 0deg));
-  background: linear-gradient(90deg, var(--gold), rgba(239, 59, 66, .45));
+/* The leader is an ELBOW, like a technical drawing: .ge-callout-line is the
+   diagonal leg off the dot (rotated to --ang, sized to --len) and
+   .ge-callout-leg is the flat run of --run px into the label. Keeping the
+   last stretch horizontal is what makes the label read as attached to the
+   line rather than floating at the end of a long slash. */
+.ge-callout-line, .ge-callout-leg {
+  position: absolute; height: 1px;
+  background: linear-gradient(90deg, var(--gold), rgba(239, 59, 66, .55));
 }
+.ge-callout-line {
+  left: 0; top: 0; width: var(--len, 120px);
+  transform-origin: 0 50%; transform: rotate(var(--ang, 0deg));
+}
+.ge-callout-leg { left: var(--lx, 0); top: var(--dy, 0); width: var(--run, 70px); }
+/* A hairline dot marks the corner so the bend reads as deliberate. */
+.ge-callout-leg::before {
+  content: ''; position: absolute; top: -1.5px; width: 4px; height: 4px;
+  border-radius: 50%; background: var(--gold);
+}
+.ge-callout.left .ge-callout-leg::before { right: -2px; }
+.ge-callout.right .ge-callout-leg::before { left: -2px; }
 /* The label is placed at the line's far end (--dx/--dy from the dot) and
    then pushed clear of it, away from the car. */
 .ge-callout-card {
@@ -141,9 +155,10 @@ button.ge-callout-card { cursor: pointer; }
 .ge-callout.left .ge-callout-card { transform: translate(calc(-100% - 10px), -50%); flex-direction: row-reverse; text-align: right; }
 .ge-callout.right .ge-callout-card { transform: translate(10px, -50%); }
 .ge-callout-img {
-  width: 46px; height: 46px; object-fit: contain; flex: none;
-  border-radius: 8px; background: rgba(255, 255, 255, .06);
-  border: 1px solid rgba(255, 255, 255, .14); padding: 3px;
+  width: 80px; height: 66px; object-fit: contain; flex: none;
+  border-radius: 10px; background: #fff; padding: 4px;
+  border: 1px solid rgba(255, 255, 255, .22);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .45);
 }
 .ge-callout-txt { display: flex; flex-direction: column; gap: 1px; }
 .ge-callout-brand {
