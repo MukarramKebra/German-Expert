@@ -113,7 +113,7 @@ const HERO_CARS = [
     scale: 0.84,
     alt: 'Volkswagen Touareg SUV',
     callouts: [
-      { x: '30%', y: '78%', dx: -265, dy: 25,   img: 'img/parts/lemforder-control-arm.webp', brand: 'Lemförder', part: 'Control arm', cat: 'suspension' },
+      { x: '30%', y: '78%', dx: -265, dy: 25,   img: 'img/parts/febi-control-arm.webp',      brand: 'febi', part: 'Control arm kit', cat: 'suspension' },
       { x: '90%', y: '66%', dx: 150,  dy: -70,  img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
     ],
   },
@@ -130,7 +130,7 @@ const HERO_CARS = [
     scale: 0.9,
     alt: 'Range Rover Sport SUV',
     callouts: [
-      { x: '26%', y: '74%', dx: -215, dy: 30,   img: 'img/parts/lemforder-control-arm.webp', brand: 'Lemförder', part: 'Control arm', cat: 'suspension' },
+      { x: '26%', y: '74%', dx: -215, dy: 30,   img: 'img/parts/febi-control-arm.webp',      brand: 'febi', part: 'Control arm kit', cat: 'suspension' },
       { x: '88%', y: '64%', dx: 150,  dy: -70,  img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
     ],
   },
