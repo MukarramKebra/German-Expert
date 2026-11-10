@@ -70,7 +70,7 @@ The owner will send a link to their existing online product list later; importin
 | `.github/workflows/generate-seo.yml` | only `git add`s paths that exist |
 | `logo.jpg`, `favicon.png`, `apple-touch-icon.png`, `og-image.jpg` | real brand assets, all generated from the owner's crest (`logo.svg`/`logo-dark.svg` are the unused placeholders) |
 | `img/hero/{mercedes-e-class,bmw-m4,porsche-911,audi-a6,vw-touareg,range-rover-sport}.webp` (+ `-sm`, + `src/`) | the six rotating hero cars; originals kept in `src/` for reprocessing |
-| `img/parts/{remsa-brake-pads,audi-headlight,lemforder-control-arm}.webp` (+ `src/`) | the hero callout photos — supplied by the owner 2026-11-10, cropped to their alpha box and written out at 240px; originals kept in `src/`. The headlight is an OEM Audi unit, so its card says "OEM", not a brand |
+| `img/parts/{remsa-brake-pads,audi-headlight,lemforder-control-arm}.webp` (+ `src/`) | the hero callout photos — supplied by the owner 2026-11-10, white backdrop flood-filled away from the border and feathered, then written out at 320px as transparent cut-outs — the owner rejected the white-tile look; originals kept in `src/`. The headlight is an OEM Audi unit, so its card says "OEM", not a brand |
 | `CLAUDE.md` | project notes (rewritten for German Expert) |
 
 ## 4) Changes made

@@ -105,9 +105,10 @@
    `callouts` array in code/js/08-hero.js.
 
    Each card carries a product photo (the `img` field) from img/parts/ —
-   supplier shots the owner supplied, cropped to their alpha box and
-   written out at 240px. They are photographed on WHITE, so the thumbnail
-   is deliberately a white tile rather than a transparent cut-out. */
+   supplier shots the owner supplied. They are shot on white, so the
+   backdrop is flood-filled away from the border and feathered before the
+   file is written out at 320px (see handoff.md): the thumbnail is a
+   cut-out sitting straight on the stage, not a white tile. */
 .ge-callout {
   position: absolute; left: var(--cx, 50%); top: var(--cy, 50%);
   width: 0; height: 0; z-index: 4;
@@ -147,7 +148,7 @@
    then pushed clear of it, away from the car. */
 .ge-callout-card {
   position: absolute; left: var(--dx, 0); top: var(--dy, 0);
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 14px;
   padding: 0; border: 0; background: none; color: inherit;
   font: inherit; text-align: left; white-space: nowrap; cursor: default;
 }
@@ -155,10 +156,12 @@ button.ge-callout-card { cursor: pointer; }
 .ge-callout.left .ge-callout-card { transform: translate(calc(-100% - 10px), -50%); flex-direction: row-reverse; text-align: right; }
 .ge-callout.right .ge-callout-card { transform: translate(10px, -50%); }
 .ge-callout-img {
-  width: 80px; height: 66px; object-fit: contain; flex: none;
-  border-radius: 10px; background: #fff; padding: 4px;
-  border: 1px solid rgba(255, 255, 255, .22);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, .45);
+  width: 118px; height: 96px; object-fit: contain; flex: none;
+  /* No tile and no border — the backdrop is keyed out of the file itself.
+     A soft light halo stops the dark parts (the headlight above all) from
+     dissolving into the near-black stage. */
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, .3))
+          drop-shadow(0 8px 16px rgba(0, 0, 0, .65));
 }
 .ge-callout-txt { display: flex; flex-direction: column; gap: 1px; }
 .ge-callout-brand {
