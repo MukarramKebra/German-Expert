@@ -264,6 +264,28 @@ const HERO_SHADER_PRESET = {
               ${card}
             </div>`;
       }).join('');
+
+      // Phone treatment for those same parts. A leader line needs empty
+      // space beside the car to point into and there is none at 390px, so
+      // .ge-callout is hidden below 900px and this chip row takes over:
+      // same photo, same brand and part, same jumpCat() target, laid out
+      // in a row under the car instead of pinned to it.
+      const chips = (Array.isArray(c.callouts) ? c.callouts : []).map(co => {
+        if (!co || !co.part) return '';
+        const thumb = co.img
+          ? `<img class="ge-car-chip-img" src="${esc(co.img)}" alt="" loading="lazy" decoding="async" />`
+          : '';
+        const inner =
+          `${thumb}<span class="ge-callout-txt">` +
+            (co.brand ? `<span class="ge-callout-brand">${esc(co.brand)}</span>` : '') +
+            `<span class="ge-callout-part">${esc(co.part)}</span>` +
+          `</span>`;
+        return co.cat
+          ? `<li><button type="button" class="ge-car-chip" data-cat="${esc(co.cat)}">${inner}</button></li>`
+          : `<li><span class="ge-car-chip">${inner}</span></li>`;
+      }).join('');
+      const chipList = chips ? `<ul class="ge-car-chips">${chips}</ul>` : '';
+
       return `
       <figure class="ge-car${i === 0 ? ' is-active' : ''}"${i ? ' aria-hidden="true"' : ''}>
         ${badge}
@@ -277,6 +299,7 @@ const HERO_SHADER_PRESET = {
             ${callouts}
           </div>
         </div>
+        ${chipList}
         ${caption}
       </figure>`;
     }).join('') + (cars.length > 1
@@ -353,6 +376,18 @@ const HERO_SHADER_PRESET = {
       stage.addEventListener('mouseleave', restart);
     }
 
+    // Once the stage has scrolled away it is still swapping slides every
+    // 6.5s and running three infinite animations — constant compositor work
+    // for something nobody is looking at, which on a phone is exactly what
+    // makes the rest of the page feel sticky. Stop both until it comes back.
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(entries => {
+        const visible = entries.some(e => e.isIntersecting);
+        hero.classList.toggle('is-idle', !visible);
+        if (visible) restart(); else clearInterval(timer);
+      }, { threshold: 0.08 }).observe(hero);
+    }
+
     // 3D tilt following the pointer (mouse/pen only — touch keeps the idle float)
     if (!reduceMotion && window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches) {
       let raf = 0, rx = 0, ry = 0;
@@ -375,7 +410,12 @@ const HERO_SHADER_PRESET = {
   // actually run; the CSS gradient in .ge-hero-bg stays as the fallback.
   const canvas = document.getElementById('heroShader');
   const conn = navigator.connection || {};
-  if (!canvas || !('gpu' in navigator) || reduceMotion || conn.saveData) return;
+  // Desktop only. On a phone this is the single most expensive thing on the
+  // page — a 575 KB module plus a full-screen WebGPU draw every frame, on a
+  // GPU that is also compositing the rest of the site — and the CSS gradient
+  // underneath already reads as the same studio at that size.
+  const bigScreen = !window.matchMedia || matchMedia('(min-width: 901px)').matches;
+  if (!canvas || !('gpu' in navigator) || reduceMotion || conn.saveData || !bigScreen) return;
   let started = false;
   const start = () => {
     if (started) return; started = true;

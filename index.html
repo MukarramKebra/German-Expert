@@ -99,6 +99,31 @@
     }
   }
   </script>
+  <!-- Hero skeleton. Reserves the hero's size BEFORE the loader below injects
+       code/css/10-hero.css. Without it the hero is only as tall as its copy
+       at first paint and then grows ~490px the moment that stylesheet lands,
+       dropping the marquee, categories and makes down the page with it — one
+       0.365 layout shift at 2.6s on a throttled phone, i.e. nearly all of the
+       page's CLS (0.37 -> 0.01 with this in place).
+
+       It MUST stay above the loader script: the loader appends its <link>s to
+       whatever is in <head> at the time it runs, so anything declared after it
+       would outrank the real stylesheet instead of yielding to it. Values are
+       copied from 10-hero.css; change them in both places. -->
+  <style>
+    .ge-hero { position: relative; isolation: isolate; overflow: hidden; background: #0f1115; color: #fff; min-height: min(760px, 88vh); padding-top: 68px; }
+    /* Out of flow from the first paint: in flow it is a ~154px block that the
+       hero then has to shrink by, which was the rest of the shift. */
+    .ge-hero-bg { position: absolute; inset: 0; z-index: -1; }
+    .ge-hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; }
+    .ge-hero-inner { position: relative; z-index: 1; width: 100%; max-width: 1240px; margin: 0 auto; padding: 34px 24px 56px; }
+    .ge-hero-stage { height: clamp(320px, 46vw, 560px); }
+    @media (max-width: 900px) {
+      .ge-hero { min-height: 0; }
+      .ge-hero-inner { padding: 28px 20px 48px; }
+      .ge-hero-stage { height: clamp(404px, calc(82vw + 96px), 566px); }
+    }
+  </style>
   <script>
   // Version comes from localStorage (kept in sync with Supabase's
   // expert_settings.asset_version by checkAssetVersion() in
@@ -136,6 +161,13 @@
        with everything else, instead of waiting until the stylesheet
        requests below discover them — shaves real time off the
        render-blocking critical path for both. -->
+  <!-- The first hero car is the LCP element, and it is only requested once
+       the runtime loader has injected and run code/js/08-hero.js — about 4s
+       of pure discovery delay on a throttled phone. Preloading it here makes
+       it discoverable in the HTML straight away. Keep in sync with
+       HERO_CARS[0] in code/js/08-hero.js; the widths match the srcset there. -->
+  <link rel="preload" as="image" href="img/hero/mercedes-e-class-sm.webp" media="(max-width: 900px)" fetchpriority="high" />
+  <link rel="preload" as="image" href="img/hero/mercedes-e-class.webp" media="(min-width: 901px)" fetchpriority="high" />
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -278,15 +310,16 @@
       <div class="ge-hero-copy">
         <h2 class="ge-hero-title" id="heroTitle" data-i18n-html="hero_h1">Engineered in <span>Germany.</span><br/>Delivered in <span>the UAE.</span></h2>
         <p class="ge-hero-text" data-i18n="hero_p">Genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI — delivered fast across the UAE.</p>
+        <!-- One CTA, no icon (owner's call, 2026-11-10). The "Shop by Make"
+             button and the three-item trust row that sat under it were
+             removed. Nothing else was deleted: .ge-btn-ghost and
+             .ge-hero-trust are still styled and the hero_make / hero_t1-3
+             strings (en + ar) are still in code/js/04-i18n-order.js, so any
+             of it is one line to put back. Shopping by make is still
+             reachable from the #makes section and from the hero caption. -->
         <div class="ge-hero-btns">
-          <a href="#products" class="btn btn-primary"><i class="fa fa-gears" aria-hidden="true"></i> <span data-i18n="hero_shop">Shop Parts</span></a>
-          <a href="#makes" class="btn ge-btn-ghost"><i class="fa fa-car-side" aria-hidden="true"></i> <span data-i18n="hero_make">Shop by Make</span></a>
+          <a href="#products" class="btn btn-primary ge-hero-cta" data-i18n="hero_shop">Shop Parts</a>
         </div>
-        <ul class="ge-hero-trust">
-          <li><i class="fa fa-shield-halved" aria-hidden="true"></i> <span data-i18n-html="hero_t1">Genuine &amp; OEM</span></li>
-          <li><i class="fa fa-truck-fast" aria-hidden="true"></i> <span data-i18n="hero_t2">Delivery across the UAE</span></li>
-          <li><i class="fa fa-barcode" aria-hidden="true"></i> <span data-i18n="hero_t3">Search by part number</span></li>
-        </ul>
       </div>
     </div>
   </section>

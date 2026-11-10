@@ -52,6 +52,13 @@
 .ge-hero-title span { color: var(--gold); white-space: nowrap; }
 .ge-hero-text { font-size: 16px; line-height: 1.7; color: rgba(255,255,255,.78); max-width: 480px; margin-bottom: 32px; }
 .ge-hero-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 34px; }
+/* The hero has one CTA and no icon. Setting it in the display face lines it
+   up with the headline and the car caption instead of reading as a generic
+   body-font button. */
+.ge-hero-cta {
+  font-family: var(--font-display); font-size: 17px; font-weight: 700;
+  letter-spacing: 2.4px; text-transform: uppercase; padding: 14px 34px;
+}
 .ge-hero .btn-primary { background: var(--orange); border-color: var(--orange); color: #fff; }
 .ge-hero .btn-primary:hover { background: #e01b2b; border-color: #e01b2b; }
 .ge-btn-ghost { background: rgba(255,255,255,.06); color: #fff; border: 2px solid rgba(255,255,255,.35); backdrop-filter: blur(6px); }
@@ -172,6 +179,30 @@ button.ge-callout-card { cursor: pointer; }
 button.ge-callout-card:hover .ge-callout-part { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
 button.ge-callout-card:focus-visible { outline: 2px solid var(--orange-light); outline-offset: 4px; border-radius: 6px; }
 
+/* ── Part chips (phone only) ────────────────────────────────────────────
+   The callouts above need empty stage either side of the car, which a
+   phone does not have. Below 900px they are hidden and these take their
+   place: the same photo, brand and part, in a row under the car, each
+   one a button on the same category. Hidden on desktop, so the duplicate
+   markup never reaches the tab order or the accessibility tree. */
+.ge-car-chips { display: none; }
+.ge-car-chip {
+  width: 100%; display: flex; align-items: center; gap: 9px;
+  padding: 7px 10px; border-radius: 12px; text-align: left;
+  background: rgba(255, 255, 255, .055);
+  border: 1px solid rgba(255, 255, 255, .13);
+  color: inherit; font: inherit; cursor: default;
+}
+button.ge-car-chip { cursor: pointer; }
+button.ge-car-chip:active { background: rgba(255, 255, 255, .1); }
+button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outline-offset: 3px; }
+.ge-car-chip-img {
+  width: 52px; height: 42px; object-fit: contain; flex: none;
+  filter: drop-shadow(0 0 7px rgba(255, 255, 255, .3));
+}
+.ge-car-chip .ge-callout-part { font-size: 12.5px; line-height: 1.25; white-space: normal; }
+.ge-car-chip .ge-callout-brand { font-size: 10px; letter-spacing: 1.3px; }
+
 @keyframes geCalloutPing {
   0% { transform: scale(1); opacity: .75; }
   70%, 100% { transform: scale(2.6); opacity: 0; }
@@ -223,6 +254,14 @@ button.ge-callout-card:focus-visible { outline: 2px solid var(--orange-light); o
 .ge-car-dots button[aria-current="true"]::before { background: var(--gold); }
 
 @keyframes geCarFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+/* Scrolled out of view (08-hero.js toggles .is-idle from an
+   IntersectionObserver): stop the loops. Nobody is watching and on a phone
+   they are pure battery and compositor time. */
+.ge-hero.is-idle .ge-car-float,
+.ge-hero.is-idle .ge-car-shadow,
+.ge-hero.is-idle .ge-car-sheen,
+.ge-hero.is-idle .ge-callout-dot::after { animation-play-state: paused; }
+
 @keyframes geCarShadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(.9); opacity: .7; } }
 @keyframes geCarSheen { 0% { background-position: 100% 0; } 55%, 100% { background-position: 0 0; } }
 
@@ -232,11 +271,22 @@ button.ge-callout-card:focus-visible { outline: 2px solid var(--orange-light); o
   .ge-hero-inner, .ge-hero.no-car .ge-hero-inner { grid-template-columns: minmax(0, 1fr); padding: 28px 20px 48px; gap: 8px; }
   /* Caption moves under the car and goes full width, so the car has to clear
      room for it instead of sitting on the stage floor. */
-  .ge-hero-stage { height: clamp(310px, 82vw, 470px); }
-  .ge-car { padding-bottom: 104px; }
+  /* Stage height and the figure's bottom padding both have to cover the
+     caption band AND the chip row, or the car sits on top of them. */
+  .ge-hero-stage { height: clamp(404px, calc(82vw + 96px), 566px); }
+  .ge-car { padding-bottom: 198px; }
   .ge-car-tilt { width: calc(min(82%, 500px) * var(--scale, 1)); }
   /* Smaller, and pulled above the caption band the car already clears. */
   .ge-car-nav { width: 38px; height: 38px; font-size: 14px; top: 42%; }
+  /* Phone performance. The sheen repaints a masked, screen-blended layer on
+     every frame, and each nav button blurs the animating stage behind it —
+     both cheap on a desktop GPU, both expensive on a phone, for an effect
+     that is barely visible at this size. */
+  .ge-car-sheen { display: none; }
+  .ge-car-nav {
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    background: rgba(12, 14, 18, .58);
+  }
   /* Callouts need empty space either side of the car to point into. At phone
      width the car already fills 82% of the stage, leaving ~30px a side — not
      enough for a leader line and a label, so they'd land on the bodywork.
@@ -244,7 +294,13 @@ button.ge-callout-card:focus-visible { outline: 2px solid var(--orange-light); o
      (a chip row under the caption) rather than a scaled-down version. */
   .ge-callout { display: none; }
   .ge-car-model { width: 94%; height: 62%; transform: translate(-50%, -78%); }
-  .ge-car-cap { left: 0; right: 0; bottom: 0; align-items: center; text-align: center; }
+  .ge-car-cap { left: 0; right: 0; bottom: 92px; align-items: center; text-align: center; }
+  .ge-car-chips {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+    display: flex; justify-content: center; gap: 10px;
+    margin: 0; padding: 0; list-style: none;
+  }
+  .ge-car-chips li { flex: 1 1 0; max-width: 200px; display: flex; }
   .ge-hero-title { font-size: clamp(30px, 8vw, 44px); }
   .ge-hero-text { font-size: 15px; margin-bottom: 26px; }
 }
