@@ -200,3 +200,35 @@ body.product-open .mob-cart-fab { opacity:0 !important; pointer-events:none !imp
 .myo-invoice { font-size:11px; font-weight:800; color:var(--orange); text-decoration:none; white-space:nowrap; }
 .myo-invoice:hover { text-decoration:underline; }
 .myo-tab-badge { display:inline-block; background:#fff; color:var(--orange); border-radius:999px; min-width:18px; height:18px; line-height:18px; padding:0 5px; font-size:11px; font-weight:900; margin-left:6px; vertical-align:middle; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ACCOUNTS + WISHLIST OFF (2026-11-11)
+   Owner's request: "remove signin wishlist". Paired with ACCOUNTS_ENABLED and
+   WISHLIST_ENABLED in code/js/01-config-data.js, which guard the JS entry
+   points. This block hides every surface that can reach them.
+
+   Both halves are required. The flags alone leave buttons on screen that do
+   nothing when clicked; this block alone leaves live buttons for anyone on a
+   stale cached script. RESTORE = flip the flags AND delete this whole block.
+
+   `!important` is used throughout because several of these are shown by JS
+   setting an inline `style.display` — renderWishlistCount() on the two
+   badges, and _syncAuthUI() on the account button — which would otherwise
+   win over a plain rule.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Header: the red "Sign In" button, and the nav drawer's Sign In + Wishlist
+   links (#navSignIn, and the sibling carrying #navWishlistBadge). */
+.btn-account,
+#navSignIn,
+#navWishlist,
+#navWishlistBadge { display: none !important; }
+
+/* The heart on every product card, in the grid and in the product modal. */
+.card-wl-btn,
+.pm-wl-btn { display: none !important; }
+
+/* The modals themselves, in case anything still flips .open onto them. */
+.auth-overlay,
+.acct-overlay,
+.wl-overlay { display: none !important; }

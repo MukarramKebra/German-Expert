@@ -1,0 +1,201 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   11-ui-polish.css — interaction polish layer (added 2026-11-11)
+
+   Loaded LAST on purpose. This file does not restyle the site; it is a thin
+   layer that makes every interactive element behave consistently:
+
+     1. one motion scale, honoured everywhere
+     2. a press state on everything clickable, so taps feel answered
+     3. ONE focus ring, instead of several different ones and a few missing
+        outright — this is the keyboard and screen-reader contract
+     4. cheap, compositor-only hover transitions
+
+   Deliberately NOT changed: colours, type scale, spacing, layout. The palette
+   is set in 01-base.css (red accent — see CLAUDE.md) and the owner has signed
+   it off; this file must never introduce a colour of its own.
+
+   ── Why `transition` gets rewritten ───────────────────────────────────────
+   Most buttons on the site were `transition: all .2s`. `all` animates every
+   animatable property that happens to change, including layout ones like
+   width, padding and border-width, so a hover that nudges a border can put
+   the element through layout on every frame of the transition. Naming the
+   properties keeps hovers on the compositor.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* One motion scale for the whole site. */
+  --ease: cubic-bezier(.2, .7, .3, 1);
+  --t-fast: .12s;
+  --t-base: .18s;
+
+  /* The focus ring. Two layers so it stays visible on both the light page and
+     the dark header/footer: a separator, then the accent. */
+  --focus-ring: 0 0 0 2px #fff, 0 0 0 4px var(--orange);
+  --focus-ring-dark: 0 0 0 2px var(--bar), 0 0 0 4px var(--gold);
+}
+
+/* ── 1. One focus ring ─────────────────────────────────────────────────────
+   Keyboard users get a consistent, high-contrast ring on every control.
+   `:focus-visible` (not `:focus`) so a mouse click never shows it.
+   `box-shadow` rather than `outline` so it follows border-radius. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: 6px;
+}
+/* On dark surfaces the white inner layer would disappear — flip it. */
+#header a:focus-visible,
+#header button:focus-visible,
+footer a:focus-visible,
+footer button:focus-visible,
+.ge-hero a:focus-visible,
+.ge-hero button:focus-visible {
+  box-shadow: var(--focus-ring-dark);
+}
+/* Controls that already set a ring suited to their own surface keep it. */
+.make-chip:focus-visible,
+.active-make-chip:focus-visible,
+.ge-callout-pin:focus-visible,
+button.ge-car-chip:focus-visible,
+button.ge-callout-card:focus-visible { box-shadow: none; }
+
+/* ── 2. Buttons: named transitions + a press state ─────────────────────────
+   Every button gets the same timing and the same ~2% give on press. That
+   tactile confirmation is most of what "better buttons" actually means on a
+   touch device, where there is no hover to tell you anything happened. */
+.btn,
+.btn-cart,
+.btn-add,
+.pill,
+.btn-account,
+.make-chip,
+.cat-card,
+.wa-float,
+.co-wa-btn,
+.auth-btn,
+.acct-btn {
+  transition:
+    background-color var(--t-base) var(--ease),
+    border-color     var(--t-base) var(--ease),
+    color            var(--t-base) var(--ease),
+    box-shadow       var(--t-base) var(--ease),
+    transform        var(--t-fast) var(--ease);
+}
+
+.btn:active,
+.btn-cart:active,
+.btn-add:active,
+.btn-account:active,
+.co-wa-btn:active,
+.auth-btn:active,
+.acct-btn:active { transform: scale(.975); }
+
+.pill:active,
+.make-chip:active { transform: scale(.97); }
+
+/* Primary actions lift slightly on hover and settle on press. The shadow is
+   tinted with the accent rather than plain black, so it reads as part of the
+   button instead of a drop shadow under it. */
+.btn-primary:hover,
+.btn-cart:hover,
+.co-wa-btn:hover {
+  box-shadow: 0 6px 18px rgba(193, 18, 31, .28);
+  transform: translateY(-1px);
+}
+.btn-primary:active,
+.btn-cart:active,
+.co-wa-btn:active {
+  box-shadow: 0 2px 8px rgba(193, 18, 31, .22);
+  transform: translateY(0) scale(.975);
+}
+
+/* The outline button had only a colour change on hover, which is easy to
+   miss. Give it the accent's surface at low opacity too. */
+.btn-outline:hover { background: rgba(193, 18, 31, .06); }
+
+/* ── 3. Disabled and busy states ──────────────────────────────────────────
+   These existed as classes with no shared visual language. A disabled control
+   should never look pressable, and never respond to a press. */
+.btn[disabled],
+.btn-add[disabled],
+.btn-cart[disabled],
+button[disabled],
+.btn.is-disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none !important;
+}
+.btn-add.btn-add-loading { cursor: wait; transform: none !important; }
+
+/* ── 4. Product cards ─────────────────────────────────────────────────────
+   Hover lift moved onto transform/box-shadow only. Anything animating a
+   card's box model reflows the whole grid behind it, which is exactly the
+   kind of thing that makes scrolling a long catalogue feel sticky. */
+.product-card {
+  transition:
+    box-shadow var(--t-base) var(--ease),
+    transform  var(--t-base) var(--ease);
+}
+.product-card:hover { transform: translateY(-3px); }
+
+/* Category tiles: same treatment, a touch stronger because they are bigger. */
+.cat-card:hover { transform: translateY(-3px); }
+.cat-card:active { transform: translateY(-1px) scale(.99); }
+
+/* ── 5. Form fields ───────────────────────────────────────────────────────
+   One focus treatment for every text input, instead of the browser default in
+   some places and a custom border in others. */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="search"],
+input[type="number"],
+select,
+textarea {
+  transition:
+    border-color var(--t-base) var(--ease),
+    box-shadow   var(--t-base) var(--ease);
+}
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible { border-color: var(--orange); }
+
+/* ── 6. Touch targets ─────────────────────────────────────────────────────
+   WCAG 2.2 asks for 24x24 CSS px minimum on pointer targets; 44px is the
+   comfortable size on a phone. The icon buttons in modal headers and the
+   carousel were under both. */
+@media (max-width: 1024px) {
+  .modal-head button,
+  .wl-head button,
+  .pm-close,
+  .hamburger { min-width: 44px; min-height: 44px; }
+}
+
+/* ── 7. Respect reduced motion ────────────────────────────────────────────
+   01-base.css already flattens durations globally under this query. Transform
+   feedback is removed as well, because a scale jump with no duration reads as
+   a glitch rather than as a press. */
+@media (prefers-reduced-motion: reduce) {
+  .btn:active,
+  .btn-cart:active,
+  .btn-add:active,
+  .btn-account:active,
+  .co-wa-btn:active,
+  .auth-btn:active,
+  .acct-btn:active,
+  .pill:active,
+  .make-chip:active,
+  .cat-card:active,
+  .cat-card:hover,
+  .product-card:hover,
+  .btn-primary:hover,
+  .btn-cart:hover,
+  .co-wa-btn:hover { transform: none; }
+}

@@ -290,6 +290,8 @@ function updateHeaderForAuth() {
 
 // ── Header button click ────────────────────────────────────────────────────────
 function onAccountBtnClick(tab) {
+  // Accounts are OFF — see ACCOUNTS_ENABLED in js/01-config-data.js.
+  if (typeof ACCOUNTS_ENABLED !== 'undefined' && !ACCOUNTS_ENABLED) return;
   if (_authUser) openAcctModal(tab);
   else openAuthModal('login');
 }
@@ -329,6 +331,10 @@ function confirmGoogleSubscribePrompt() {
 
 // ── Auth Modal ─────────────────────────────────────────────────────────────────
 function openAuthModal(tab) {
+  // Accounts are OFF — see ACCOUNTS_ENABLED in js/01-config-data.js. This is
+  // the second entry point (the nav drawer's "Sign In" link calls it direct),
+  // so guarding onAccountBtnClick alone would leave a way in.
+  if (typeof ACCOUNTS_ENABLED !== 'undefined' && !ACCOUNTS_ENABLED) return;
   document.getElementById('authOverlay').classList.add('open');
   switchAuthTab(tab || 'login');
   _clearAuthMessages();

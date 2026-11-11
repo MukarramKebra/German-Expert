@@ -485,7 +485,15 @@ const HERO_SHADER_PRESET = {
         const visible = entries.some(e => e.isIntersecting);
         hero.classList.toggle('is-idle', !visible);
         if (visible) restart(); else clearInterval(timer);
+        // Stop the WebGPU draw loop too, not just the CSS animations — see
+        // setShaderRunning() at the bottom of this file.
+        if (window._geHeroShaderRunning) window._geHeroShaderRunning(visible);
       }, { threshold: 0.08 }).observe(hero);
+      // A backgrounded tab should not be drawing the hero either.
+      document.addEventListener('visibilitychange', () => {
+        if (!window._geHeroShaderRunning) return;
+        window._geHeroShaderRunning(!document.hidden && !hero.classList.contains('is-idle'));
+      });
     }
 
     // 3D tilt following the pointer (mouse/pen only — touch keeps the idle float)
@@ -517,6 +525,23 @@ const HERO_SHADER_PRESET = {
   const bigScreen = !window.matchMedia || matchMedia('(min-width: 901px)').matches;
   if (!canvas || !('gpu' in navigator) || reduceMotion || conn.saveData || !bigScreen) return;
   let started = false;
+  // The instance is kept so the draw loop can be STOPPED. Without this it
+  // renders a full-screen WebGPU frame forever at the display's refresh rate
+  // — 165Hz on the owner's PC — including while the hero is scrolled far off
+  // screen and nobody can see it. The .is-idle class only ever paused the CSS
+  // animations; the canvas kept going, a standing GPU tax on every scroll.
+  let shader = null;
+  let shaderPaused = false;
+  const setShaderRunning = run => {
+    if (!shader) return;
+    try {
+      if (run && shaderPaused) { shader.resume(); shaderPaused = false; }
+      else if (!run && !shaderPaused) { shader.pause(); shaderPaused = true; }
+    } catch (e) { /* older build with no pause/resume — leave it running */ }
+  };
+  // The IntersectionObserver may fire before the module finishes loading, so
+  // remember what it asked for and apply it on arrival.
+  let wantShaderRunning = true;
   const start = () => {
     if (started) return; started = true;
     import(HERO_SHADERS_URL)
@@ -525,8 +550,13 @@ const HERO_SHADER_PRESET = {
         onReady: () => hero.classList.add('shader-on'),
         onError: () => hero.classList.remove('shader-on'),
       }))
+      .then(inst => { shader = inst; setShaderRunning(wantShaderRunning); })
       .catch(() => hero.classList.remove('shader-on'));
   };
+  // Exposed so the stage's own IntersectionObserver further up — which already
+  // tracks whether the hero is on screen — and the tab-visibility handler can
+  // stop the draw loop.
+  window._geHeroShaderRunning = run => { wantShaderRunning = run; setShaderRunning(run); };
   const later = () => (window.requestIdleCallback ? requestIdleCallback(start, { timeout: 2500 }) : setTimeout(start, 600));
   if (document.readyState === 'complete') later();
   else window.addEventListener('load', later, { once: true });

@@ -232,3 +232,44 @@
   .make-row::-webkit-scrollbar { display: none; }
   .make-chip { flex: 0 0 auto; padding: 10px 16px; font-size: 13px; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   "SHOP BY MAKE" SECTION REMOVED (2026-11-11)
+   Owner's request: "remove where it says shop by make". The whole #makes
+   section goes, heading and chip row together.
+
+   The markup and setMakeFilter() are deliberately LEFT IN PLACE, because the
+   hero's "Shop <Make> parts" captions still call it — filtering by make is
+   still a real feature, it just no longer has a section of its own. The chips
+   stay in the DOM so setMakeFilter()'s querySelectorAll still has something to
+   mark active, harmlessly, behind this rule.
+
+   RESTORE = delete this block. Nothing else was removed.
+   ══════════════════════════════════════════════════════════════════════════ */
+.makes-section { display: none !important; }
+
+/* Active car-make filter, shown under the category pills. This is the ONLY
+   way to clear a make filter now that the chip row above is hidden — a
+   visitor arrives here by tapping a hero caption, so it has to read as
+   "this is why the grid looks like this" and offer the way out in one tap. */
+.active-make {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; flex-wrap: wrap; margin: 2px 0 4px;
+}
+.active-make[hidden] { display: none; }
+.active-make-label {
+  font-size: 12px; font-weight: 700; letter-spacing: .6px;
+  text-transform: uppercase; color: var(--gray-500, #707070);
+}
+.active-make-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  background: var(--bar); color: #fff; border: 1.5px solid var(--bar);
+  font: 800 13px/1 var(--font-display); letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: background .15s ease, border-color .15s ease, transform .12s ease;
+}
+.active-make-chip i { font-size: 11px; opacity: .8; }
+.active-make-chip:hover { background: var(--orange); border-color: var(--orange); }
+.active-make-chip:active { transform: scale(.97); }
+.active-make-chip:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }

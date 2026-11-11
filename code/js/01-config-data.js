@@ -56,6 +56,29 @@ const ONLINE_ORDERING_ENABLED = false;
 // the subscribe band and the admin tab hidden.
 const EMAIL_OFFERS_ENABLED = false;
 
+// ── CUSTOMER ACCOUNTS AND WISHLIST ARE OFF ───────────────────────────────
+// Removed from the storefront on 2026-11-11 at the owner's request ("remove
+// signin wishlist"). They go together on purpose: with ONLINE_ORDERING_ENABLED
+// already false there are no orders to look up, so an account bought a visitor
+// nothing except the wishlist — and the shop takes enquiries on WhatsApp,
+// where the customer identifies themselves anyway. A sign-up form collecting a
+// name, an email and a password for no functional gain is a liability.
+//
+// Each flag is guarded in JS *and* hidden in CSS, the same belt-and-braces as
+// catalog-only mode: a visitor on a stale cached script would otherwise still
+// paint hearts onto cards and POST to Supabase Auth.
+//   ACCOUNTS: onAccountBtnClick()/openAuthModal() in js/05-accounts.js
+//   WISHLIST: toggleWishlist()/openWishlist()/renderWishlistCount() in js/06-features.js
+//
+// To RESTORE: flip the flag(s) to true AND delete the matching
+// "ACCOUNTS + WISHLIST OFF" block at the end of code/css/08-account-auth.css.
+// The flag alone leaves every button hidden; the CSS alone leaves dead buttons
+// that do nothing. Nothing behind them was deleted — js/05-accounts.js, the
+// auth/account/wishlist modals in index.html and the Supabase Auth customer
+// tables are all intact.
+const ACCOUNTS_ENABLED = false;
+const WISHLIST_ENABLED = false;
+
 // ── SITE DISABLE CHECK ───────────────────────────────────────────────────
 // Owner can close the site to visitors via the admin Owner Controls panel.
 // This runs on every page load and shows a "closed" overlay if the flag is set.

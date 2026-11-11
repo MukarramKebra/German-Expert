@@ -55,7 +55,18 @@
 }
 
 /* overflow-x:clip (hidden kept as fallback) — unlike hidden it does not turn html/body into a scroll container, which would break position:sticky on the side banners. */
-html { scroll-behavior: smooth; overflow-x: hidden; overflow-x: clip; touch-action: manipulation; }
+/* NO `scroll-behavior: smooth` here, deliberately (removed 2026-11-11 after
+   the owner reported the site "feels capped at 30fps" on a PC while every
+   other site scrolled normally). As a rule on <html> it applies to EVERY
+   scroll, including the mouse wheel — so each wheel tick got animated to its
+   target instead of tracking the wheel, which reads as mushy and slow next
+   to native scrolling. It was never dropped frames: measured 165fps with
+   zero frames over 20ms on that same page.
+   Smooth scrolling is still used where it is actually wanted, from JS that
+   asks for it explicitly: the `scrollIntoView({ behavior: 'smooth' })` calls
+   and the same-page anchor handler in code/js/06-features.js, both of which
+   fall back to 'auto' under prefers-reduced-motion. Don't put it back here. */
+html { overflow-x: hidden; overflow-x: clip; touch-action: manipulation; }
 /* Category-switch loading flash — covers the viewport for a beat so jumping
    to the filtered products feels like "load then arrive", not a visible
    scroll. See _switchCategoryWithLoading in js/02-catalog-render.js. */

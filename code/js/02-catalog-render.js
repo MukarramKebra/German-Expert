@@ -596,7 +596,31 @@ function setMakeFilter(make) {
     b.classList.toggle('active', on);
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
+  renderActiveMake();
   _switchCategoryWithLoading();
+}
+
+// Shows which car make the grid is filtered to, with a button to clear it.
+// The "Shop by Make" chip row was removed from the page on 2026-11-11, but the
+// hero's "Shop <Make> parts" captions still call setMakeFilter(), and nothing
+// else in the app ever resets activeMake — so this is now the ONLY way out of
+// a make filter. Don't remove it without also removing those captions.
+function renderActiveMake() {
+  var box = document.getElementById('activeMake');
+  if (!box) return;
+  if (!activeMake || activeMake === 'all') { box.hidden = true; box.innerHTML = ''; return; }
+  var def = (typeof CAR_MAKES !== 'undefined' && Array.isArray(CAR_MAKES))
+    ? CAR_MAKES.find(function(m) { return m.slug === activeMake; }) : null;
+  var label = String(def ? def.label : activeMake).replace(/[&<>"']/g, function(ch) {
+    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+  });
+  box.hidden = false;
+  box.innerHTML =
+    '<span class="active-make-label">Showing parts for</span>' +
+    '<button type="button" class="active-make-chip" onclick="setMakeFilter(null)" ' +
+      'aria-label="Clear the ' + label + ' filter">' +
+      label + ' <i class="fa fa-times" aria-hidden="true"></i>' +
+    '</button>';
 }
 
 // Header logo click. #header is position:fixed, so a plain href="#header"

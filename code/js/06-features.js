@@ -41,8 +41,37 @@ function showToast(msg, duration) {
   el._t = setTimeout(function(){ el.classList.remove('show'); }, duration || 2500);
 }
 
+// ── SAME-PAGE ANCHOR SCROLLING ──────────────────────────────────────────────
+// `html { scroll-behavior: smooth }` used to live in code/css/01-base.css and
+// was removed on 2026-11-11: as an element rule it animated EVERY scroll,
+// including the mouse wheel, which is what made the whole site feel laggy and
+// "capped" on a PC. Anchor links are the one place the glide was actually
+// wanted, so they get it here — explicitly, and only for links pointing at
+// something that exists on this page.
+document.addEventListener('click', function(e) {
+  var a = e.target.closest && e.target.closest('a[href^="#"]');
+  if (!a || a.getAttribute('href') === '#') return;
+  // This listener is on `document`, so an inline onclick on the link has
+  // already run by now. If it handled the navigation itself it will have
+  // called preventDefault (or returned false) — goHome() on the logo, and
+  // every `href="#"` opener like Cart or Track Order. Those are left alone.
+  // Testing defaultPrevented rather than "has an onclick attribute" matters:
+  // EVERY main nav link has an onclick, but it only closes the mobile drawer
+  // and still relies on the browser to do the scrolling.
+  if (e.defaultPrevented) return;
+  var target = document.getElementById(a.getAttribute('href').slice(1));
+  if (!target) return;
+  e.preventDefault();
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+}, { passive: false });
+
 function toggleWishlist(id, event) {
   if (event) event.stopPropagation();
+  // Wishlist is OFF — see WISHLIST_ENABLED in js/01-config-data.js. Guarded
+  // here as well as hidden in CSS because a stale cached script would still
+  // render hearts onto cards and write to localStorage.
+  if (typeof WISHLIST_ENABLED !== 'undefined' && !WISHLIST_ENABLED) return;
   var list = getWishlist();
   if (list.includes(id)) {
     list = list.filter(function(x){ return x !== id; });
@@ -59,6 +88,7 @@ function toggleWishlist(id, event) {
   renderRecentlyViewed();
 }
 function renderWishlistCount() {
+  if (typeof WISHLIST_ENABLED !== 'undefined' && !WISHLIST_ENABLED) return;
   var count = getWishlist().length;
   var badge = document.getElementById('wishlistBadge');
   var navBadge = document.getElementById('navWishlistBadge');
@@ -66,6 +96,7 @@ function renderWishlistCount() {
   if (navBadge) { navBadge.textContent = count; navBadge.style.display = count ? 'inline' : 'none'; }
 }
 function openWishlist() {
+  if (typeof WISHLIST_ENABLED !== 'undefined' && !WISHLIST_ENABLED) return;
   var list = getWishlist();
   var all = getAllProducts();
   var products = list.map(function(id){ return all.find(function(p){ return p.id===id; }); }).filter(Boolean);
