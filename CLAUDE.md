@@ -46,6 +46,20 @@ Everything behind it is intact: `offer_subscribers`, `offer_campaigns`, the `sen
 
 ⚠️ **This is NOT the Sale % feature.** Product discounts live in the `expert_settings` key `featured_offers` (`getFeaturedSale()`/`applySale()`, the admin's **Featured** tab) and are deliberately untouched — confusingly similar name, completely separate system.
 
+## Customer accounts and wishlist are OFF
+
+`ACCOUNTS_ENABLED = false` and `WISHLIST_ENABLED = false` (`code/js/01-config-data.js`), removed 2026-11-11 at the owner's request. They go together: with ordering already off, an account bought a visitor nothing but the wishlist, and enquiries arrive on WhatsApp where the customer identifies themselves anyway. Guards sit on `onAccountBtnClick()`/`openAuthModal()` (`admin`-style belt-and-braces, `code/js/05-accounts.js`) and `toggleWishlist()`/`openWishlist()`/`renderWishlistCount()` (`code/js/06-features.js`); the surfaces are hidden by the "ACCOUNTS + WISHLIST OFF" block at the end of `code/css/08-account-auth.css`, where **`!important` is required** because `renderWishlistCount()` and `_syncAuthUI()` set inline `style.display`.
+
+**Restore = flip the flags AND delete that CSS block.** Nothing behind them was deleted — `05-accounts.js`, the auth/account/wishlist modals and the Supabase Auth customer tables are intact.
+
+## "Shop by Make" is hidden, but make filtering still works
+
+The `#makes` section is hidden by a block at the end of `code/css/02-sections.css` (2026-11-11). The markup and `setMakeFilter()` deliberately stay, because the hero captions ("Shop BMW parts") still call it. ⚠️ **`activeMake` is reset by nothing else in the app**, so `renderActiveMake()` in `code/js/02-catalog-render.js` paints a "Showing parts for <Make> ✕" chip (`#activeMake`, under the category pills) whenever a filter is on — that chip is now the ONLY way out of one. Don't delete it without also removing the hero captions.
+
+## UI polish layer
+
+`code/css/11-ui-polish.css` is loaded **last** (add any new CSS file to BOTH the loader array and the `<noscript>` list in `index.html`). It holds the motion scale (`--ease`, `--t-fast`, `--t-base`), the single `:focus-visible` ring, press states, and named `transition` properties replacing `transition: all`. It must never introduce a colour — the palette lives in `01-base.css`.
+
 ## Car-parts specifics
 
 - **Categories** (slugs): `engine, brakes, suspension, filters, electrical, cooling, oils-fluids, transmission, exhaust, body-lights, accessories` (+ `all`). Adding/renaming one means updating ALL of: tile + pill + footer markup in `index.html`, `CAT_DEFS` in `admin/js/05-categories.js`, `DEFAULT_CATS` in `admin/js/01-core-data.js`, `_AR_CATS` + `normalizeCategory()` aliases in `code/js/01-config-data.js`. Subcategory labels: `_SUBCAT_LABELS`/`_AR_SUBCATS` there. Tiles are icon-based (Font Awesome); an admin-uploaded `expert_cat_bgs` image overrides.
@@ -73,6 +87,8 @@ Email `info@german-expert.ae`, Google Maps link, JSON-LD address in `index.html`
 - **`position: sticky` breaks if any ancestor has `overflow` other than `visible`/`clip`** — `html`/`body` use `overflow-x: clip` (with a `hidden` fallback line) in `code/css/01-base.css`. Don't change it back to `hidden`.
 - **The homepage `<title>`/description are overridden at runtime** by `expert_settings.seo_settings` (`applySEOSettings()`). Update both the tags in `index.html` and that JSON (read-modify-write with `value::jsonb || jsonb_build_object(...)` so keywords survive).
 - **Product page `<title>`s are de-duplicated by the generator** (`markDuplicateTitles()` appends the SKU) — don't hand-fix them.
+- **Never put `scroll-behavior: smooth` back on `html`** (`code/css/01-base.css`). On an element it animates EVERY scroll, the mouse wheel included, which is what made the owner report the site "feels capped at 30fps" on 2026-11-11 — it was never dropped frames (165fps measured, zero frames >20ms). Smooth anchor scrolling now lives in the delegated handler in `code/js/06-features.js`, which gates on **`e.defaultPrevented`**, not on "has an onclick": every main nav link has an onclick that merely closes the mobile drawer.
+- **The hero shader must be paused when off screen.** `.is-idle` only pauses CSS animations; a `shaders@4.0.5` instance keeps drawing full-screen at the display's refresh rate until you call `pause()`. `08-hero.js` retains the instance and exposes `window._geHeroShaderRunning(run)`, driven by the stage's IntersectionObserver and `visibilitychange`.
 - **Disabled on purpose (inherited from the fork) — restore together, don't half-restore:** (1) sort dropdown (`.sort-wrap { display: none !important; }` in `code/css/02-sections.css`); (2) Arabic toggle (`.lang-btn { display: none !important; }` in `code/css/06-lang-rtl.css`, `ARABIC_ENABLED = false` in `code/js/04-i18n-order.js`, and `hreflang="ar"` + `og:locale:alternate ar_AE` removed from `index.html`). Arabic strings are kept up to date for UAE.
 
 ## Data patterns
