@@ -223,17 +223,35 @@ const HERO_SHADER_PRESET = {
             ${cta}
           </figcaption>`;
 
+      // ONLY the first slide loads with the page. The other five are stacked
+      // in the same place at opacity:0 — inside the viewport, so loading=lazy
+      // never deferred them — and together they were ~400 KB of the first
+      // load. On a phone they starved both the LCP image and the catalog
+      // fetches: measured Nov 2026 on Slow 4G / 4x CPU, LCP was 5.0s and the
+      // product grid's first Supabase request did not even start until 4.3s.
+      // So they ship with data-src/data-srcset and hydrate() below turns them
+      // on one slide AHEAD of the rotation, which is 6.5s of warning — the
+      // swap never waits on a download.
+      const pre = i === 0 ? '' : 'data-';
       const srcset = (c.srcSmall && c.w && c.wSmall)
-        ? ` srcset="${esc(c.srcSmall)} ${c.wSmall}w, ${esc(c.src)} ${c.w}w" sizes="(max-width: 900px) 92vw, ${Math.round(720 * scale)}px"`
+        ? ` ${pre}srcset="${esc(c.srcSmall)} ${c.wSmall}w, ${esc(c.src)} ${c.w}w" sizes="(max-width: 900px) 92vw, ${Math.round(720 * scale)}px"`
         : '';
-      // --car feeds the sheen's mask in code/css/10-hero.css. A relative URL
-      // in a custom property gets resolved against the stylesheet that reads
-      // it, i.e. code/css/, so it has to go in already absolute.
-      const maskUrl = new URL(c.src, document.baseURI).href;
+      // --car feeds the sheen's mask in code/css/10-hero.css, and it is NOT
+      // set here: paintMask() below copies it off the <img> once the browser
+      // has picked a candidate. Hardcoding c.src made the mask a SECOND,
+      // independent reference to the full-size file, so every desktop slide
+      // downloaded both the 1400w (for the mask) and whatever srcset chose
+      // for the img — and because the big one landed in the cache first, the
+      // img then preferred it and the preloaded 760w copy was thrown away
+      // (Chrome logs exactly that as a wasted-preload warning). Reading
+      // currentSrc instead means the mask can never cost a byte of its own,
+      // at any DPR, and it arrives already absolute — which is what the
+      // custom property needs, since a relative URL inside one resolves
+      // against code/css/, not the page.
 
       // Part callouts. Rendered inside .ge-car-float so each dot stays
       // glued to its part while the car bobs instead of drifting off it.
-      const callouts = (Array.isArray(c.callouts) ? c.callouts : []).map(co => {
+      const callouts = (Array.isArray(c.callouts) ? c.callouts : []).map((co, ci) => {
         if (!co || !co.part) return '';
         // dx/dy place the LABEL relative to the dot, in px, and the line
         // between them is an ELBOW: a straight diagonal leg off the dot,
@@ -252,7 +270,7 @@ const HERO_SHADER_PRESET = {
         const ang = (Math.atan2(dy, ex) * 180 / Math.PI).toFixed(2);
         const lx = Math.min(dx, ex);           // left edge of the flat leg
         const thumb = co.img
-          ? `<img class="ge-callout-img" src="${esc(co.img)}" alt="" loading="lazy" decoding="async" />`
+          ? `<img class="ge-callout-img" ${pre}src="${esc(co.img)}" alt="" loading="lazy" decoding="async" />`
           : '';
         const inner =
           `${thumb}<span class="ge-callout-txt">` +
@@ -262,26 +280,40 @@ const HERO_SHADER_PRESET = {
         const card = co.cat
           ? `<button type="button" class="ge-callout-card" data-cat="${esc(co.cat)}">${inner}</button>`
           : `<span class="ge-callout-card">${inner}</span>`;
+        // Phone/tablet pointer. The elbow and the card need empty stage either
+        // side of the car and below 1025px there is none — but the DOT is on
+        // the part itself and costs no width at all. So below that width the
+        // line and card are hidden and this numbered pin takes the dot's
+        // place, keyed to the same number on its chip in the row under the
+        // car. The part still gets pointed at; only the label moves.
+        const pinLabel = (co.brand ? co.brand + ' ' : '') + co.part;
+        const pin = co.cat
+          ? `<button type="button" class="ge-callout-pin" data-cat="${esc(co.cat)}" aria-label="${esc(pinLabel)}">${ci + 1}</button>`
+          : `<span class="ge-callout-pin" aria-hidden="true">${ci + 1}</span>`;
         return `
             <div class="ge-callout ${sideCls}" style="--cx:${esc(co.x || '50%')};--cy:${esc(co.y || '50%')};--dx:${dx}px;--dy:${dy}px;--len:${len}px;--ang:${ang}deg;--lx:${lx}px;--run:${run}px">
               <span class="ge-callout-dot" aria-hidden="true"></span>
               <span class="ge-callout-line" aria-hidden="true"></span>
               <span class="ge-callout-leg" aria-hidden="true"></span>
+              ${pin}
               ${card}
             </div>`;
       }).join('');
 
       // Phone treatment for those same parts. A leader line needs empty
       // space beside the car to point into and there is none at 390px, so
-      // .ge-callout is hidden below 900px and this chip row takes over:
-      // same photo, same brand and part, same jumpCat() target, laid out
-      // in a row under the car instead of pinned to it.
-      const chips = (Array.isArray(c.callouts) ? c.callouts : []).map(co => {
+      // below 1025px the line and card are hidden and this chip row takes
+      // over: same photo, same brand and part, same jumpCat() target, in a
+      // row under the car. The numbered badge ties each chip back to the pin
+      // still sitting on the part itself, so the row reads as a legend for
+      // the pointers rather than as a second, unrelated list.
+      const chips = (Array.isArray(c.callouts) ? c.callouts : []).map((co, ci) => {
         if (!co || !co.part) return '';
         const thumb = co.img
-          ? `<img class="ge-car-chip-img" src="${esc(co.img)}" alt="" loading="lazy" decoding="async" />`
+          ? `<img class="ge-car-chip-img" ${pre}src="${esc(co.img)}" alt="" loading="lazy" decoding="async" />`
           : '';
         const inner =
+          `<span class="ge-car-chip-num" aria-hidden="true">${ci + 1}</span>` +
           `${thumb}<span class="ge-callout-txt">` +
             (co.brand ? `<span class="ge-callout-brand">${esc(co.brand)}</span>` : '') +
             `<span class="ge-callout-part">${esc(co.part)}</span>` +
@@ -297,8 +329,8 @@ const HERO_SHADER_PRESET = {
         ${badge}
         <div class="ge-car-tilt" style="--scale:${scale}">
           <div class="ge-car-float">
-            <div class="ge-car-body" style="--car:url('${esc(maskUrl)}')">
-              <img class="ge-car-img" src="${esc(c.src)}"${srcset} alt="${esc(c.alt || name || 'German car')}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async" draggable="false" />
+            <div class="ge-car-body">
+              <img class="ge-car-img" ${pre}src="${esc(c.src)}"${srcset} alt="${esc(c.alt || name || 'German car')}" ${i ? '' : 'fetchpriority="high"'} decoding="async" draggable="false" />
               <span class="ge-car-sheen" aria-hidden="true"></span>
             </div>
             <span class="ge-car-shadow" aria-hidden="true"></span>
@@ -322,8 +354,44 @@ const HERO_SHADER_PRESET = {
     const figs = Array.from(stage.querySelectorAll('.ge-car'));
     const dots = Array.from(stage.querySelectorAll('[data-go]'));
     let cur = 0, timer = null;
+
+    // Slide 0 shipped with real src/srcset; every other slide shipped with
+    // data-src (see the markup above). Swapping them in is all "hydrating"
+    // means here. Always called for the slide AFTER the one being shown, so
+    // the file has a full HERO_ROTATE_MS to arrive before anyone sees it.
+    // Points the sheen's mask at the exact file the browser chose for this
+    // slide's <img>, so the mask never triggers a download of its own.
+    // currentSrc is only filled in once a candidate has been picked, hence
+    // the load listener for an image that has not arrived yet.
+    function paintMask(f) {
+      const img = f.querySelector('.ge-car-img');
+      const body = f.querySelector('.ge-car-body');
+      if (!img || !body) return;
+      const apply = () => {
+        if (img.currentSrc) body.style.setProperty('--car', "url('" + img.currentSrc + "')");
+      };
+      if (img.complete && img.currentSrc) apply();
+      else img.addEventListener('load', apply, { once: true });
+    }
+
+    if (figs[0]) { figs[0].dataset.hydrated = '1'; paintMask(figs[0]); }
+    function hydrate(n) {
+      const f = figs[n];
+      if (!f || f.dataset.hydrated) return;
+      f.dataset.hydrated = '1';
+      f.querySelectorAll('img[data-src]').forEach(img => {
+        const ss = img.getAttribute('data-srcset');
+        if (ss) { img.setAttribute('srcset', ss); img.removeAttribute('data-srcset'); }
+        img.setAttribute('src', img.getAttribute('data-src'));
+        img.removeAttribute('data-src');
+      });
+      paintMask(f);
+    }
+
     function show(n) {
       if (n === cur || !figs[n]) return;
+      hydrate(n);
+      hydrate((n + 1) % figs.length);
       const prev = figs[cur];
       prev.classList.remove('is-active'); prev.classList.add('is-leaving'); prev.setAttribute('aria-hidden', 'true');
       setTimeout(() => prev.classList.remove('is-leaving'), 1100);
@@ -374,6 +442,18 @@ const HERO_SHADER_PRESET = {
       if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
       else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
     });
+
+    // Slide 2 is the first one the rotation will reach, so warm it as soon
+    // as the page is otherwise done — never before, or it is straight back
+    // to competing with the LCP image and the catalog fetches.
+    if (figs.length > 1) {
+      const warm = () => hydrate(1);
+      const soon = () => (window.requestIdleCallback
+        ? requestIdleCallback(warm, { timeout: 3000 })
+        : setTimeout(warm, 800));
+      if (document.readyState === 'complete') soon();
+      else window.addEventListener('load', soon, { once: true });
+    }
 
     if (figs.length > 1) {
       restart();

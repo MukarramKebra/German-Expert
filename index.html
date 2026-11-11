@@ -177,6 +177,14 @@
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Every product, price, photo and setting on the page comes from this
+       origin, and the first request to it cannot start until the eight
+       runtime-injected scripts at the end of <body> have downloaded and run.
+       By then the DNS lookup and TLS handshake are pure dead time on the
+       product grid's critical path; opening the socket here overlaps them
+       with the HTML and CSS instead. Keep the host in sync with GE_SB_URL
+       in code/js/01-config-data.js. -->
+  <link rel="preconnect" href="https://qljcyiwkwdfodmabnzol.supabase.co" crossorigin />
   <!-- Font Awesome is ~110KB of CSS defining thousands of icon classes, of
        which this site uses a few dozen. As a plain stylesheet it was the
        single worst item on the critical path: 1.8s total / 1.2s download on

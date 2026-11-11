@@ -189,6 +189,11 @@ button.ge-callout-card { cursor: pointer; }
 button.ge-callout-card:hover .ge-callout-part { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
 button.ge-callout-card:focus-visible { outline: 2px solid var(--orange-light); outline-offset: 4px; border-radius: 6px; }
 
+/* The numbered pin is the phone/tablet stand-in for the whole elbow — see
+   the 1024px band below, which is the only place it is ever shown. Up here
+   the callout already has a dot and a labelled card at the end of a line. */
+.ge-callout-pin { display: none; }
+
 /* The cards need free stage either side of the car, and that margin
    shrinks faster than the viewport does. Pull the labels in towards the
    car as the window narrows rather than letting them run off the edge.
@@ -211,6 +216,7 @@ button.ge-callout-card:focus-visible { outline: 2px solid var(--orange-light); o
    markup never reaches the tab order or the accessibility tree. */
 .ge-car-chips { display: none; }
 .ge-car-chip {
+  position: relative;
   width: 100%; display: flex; align-items: center; gap: 9px;
   padding: 7px 10px; border-radius: 12px; text-align: left;
   background: rgba(255, 255, 255, .055);
@@ -226,12 +232,28 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
 }
 .ge-car-chip .ge-callout-part { font-size: 12.5px; line-height: 1.25; white-space: normal; }
 .ge-car-chip .ge-callout-brand { font-size: 10px; letter-spacing: 1.3px; }
+/* Ties the chip back to the pin still sitting on the part. Absolute, not a
+   flex child, because at 390px two chips share the row and there is no
+   horizontal budget to spend on a badge. The ring is the stage colour, so
+   it punches a hole in the chip's border rather than sitting on top of it. */
+.ge-car-chip-num {
+  position: absolute; top: -8px; left: -8px; z-index: 1;
+  display: grid; place-items: center;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--orange); color: #fff; border: 2px solid #13161b;
+  font-family: var(--font-display); font-size: 11px; font-weight: 800; line-height: 1;
+}
 
 @keyframes geCalloutPing {
   0% { transform: scale(1); opacity: .75; }
   70%, 100% { transform: scale(2.6); opacity: 0; }
 }
+@keyframes geCalloutPinPing {
+  0% { transform: scale(1); opacity: .8; }
+  70%, 100% { transform: scale(1.75); opacity: 0; }
+}
 @media (prefers-reduced-motion: reduce) {
+  .ge-callout-pin::after { animation: none; opacity: .45; }
   .ge-callout-dot::after { animation: none; opacity: .4; }
 }
 
@@ -284,7 +306,8 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
 .ge-hero.is-idle .ge-car-float,
 .ge-hero.is-idle .ge-car-shadow,
 .ge-hero.is-idle .ge-car-sheen,
-.ge-hero.is-idle .ge-callout-dot::after { animation-play-state: paused; }
+.ge-hero.is-idle .ge-callout-dot::after,
+.ge-hero.is-idle .ge-callout-pin::after { animation-play-state: paused; }
 
 @keyframes geCarShadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(.9); opacity: .7; } }
 @keyframes geCarSheen { 0% { background-position: 100% 0; } 55%, 100% { background-position: 0 0; } }
@@ -300,8 +323,14 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
   .ge-hero-stage { height: clamp(404px, calc(82vw + 96px), 566px); }
   .ge-car { padding-bottom: 198px; }
   .ge-car-tilt { width: calc(min(82%, 500px) * var(--scale, 1)); }
-  /* Smaller, and pulled above the caption band the car already clears. */
-  .ge-car-nav { width: 38px; height: 38px; font-size: 14px; top: 42%; }
+  /* Smaller, and pulled above the caption band the car already clears.
+     Also lifted out of the 60-70% band, because that is where the brake
+     pins sit and on the wider cuts (E-Class, Touareg, Range Rover) the
+     right-hand pin landed right on top of the next arrow. The pin still
+     wins the tap — .ge-callout is z-index 4 against the nav's 3 — but the
+     two circles touching read as a mistake. At 24% the arrows sit beside
+     the glasshouse, which is clear on all six cars. */
+  .ge-car-nav { width: 38px; height: 38px; font-size: 14px; top: 24%; }
   /* Phone performance. The sheen repaints a masked, screen-blended layer on
      every frame, and each nav button blurs the animating stage behind it —
      both cheap on a desktop GPU, both expensive on a phone, for an effect
@@ -314,9 +343,32 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
   /* Callouts need empty space either side of the car to point into. At phone
      width the car already fills 82% of the stage, leaving ~30px a side — not
      enough for a leader line and a label, so they'd land on the bodywork.
-     Hidden rather than shrunk; a phone treatment would need its own layout
-     (a chip row under the caption) rather than a scaled-down version. */
-  .ge-callout { display: none; }
+     But the DOT is ON the part and costs no width at all, so only the line
+     and the card go: a numbered pin takes the dot's place and the chip row
+     under the car carries the matching number as its legend. The part still
+     gets pointed at; the label is what moves. */
+  .ge-callout-line, .ge-callout-leg, .ge-callout-card, .ge-callout-dot { display: none; }
+  .ge-callout-pin {
+    display: grid; place-items: center;
+    position: absolute; left: -14px; top: -14px; width: 28px; height: 28px;
+    margin: 0; padding: 0; border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, .92);
+    background: var(--orange); color: #fff;
+    font-family: var(--font-display); font-size: 14px; font-weight: 800;
+    line-height: 1; cursor: default;
+    box-shadow: 0 0 0 4px rgba(193, 18, 31, .28), 0 2px 10px rgba(0, 0, 0, .55);
+    -webkit-tap-highlight-color: transparent;
+  }
+  button.ge-callout-pin { cursor: pointer; }
+  button.ge-callout-pin:active { transform: scale(.9); }
+  button.ge-callout-pin:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  /* Its own ping rather than the dot's: geCalloutPing expands 2.6x, which on
+     a 28px pin is a 73px ring — most of a phone-sized wheel arch. */
+  .ge-callout-pin::after {
+    content: ''; position: absolute; inset: -3px; border-radius: 50%;
+    border: 1.5px solid var(--gold); opacity: .8;
+    animation: geCalloutPinPing 2.6s ease-out infinite;
+  }
   .ge-car-model { width: 94%; height: 62%; transform: translate(-50%, -78%); }
   .ge-car-cap { left: 0; right: 0; bottom: 92px; align-items: center; text-align: center; }
   .ge-car-chips {
