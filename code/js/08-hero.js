@@ -233,8 +233,22 @@ const HERO_SHADER_PRESET = {
       // on one slide AHEAD of the rotation, which is 6.5s of warning — the
       // swap never waits on a download.
       const pre = i === 0 ? '' : 'data-';
+      // The 240px below is a deliberate DPR CAP, not the real slot — the car
+      // genuinely occupies ~82vw there. srcset picks on slot x DPR, so the
+      // honest "92vw" asked for 1077px on a 390px/3x phone and landed on the
+      // 1400w file: 113 KB for a 359 CSS px picture, and the single biggest
+      // item on the critical path (LCP resource load was 3.9s of a 5.0s LCP
+      // on Slow 4G). Capping the request at 240 CSS px means 240x3 = 720,
+      // just under the 760w copy, so every phone gets the ~46 KB file at
+      // roughly 2.1x density — past the point more pixels are visible on a
+      // photo this size. It only ever steers the srcset choice; the rendered
+      // width comes from .ge-car-tilt in the CSS and is unaffected.
+      // ⚠️ The <link rel=preload> in index.html repeats this srcset and sizes
+      // and the two must stay character-for-character identical, or the
+      // preload scanner resolves a different candidate than the <img> does
+      // and the whole download is thrown away.
       const srcset = (c.srcSmall && c.w && c.wSmall)
-        ? ` ${pre}srcset="${esc(c.srcSmall)} ${c.wSmall}w, ${esc(c.src)} ${c.w}w" sizes="(max-width: 900px) 92vw, ${Math.round(720 * scale)}px"`
+        ? ` ${pre}srcset="${esc(c.srcSmall)} ${c.wSmall}w, ${esc(c.src)} ${c.w}w" sizes="(max-width: 600px) 240px, (max-width: 900px) 92vw, ${Math.round(720 * scale)}px"`
         : '';
       // --car feeds the sheen's mask in code/css/10-hero.css, and it is NOT
       // set here: paintMask() below copies it off the <img> once the browser
