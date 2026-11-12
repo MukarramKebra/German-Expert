@@ -181,8 +181,11 @@ function renderServicesTab() {
         '<label>Parts category (adds a &quot;Shop the parts&quot; link)' +
           '<select onchange="svcSet(' + i + ',\'cat\',this.value)">' + catOpts + '</select>' +
         '</label>' +
-        '<label>Photo URL (optional — replaces the icon)' +
-          '<input type="url" value="' + encodeHtml(s.img) + '" placeholder="https://…" oninput="svcSet(' + i + ',\'img\',this.value)" />' +
+        // type="text", not type="url": a photo kept in the repo is written as
+        // a relative path (img/services/brakes.webp), which a url field marks
+        // invalid. The storefront's _svcSafeImg() is what actually validates.
+        '<label>Photo (optional — replaces the icon)' +
+          '<input type="text" value="' + encodeHtml(s.img) + '" placeholder="img/services/brakes.webp or https://…" oninput="svcSet(' + i + ',\'img\',this.value)" />' +
         '</label>' +
       '</div>' +
       '<div class="svc-adm-makes"><span class="svc-adm-makes-lbl">Fits (optional):</span>' + makeChips + '</div>' +

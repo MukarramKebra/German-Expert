@@ -67,6 +67,20 @@ var DEFAULT_SERVICES = [
     desc: 'Anything else your car needs — tell us the symptoms on WhatsApp and our mechanics will tell you what it takes.' }
 ];
 
+// A service photo is either hosted somewhere (https://…) or kept in the repo
+// under img/services/. Repo photos MUST stay relative with no leading slash:
+// the site is served from /German-Expert/ on GitHub Pages, so '/img/…' would
+// resolve to the domain root and 404. Everything else is dropped — a URL here
+// comes from the admin panel and ends up in an <img src>, so 'javascript:',
+// 'data:' and protocol-relative '//host' have no business being honoured.
+function _svcSafeImg(v) {
+  var s = String(v == null ? '' : v).trim();
+  if (!s) return '';
+  if (/^https?:\/\//i.test(s)) return s;
+  if (s.indexOf('..') !== -1) return '';
+  return /^[\w.-]+(?:\/[\w.-]+)*\.(?:webp|avif|jpe?g|png|gif|svg)$/i.test(s) ? s : '';
+}
+
 // ── NORMALISE ────────────────────────────────────────────────────────────────
 // Accepts the object shape, the bare array shape, a JSON string, or nothing,
 // and always returns { enabled, intro, items } with usable items.
@@ -85,7 +99,7 @@ function normalizeServices(raw) {
       from:     s.from !== false,
       duration: String(s.duration || ''),
       icon:     String(s.icon || 'fa-screwdriver-wrench').replace(/[^a-z0-9-]/gi, ''),
-      img:      /^https?:\/\//i.test(String(s.img || '')) ? String(s.img) : '',
+      img:      _svcSafeImg(s.img),
       cat:      String(s.cat || '').replace(/[^a-z0-9-]/gi, ''),
       makes:    Array.isArray(s.makes) ? s.makes.slice(0, 8) : []
     };
