@@ -340,7 +340,7 @@ async function loadSBData() {
   // image, which a throttled-4G measurement put 44s ahead of the real one.
   // See uploadPending()/productPhoto() in js/02-catalog-render.js.
   const pendingP  = sbFetchAll(SB_URL + '/rest/v1/expert_photos?select=product_id&img_url=like.data:*', SB_H);
-  const settingsP = sbFetch(SB_URL + '/rest/v1/expert_settings?key=in.(hidden_prices,featured_offers,sku_map,brand_map,fitment_map,multi_cats,qty_limits,product_variants,cat_labels,cat_hidden,cat_order,banner_sides,custom_visible_cats)&select=key,value', { headers: SB_H });
+  const settingsP = sbFetch(SB_URL + '/rest/v1/expert_settings?key=in.(hidden_prices,featured_offers,sku_map,brand_map,fitment_map,multi_cats,qty_limits,product_variants,cat_labels,cat_hidden,cat_order,banner_sides,custom_visible_cats,services)&select=key,value', { headers: SB_H });
 
   const stockP   = sbFetchAll(SB_URL + '/rest/v1/expert_stock?select=*',           SB_H, true);
   const hiddenP  = sbFetchAll(SB_URL + '/rest/v1/expert_hidden?select=product_id', SB_H);
@@ -361,6 +361,17 @@ async function loadSBData() {
     var byKey = {};
     st.data.forEach(function(row) { byKey[row.key] = row.value; });
     function early(key, fb) { try { return JSON.parse(byKey[key]) || fb; } catch(e) { return fb; } }
+    // Workshop services (#services). Kept as the RAW string: js/09-services.js
+    // parses it and caches the same string in localStorage, so a returning
+    // visitor paints the owner's real list instead of DEFAULT_SERVICES. An
+    // absent row leaves _sbServices undefined on purpose — that's what makes
+    // renderServices() fall back to the seeded defaults rather than to "no
+    // services at all". Nothing else in this function waits on it.
+    if (byKey.services !== undefined) {
+      window._sbServices = byKey.services;
+      if (typeof cacheServices === 'function') cacheServices(byKey.services);
+      if (typeof renderServices === 'function') renderServices();
+    }
     window._sbFeaturedOffers = early('featured_offers', []).map(function(x) {
       return (typeof x === 'number') ? { id: x, sale: 0 } : { id: x.id, sale: x.sale || 0 };
     });

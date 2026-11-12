@@ -56,6 +56,20 @@ Everything behind it is intact: `offer_subscribers`, `offer_campaigns`, the `sen
 
 The `#makes` section is hidden by a block at the end of `code/css/02-sections.css` (2026-11-11). The markup and `setMakeFilter()` deliberately stay, because the hero captions ("Shop BMW parts") still call it. ⚠️ **`activeMake` is reset by nothing else in the app**, so `renderActiveMake()` in `code/js/02-catalog-render.js` paints a "Showing parts for <Make> ✕" chip (`#activeMake`, under the category pills) whenever a filter is on — that chip is now the ONLY way out of one. Don't delete it without also removing the hero captions.
 
+## Workshop services (the mechanics section)
+
+Added 2026-11-12. The shop doesn't only sell parts — its mechanics fit them — so `#services` ("Our Mechanics Service Your Car") sits between the product grid and `#features`: `code/js/09-services.js` + `code/css/12-services.css`, managed from the admin panel's new **Services** tab (`admin/js/15-services.js`, `#servicesSection`, `.svc-adm-*` rules at the end of `admin/css/03-sections.css`).
+
+- **One Supabase row**: `expert_settings` key `services` = `{enabled, intro:{tag,h2,p}, items:[{id,name,desc,price,from,duration,icon,img,cat,makes,active}]}`. A bare items ARRAY is accepted too (`normalizeServices()`). The admin tab is the only writer; `loadSBData()` reads it in the same `key=in.(…)` batch as everything else and hands the RAW string to `cacheServices()` → `localStorage.expert_services_cache`.
+- **Nothing here is a product.** No `expert_products` row, no stock, no checkout — every card is a `wa.me` booking link (`bookService()`), consistent with `ONLINE_ORDERING_ENABLED = false`.
+- **`price: 0` renders "Price on request"**, and that's what all 10 seeded services ship with on purpose — inventing labour rates for a real workshop is worse than asking the customer to message. `from: true` renders "From AED 249".
+- **The seeded list is duplicated**: `DEFAULT_SERVICES` (`code/js/09-services.js`) and `ADMIN_DEFAULT_SERVICES` (`admin/js/15-services.js`). The storefront uses its copy until the owner saves the row for the first time, so change both or they drift.
+- **The section hides itself** when `enabled` is false or `items` is empty — no empty heading left behind. That's the switch-off, not a CSS block (unlike cart/accounts/offers).
+- **`cat`** is a parts-category slug and adds a "Shop the parts" link that calls the catalog's own `filterProducts()`; **`makes`** uses the `CAR_MAKES` slugs.
+- The editor re-renders only on add/delete/move/toggle, never on a keystroke — re-rendering on `oninput` would throw the caret to the end of the box on every character.
+- `12-services.css` loads **before** `11-ui-polish.css` in `index.html`'s loader array despite the higher number: polish must stay last.
+- Saving needs a real admin login (RLS: `authenticated` + `is_admin()`), so the tab is read-only until the owner bootstraps an account.
+
 ## UI polish layer
 
 `code/css/11-ui-polish.css` is loaded **last** (add any new CSS file to BOTH the loader array and the `<noscript>` list in `index.html`). It holds the motion scale (`--ease`, `--t-fast`, `--t-base`), the single `:focus-visible` ring, press states, and named `transition` properties replacing `transition: all`. It must never introduce a colour — the palette lives in `01-base.css`.
@@ -97,6 +111,7 @@ Email `info@german-expert.ae`, Google Maps link, JSON-LD address in `index.html`
 - `featured_offers` is an ORDERED array of `{id, sale}` (homepage ticker order) — read-modify-write, never rebuild.
 - `cat_hidden` is `{slug: true}` (nav only) or `{slug: 'all'}` (nav + products, enforced in `getAllProducts()` via `_catFullyHiddenSlugs` — the single choke point for storefront product filtering).
 - Deleted products go to a 60-day client-side trash (`localStorage.jain_deleted`); the admin action log (`jain_audit_log`) is per-browser.
+- `services` is NOT keyed by product id — it's the whole workshop-services section in one blob (see "Workshop services" above).
 
 ## Standing instructions from the owner
 

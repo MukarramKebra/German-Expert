@@ -26,6 +26,7 @@ Head of `main` is **`dba8925b`**. Site and admin are live; the DB is wired; the 
 | Contact | `SHOP_WA = '971525364791'` (+971 52 536 4791) is real and wired everywhere. No `971500000000` remains anywhere in the repo |
 | Palette | **Red**, not gold — `--orange: #c1121f` on light surfaces, `--orange-light`/`--gold: #ef3b42` on dark. `--yellow #f59e0b` is a *status* colour, not the accent |
 | Mode | **Catalog-only** (`ONLINE_ORDERING_ENABLED = false`) and **email offers off** (`EMAIL_OFFERS_ENABLED = false`) |
+| Services | `#services` ("Our Mechanics Service Your Car") is live with **10 seeded services, all "Price on request"**, plus an admin **Services** tab that writes `expert_settings.services`. Saving needs an admin login, so the list stays the seeded one until the owner bootstraps an account and sets real prices |
 
 **Live counts (checked 2026-11-10):** products **0**, orders **0**, admin profiles **0**.
 
@@ -67,6 +68,8 @@ Head of `main` is **`dba8925b`**. Site and admin are live; the DB is wired; the 
 | `logo.jpg`, `favicon.png`, `apple-touch-icon.png`, `og-image.jpg` | real brand assets generated from the owner's crest |
 | `img/hero/{mercedes-e-class,bmw-m4,porsche-911,audi-a6,vw-touareg,range-rover-sport}.webp` (+ `-sm`, + `src/`) | the six rotating cars |
 | `img/parts/{remsa-brake-pads,audi-headlight,lemforder-control-arm,febi-control-arm}.webp` (+ `src/`) | the callout photos — owner-supplied, white backdrop keyed out, 320px cut-outs. The headlight is an OEM Audi unit, so its card says "OEM" |
+| **`code/js/09-services.js`**, **`code/css/12-services.css`** | the `#services` workshop band: `DEFAULT_SERVICES`, `normalizeServices()`, `renderServices()`, `bookService()`, `askServiceAdvice()`. CSS loads **before** `11-ui-polish.css` despite its number |
+| **`admin/js/15-services.js`** | the admin Services tab: `ADMIN_DEFAULT_SERVICES`, `loadServicesTab()`, `renderServicesTab()`, `svcAdd/svcMove/svcDelete/svcSet/svcToggleMake`, `saveServices()`. Writes the single `expert_settings` row `services` |
 | `CLAUDE.md` | project notes |
 
 ## 4) Changes made
@@ -150,6 +153,17 @@ Owner's report: *"scrolling is laggy and it fells like on pc that the website is
 - **"Shop by Make" hidden** (`.makes-section`, block at the end of `code/css/02-sections.css`). The markup and `setMakeFilter()` stay, because the hero captions still call it. **This needed an escape hatch:** `activeMake` is reset by *nothing* else in the app, so once the chip row was gone, a visitor who tapped "Shop BMW parts" in the hero was stuck on a filtered catalog with no control and no explanation. `renderActiveMake()` in `02-catalog-render.js` now paints a "Showing parts for BMW ✕" chip under the category pills whenever a make filter is on. Don't remove it without also removing those hero captions.
 - **`code/css/11-ui-polish.css`** (new, loaded last — the loader array in `index.html` AND the `<noscript>` list both needed the entry). One motion scale, one `:focus-visible` ring on every control (several had none at all), a press state on everything clickable, and `transition: all` replaced with named properties so a hover can't put an element through layout on every frame. **No colour, type, spacing or layout changes** — the palette is the owner's and this file must never introduce one of its own.
 
+### Workshop services + admin Services tab (2026-11-12)
+Owner's request: *"do the admin page and add mechanics servicing cars"*.
+
+- **New `#services` band** between the product grid and `#features`: `code/js/09-services.js` + `code/css/12-services.css`, dark graphite surface so it reads as a different offer from the white catalog above it. Ten seeded services (oil, brakes, diagnostics, A/C, suspension, timing, battery, gearbox, pre-purchase inspection, general repair), a trust row, and a bottom "Not sure what your car needs?" CTA wired to WhatsApp and the real `tel:` number.
+- **Every price ships as "Price on request" on purpose.** Inventing labour rates for a real workshop would be worse than asking the customer to message; the admin field is there for the owner's own numbers, and `from: true` renders them as "From AED …".
+- **New admin tab, `admin/js/15-services.js`.** Card-per-service editor (not a table — a service has long text fields that would force a horizontal scroll), with reorder arrows, a per-service **Live** toggle, a section on/off switch, optional heading overrides, a Font Awesome icon picker, an optional photo URL, a parts-category link and the `CAR_MAKES` "Fits" chips. Everything is held in memory and written as **one** `expert_settings` row (`services`) on Save.
+- **Re-render only on add/delete/move/toggle, never on `oninput`** — re-rendering the card list on every keystroke throws the caret to the end of the box.
+- Storefront reads the row in `loadSBData()`'s existing `key=in.(…)` batch (one extra key, no extra request) and caches the raw string in `localStorage.expert_services_cache`, so a returning visitor paints the owner's real list rather than the seeded one.
+- Also: `"@type"` in the homepage JSON-LD is now `["AutoPartsStore", "AutoRepair"]`, a **Services** link in the header nav and the footer, and `svc_*` + `nav_services` + `footer_servicing` strings in both `_T.en` and `_T.ar`.
+- **The tab is read-only until an admin account exists** — saving goes through the same `authenticated` + `is_admin()` RLS as every other admin write, and `expert_admin_profiles` is still empty.
+
 ## 5) Failed attempts
 
 **Supabase access**
@@ -195,6 +209,7 @@ Owner's report: *"scrolling is laggy and it fells like on pc that the website is
    - **`#pagePreloader` can hold the screen up to 2.5s** (`MAX_MS`) — pure added delay to perceived LCP. Consider cutting it hard or dropping the splash now that CLS is fixed.
 7. **Owner to-dos to remind about:** the `RESEND_API_KEY` secret (plus optional `OWNER_EMAIL`/`FROM_EMAIL`); and Supabase Auth → URL Configuration (Site URL + the same as a Redirect URL, and Google sign-in if wanted — only matters for customer accounts, which are wishlist + profile while ordering is off).
 8. **If online ordering is turned back on**, do both halves (see §4), then re-test a real checkout to Sharjah: a 2-decimal AED total on the `expert_orders` row, stock decremented, invoice email delivered.
+9. **Services need the owner's real prices and durations.** All ten ship as "Price on request" because Claude will not invent a workshop's labour rates. Once an admin account exists: Services tab → type the price into each card (leave blank for the jobs that genuinely need an inspection first) → Save. The owner also offered to supply photos — a service card takes an image URL in the **Photo URL** field and it replaces the icon.
 
 ---
 

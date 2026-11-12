@@ -59,7 +59,7 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "AutoPartsStore",
+    "@type": ["AutoPartsStore", "AutoRepair"],
     "name": "German Expert",
     "image": "https://mukarramkebra.github.io/German-Expert/og-image.jpg",
     "url": "https://mukarramkebra.github.io/German-Expert/",
@@ -137,7 +137,10 @@
     var v = '';
     try { v = localStorage.getItem('expert_asset_v') || ''; } catch(e) {}
     v = /^[0-9]+$/.test(v) ? v : '202608170500';
-    ['01-base','02-sections','03-cart-features-contact','04-footer','05-responsive','06-lang-rtl','07-modals','08-account-auth','09-widgets','10-hero','11-ui-polish'].forEach(function(f) {
+    // 12-services sits BEFORE 11-ui-polish deliberately: the polish layer has
+    // to load last (see code/css/11-ui-polish.css), so load order here is not
+    // file-number order.
+    ['01-base','02-sections','03-cart-features-contact','04-footer','05-responsive','06-lang-rtl','07-modals','08-account-auth','09-widgets','10-hero','12-services','11-ui-polish'].forEach(function(f) {
       var l = document.createElement('link');
       l.rel = 'stylesheet';
       l.href = 'code/css/' + f + '.css?v=' + v;
@@ -156,6 +159,7 @@
     <link rel="stylesheet" href="code/css/08-account-auth.css" />
     <link rel="stylesheet" href="code/css/09-widgets.css" />
     <link rel="stylesheet" href="code/css/10-hero.css" />
+    <link rel="stylesheet" href="code/css/12-services.css" />
     <link rel="stylesheet" href="code/css/11-ui-polish.css" />
   </noscript>
   <!-- Opens the connection to these origins early (DNS + TLS), in parallel
@@ -331,6 +335,7 @@
       <nav id="nav">
         <a href="#about" data-i18n="nav_about" onclick="document.getElementById('nav').classList.remove('open')">About</a>
         <a href="#products" data-i18n="nav_products" onclick="document.getElementById('nav').classList.remove('open')">Parts</a>
+        <a href="#services" data-i18n="nav_services" onclick="document.getElementById('nav').classList.remove('open')">Services</a>
         <a href="#faq" data-i18n="nav_faq" onclick="document.getElementById('nav').classList.remove('open')">FAQ</a>
         <a href="#contact" data-i18n="nav_contact" onclick="document.getElementById('nav').classList.remove('open')">Contact</a>
         <a href="#" id="navMyOrders" onclick="document.getElementById('nav').classList.remove('open');onAccountBtnClick('orders');return false;" style="display:none"><i class="fa fa-receipt" style="margin-right:6px"></i>My Orders</a>
@@ -670,6 +675,39 @@
     </div>
   </section>
 
+  <!-- WORKSHOP SERVICES — our mechanics service the car, not just supply the
+       part. Cards are rendered by renderServices() in code/js/09-services.js
+       from expert_settings.key='services' (admin panel → Services tab); the
+       heading copy below is the fallback the admin can override, and the whole
+       band hides itself if the owner switches it off or empties the list.
+       Styling: code/css/12-services.css. -->
+  <section id="services" aria-labelledby="servicesHeading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag" id="servicesTag" data-i18n="svc_tag">Workshop &amp; Servicing</span>
+        <h2 id="servicesHeading" data-i18n-html="svc_h2">Our Mechanics <span class="orange">Service Your Car</span></h2>
+        <p class="svc-intro" id="servicesIntro" data-i18n="svc_p">German-car specialists in Sharjah — we don't just sell the part, we fit it. Book any job below on WhatsApp and we'll confirm the price and a slot for you.</p>
+      </div>
+      <div class="svc-trust">
+        <span><i class="fa fa-user-gear" aria-hidden="true"></i> <span data-i18n="svc_t1">German-car specialist mechanics</span></span>
+        <span><i class="fa fa-certificate" aria-hidden="true"></i> <span data-i18n="svc_t2">Genuine &amp; OEM parts fitted</span></span>
+        <span><i class="fa fa-shield-halved" aria-hidden="true"></i> <span data-i18n="svc_t3">Workmanship guaranteed</span></span>
+        <span><i class="fa fa-location-dot" aria-hidden="true"></i> <span data-i18n="svc_t4">Industrial Area, Sharjah</span></span>
+      </div>
+      <div class="services-grid" id="servicesGrid"></div>
+      <div class="svc-cta">
+        <div class="svc-cta-txt">
+          <h3 data-i18n="svc_cta_h">Not sure what your car needs?</h3>
+          <p data-i18n="svc_cta_p">Send us the make, model and what it's doing — a warning light, a noise, a leak — and our mechanics will tell you what it takes.</p>
+        </div>
+        <div class="svc-cta-btns">
+          <button type="button" class="svc-book" onclick="askServiceAdvice()"><i class="fab fa-whatsapp" aria-hidden="true"></i> <span data-i18n="svc_cta_wa">Ask a mechanic</span></button>
+          <a class="svc-cta-call" href="tel:+971525364791"><i class="fa fa-phone" aria-hidden="true"></i> <span data-i18n="svc_cta_call">+971 52 536 4791</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="features">
     <div class="container features-grid">
       <div class="feature-card">
@@ -839,6 +877,7 @@
         <h3 data-i18n="footer_nav">Navigation</h3>
         <a href="#about" data-i18n="nav_about">About Us</a>
         <a href="#products" data-i18n="nav_products">Parts</a>
+        <a href="#services" data-i18n="nav_services">Services</a>
         <a href="#faq" data-i18n="nav_faq">FAQ</a>
         <a href="#contact" data-i18n="nav_contact">Contact</a>
       </div>
@@ -853,6 +892,7 @@
       </div>
       <div class="footer-links">
         <h3 data-i18n="footer_support">Support</h3>
+        <a href="#services" data-i18n="footer_servicing">Car Servicing</a>
         <a href="#contact" data-i18n="footer_trade">Garage Accounts</a>
         <a href="#contact" data-i18n="footer_bulk">Bulk Orders</a>
         <a href="#contact" data-i18n="footer_delivery_info">Delivery Info</a>
@@ -1353,7 +1393,7 @@
     var v = '';
     try { v = localStorage.getItem('expert_asset_v') || ''; } catch(e) {}
     v = /^[0-9]+$/.test(v) ? v : '202608170500';
-    ['01-config-data','02-catalog-render','03-product-cart-checkout','04-i18n-order','05-accounts','06-features','07-subscribe','08-hero'].forEach(function(f) {
+    ['01-config-data','02-catalog-render','03-product-cart-checkout','04-i18n-order','05-accounts','06-features','07-subscribe','08-hero','09-services'].forEach(function(f) {
       var s = document.createElement('script');
       s.src = 'code/js/' + f + '.js?v=' + v + (f === '08-hero' ? '-float1' : '');
       s.async = false;

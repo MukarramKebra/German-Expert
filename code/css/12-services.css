@@ -1,0 +1,280 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   WORKSHOP SERVICES  (#services — markup in index.html, JS in code/js/09-services.js)
+   ───────────────────────────────────────────────────────────────────────────
+   The "our mechanics service your car" band. Dark graphite surface so it reads
+   as a different offer from the white/grey parts catalog above it, with the
+   single red accent (--orange-light is the DARK-surface red; --orange is the
+   light-surface one and would fail contrast here).
+
+   Loaded second-to-last in index.html's loader array — 11-ui-polish.css must
+   stay last, so this file comes before it even though its number is higher.
+   Introduces NO new colour: every value below is an existing token.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+#services {
+  padding: 76px 0 72px;
+  background:
+    radial-gradient(1100px 420px at 50% -10%, rgba(239,59,66,0.13), transparent 70%),
+    linear-gradient(180deg, var(--charcoal) 0%, var(--bar) 100%);
+  border-top: 1px solid rgba(255,255,255,0.07);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  color: #fff;
+}
+
+#services .section-header { margin-bottom: 34px; }
+#services .section-tag {
+  background: rgba(239,59,66,0.16);
+  border-color: rgba(239,59,66,0.38);
+  color: var(--orange-light);
+}
+#services .section-header h2 { color: #fff; }
+#services .section-header h2 .orange { color: var(--orange-light); }
+
+.svc-intro {
+  max-width: 660px;
+  margin: 12px auto 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.74);
+}
+
+/* ── TRUST ROW ─────────────────────────────────────────────────────────── */
+.svc-trust {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 26px;
+  margin: 22px auto 40px;
+}
+.svc-trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: rgba(255,255,255,0.78);
+}
+.svc-trust i { color: var(--orange-light); font-size: 13px; }
+
+/* ── CARD GRID ─────────────────────────────────────────────────────────── */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+  gap: 16px;
+}
+
+.svc-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+  padding: 22px 20px 20px;
+  position: relative;
+  overflow: hidden;
+}
+/* Red hairline that fills in on hover — the same accent gesture as .cat-card's
+   bottom border, so the two grids feel like one system. */
+.svc-card::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--orange), var(--orange-light));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-base, .25s) var(--ease, ease);
+}
+.svc-card:hover::before { transform: scaleX(1); }
+.svc-card:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(239,59,66,0.34);
+}
+
+.svc-icon {
+  width: 46px; height: 46px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(239,59,66,0.14);
+  border: 1px solid rgba(239,59,66,0.26);
+  margin-bottom: 14px;
+}
+.svc-icon i { font-size: 20px; color: var(--orange-light); }
+
+/* Optional photo instead of the icon (admin can paste an image URL). */
+.svc-media {
+  margin: -22px -20px 14px;
+  height: 148px;
+  background: rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+.svc-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Broken/blocked URL — collapse rather than leave a grey slab. */
+.svc-media-failed { display: none; }
+
+.svc-name {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  line-height: 1.25;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.svc-desc {
+  font-size: 13px;
+  line-height: 1.62;
+  color: rgba(255,255,255,0.68);
+  margin-bottom: 14px;
+}
+
+.svc-makes { display: flex; flex-wrap: wrap; gap: 5px; margin: -4px 0 14px; }
+.svc-make {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 4px;
+  color: rgba(255,255,255,0.72);
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.svc-meta {
+  margin-top: auto;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(255,255,255,0.14);
+}
+.svc-price {
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  white-space: nowrap;
+}
+.svc-price em {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: rgba(255,255,255,0.6);
+}
+/* "Price on request" is a sentence, not a number — don't shout it. */
+.svc-price-poa {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--orange-light);
+  white-space: normal;
+}
+.svc-dur {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  white-space: nowrap;
+}
+.svc-dur i { margin-right: 4px; }
+
+/* Stacked, not side by side: at the grid's 268px minimum the two labels fight
+   for width and "Book on WhatsApp" wraps onto two lines, leaving two buttons
+   of different heights. The booking button is the action, so it gets the full
+   width; "Shop the parts" is a quiet text link underneath. */
+.svc-actions { display: flex; flex-direction: column; align-items: stretch; gap: 6px; margin-top: 14px; }
+
+.svc-book {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--orange);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+}
+.svc-book:hover { background: var(--orange-dark); }
+.svc-book i { font-size: 15px; }
+
+.svc-parts {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255,255,255,0.62);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.svc-parts:hover { color: var(--orange-light); background: rgba(255,255,255,0.05); }
+.svc-parts i { font-size: 10px; transition: transform var(--t-fast, .15s) var(--ease, ease); }
+.svc-parts:hover i { transform: translateX(3px); }
+
+/* ── BOTTOM CTA ────────────────────────────────────────────────────────── */
+.svc-cta {
+  margin-top: 34px;
+  padding: 24px 26px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.10);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.svc-cta-txt h3 {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  margin-bottom: 5px;
+}
+.svc-cta-txt p { font-size: 13px; color: rgba(255,255,255,0.68); line-height: 1.6; }
+.svc-cta-btns { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.svc-cta-call {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+}
+.svc-cta-call:hover { border-color: var(--orange-light); background: rgba(239,59,66,0.12); }
+
+/* ── RESPONSIVE ────────────────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  #services { padding: 54px 0 50px; }
+  .services-grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .svc-card { padding: 18px 16px 16px; }
+  .svc-trust { gap: 8px 16px; margin-bottom: 28px; }
+  .svc-cta { flex-direction: column; align-items: stretch; text-align: center; }
+  .svc-cta-btns { justify-content: center; }
+}
+@media (max-width: 420px) {
+  .services-grid { grid-template-columns: 1fr; }
+}

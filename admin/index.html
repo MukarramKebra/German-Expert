@@ -88,6 +88,9 @@
     <button class="tab-btn" id="tabFeatured" onclick="switchTab('featured')">
       <i class="fa fa-star"></i> Featured
     </button>
+    <button class="tab-btn" id="tabServices" onclick="switchTab('services')">
+      <i class="fa fa-screwdriver-wrench"></i> Services
+    </button>
     <button class="tab-btn" id="tabSeo" onclick="switchTab('seo')">
       <i class="fa fa-search-plus"></i> SEO
     </button>
@@ -464,6 +467,56 @@
         <tbody id="foTblBody"></tbody>
       </table>
     </div>
+  </div>
+
+  <!-- WORKSHOP SERVICES SECTION (homepage #services band)
+       Logic: admin/js/15-services.js. One Supabase row (expert_settings,
+       key 'services') holds the whole list; the storefront renders it in
+       code/js/09-services.js. Nothing here is a product — no stock, no
+       checkout, every card is a WhatsApp booking button. -->
+  <div id="servicesSection" class="main" style="display:none">
+    <div class="table-top" style="margin-bottom:12px">
+      <h2><i class="fa fa-screwdriver-wrench" style="color:var(--orange);margin-right:8px"></i>Workshop Services</h2>
+      <div class="ctrl-right">
+        <span id="svcDirty" style="display:none;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#b45309"><i class="fa fa-circle-exclamation"></i> Unsaved changes</span>
+        <span id="svcCount" style="font-size:13px;color:var(--gray);font-weight:800;white-space:nowrap"></span>
+        <button class="ur-btn" onclick="svcAdd()"><i class="fa fa-plus"></i> Add Service</button>
+        <button class="save-btn" onclick="saveServices()"><i class="fa fa-check"></i> Save Services</button>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--gray);margin:0 0 16px;max-width:760px">
+      The "Our Mechanics Service Your Car" section on the homepage. Each card below is one job
+      customers can book &mdash; the <strong>Book on WhatsApp</strong> button opens a chat with the
+      service name, price and duration already written in, so nothing is ordered or paid online.
+      Leave <strong>Price</strong> blank and the card shows <em>&ldquo;Price on request&rdquo;</em>.
+      Changes go live within seconds of pressing Save &mdash; no GitHub needed.
+    </p>
+
+    <div class="svc-adm-bar">
+      <label class="svc-adm-switch">
+        <input type="checkbox" id="svcEnabled" onchange="svcToggleSection(this.checked)" />
+        <span>Show the Services section on the homepage</span>
+      </label>
+      <button type="button" class="svc-adm-link" onclick="svcRestoreDefaults()"><i class="fa fa-rotate-left"></i> Reload the standard service list</button>
+    </div>
+
+    <details class="svc-adm-intro">
+      <summary>Section heading &amp; intro text (optional)</summary>
+      <p>Leave these blank to keep the wording that's on the site now (which is also the only wording that has an Arabic translation).</p>
+      <div class="svc-adm-grid">
+        <label>Small label above the heading
+          <input type="text" id="svcIntroTag" placeholder="Workshop &amp; Servicing" oninput="svcSetIntro('tag',this.value)" />
+        </label>
+        <label>Heading
+          <input type="text" id="svcIntroH2" placeholder="Our Mechanics Service Your Car" oninput="svcSetIntro('h2',this.value)" />
+        </label>
+        <label style="grid-column:1/-1">Intro paragraph
+          <input type="text" id="svcIntroP" placeholder="German-car specialists in Sharjah — we don't just sell the part, we fit it…" oninput="svcSetIntro('p',this.value)" />
+        </label>
+      </div>
+    </details>
+
+    <div id="svcList"></div>
   </div>
 
   <!-- SEO SECTION -->
@@ -1123,7 +1176,7 @@
   var v = '';
   try { v = localStorage.getItem('expert_asset_v') || ''; } catch(e) {}
   v = /^[0-9]+$/.test(v) ? v : '202608161800';
-  ['01-core-data','02-helpers','03-auth','04-tabs-nav','05-categories','06-reports','07-orders','08-inventory','09-deleted','10-csv-import','11-multiselect-brand-cat','12-seo','13-offers','14-product-view'].forEach(function(f) {
+  ['01-core-data','02-helpers','03-auth','04-tabs-nav','05-categories','06-reports','07-orders','08-inventory','09-deleted','10-csv-import','11-multiselect-brand-cat','12-seo','13-offers','14-product-view','15-services'].forEach(function(f) {
     var s = document.createElement('script');
     s.src = 'admin/js/' + f + '.js?v=' + v;
     s.async = false;
