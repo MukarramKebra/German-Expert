@@ -210,6 +210,48 @@
   <noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   </noscript>
+
+  <!-- German Expert: low-GPU rendering profile (desktop + mobile).
+       Overrides dynamically injected stylesheets without modifying site logic.
+       Manual carousel navigation and interactive catalogue remain available. -->
+  <style id="ge-low-gpu-mode">
+    /* GPU-heavy backdrop sampling across headers, buttons and badges. */
+    *, *::before, *::after {
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+    }
+    /* A flat car stage rather than expensive 3D layers and shaders. */
+    .ge-hero-stage { perspective: none !important; }
+    .ge-hero-canvas, .ge-car-sheen, .ge-car-shadow { display: none !important; }
+    .ge-car, .ge-car.is-active, .ge-car.is-leaving {
+      transform: none !important;
+      transition: opacity .12s linear !important;
+      will-change: auto !important;
+    }
+    .ge-car-tilt, .ge-car-float, .ge-car-body {
+      transform: none !important;
+      transform-style: flat !important;
+      transition: none !important;
+      animation: none !important;
+      will-change: auto !important;
+    }
+    /* Large alpha-masked images + layered animated drop-shadows were costly. */
+    .ge-car-img, .ge-car-model, .ge-callout-img, .ge-car-chip-img {
+      filter: none !important;
+      -webkit-filter: none !important;
+      animation: none !important;
+      will-change: auto !important;
+    }
+    .ge-callout-dot::after, .ge-callout-pin::after {
+      animation: none !important;
+      display: none !important;
+    }
+    /* Leave interactive hover/focus UI intact; stop decorative loops. */
+    .ge-hero *, .ge-hero *::before, .ge-hero *::after {
+      animation: none !important;
+    }
+    .ge-hero-bg { background: linear-gradient(115deg, #222831, #0f1115 60%, #211317) !important; }
+  </style>
 </head>
 <body>
 
