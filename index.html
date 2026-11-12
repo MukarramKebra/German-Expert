@@ -308,7 +308,10 @@
        code/css/10-hero.css). Replaced the moving offers strip (#offers) in Nov 2026;
        initOffersTicker() in js/02-catalog-render.js no-ops without #offersTrack. -->
   <section id="showcase" class="ge-hero" aria-labelledby="heroTitle">
-    <div class="ge-hero-bg" aria-hidden="true"><canvas id="heroShader" class="ge-hero-canvas"></canvas></div>
+    <!-- Performance: keep the existing CSS studio gradient, but omit the full-screen
+         WebGPU canvas. 08-hero.js checks for this canvas and skips importing the
+         shader; the car carousel, buttons and product callouts still run. -->
+    <div class="ge-hero-bg" aria-hidden="true"></div>
     <div class="ge-hero-inner">
       <!-- Showpiece: the giant outlined make + the car (HERO_CARS in
            code/js/08-hero.js). JS ADDS .no-car to #showcase only when that
