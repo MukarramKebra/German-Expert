@@ -57,6 +57,107 @@
 }
 .svc-trust i { color: var(--orange-light); font-size: 13px; }
 
+/* ── PHOTO BANDS ───────────────────────────────────────────────────────────
+   Big alternating photo blocks (renderServiceBands). Picture one side, copy
+   the other, sides swapping each band so the eye zig-zags down the section.
+   The photos are 2:1, and the media box keeps that ratio with aspect-ratio so
+   nothing jumps while they load. */
+.svc-bands { display: flex; flex-direction: column; gap: 22px; margin-bottom: 56px; }
+
+.svc-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 34px;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  padding: 18px;
+}
+/* Swap sides on every second band. order, not direction: direction would also
+   flip the text inside. */
+.svc-band:nth-child(even) .svc-band-media { order: 2; }
+
+.svc-band-media {
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(0,0,0,0.3);
+  aspect-ratio: 2 / 1;
+}
+.svc-band-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.svc-band-txt { padding: 4px 10px 4px 0; }
+.svc-band:nth-child(even) .svc-band-txt { padding: 4px 0 4px 10px; }
+
+.svc-band-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--orange-light);
+  background: rgba(239,59,66,0.14);
+  border: 1px solid rgba(239,59,66,0.3);
+  border-radius: 4px;
+  padding: 4px 10px;
+  margin-bottom: 12px;
+}
+.svc-band-txt h3 {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.4vw, 27px);
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  line-height: 1.15;
+  color: #fff;
+  margin-bottom: 10px;
+}
+.svc-band-txt p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.72);
+  margin-bottom: 14px;
+}
+
+.svc-band-list { list-style: none; margin: 0 0 18px; padding: 0; }
+.svc-band-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.84);
+  padding: 5px 0;
+}
+.svc-band-list i { color: var(--orange-light); font-size: 11px; margin-top: 4px; flex: 0 0 auto; }
+
+.svc-band-btns { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.svc-band-btns .svc-book { flex: 0 0 auto; padding: 12px 20px; }
+
+/* Heading over the bookable card list, under the bands. */
+.svc-list-head { text-align: center; margin-bottom: 24px; }
+.svc-list-head h3 {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 2.2vw, 23px);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.svc-list-head p { font-size: 13px; color: rgba(255,255,255,0.62); }
+
+@media (max-width: 900px) {
+  .svc-band { grid-template-columns: 1fr; gap: 18px; padding: 14px; }
+  /* Stacked, the photo always leads — an alternating order would put some
+     headings above their picture and some below, which reads as a mistake. */
+  .svc-band:nth-child(even) .svc-band-media { order: 0; }
+  .svc-band-txt,
+  .svc-band:nth-child(even) .svc-band-txt { padding: 0 4px 6px; }
+  .svc-bands { gap: 16px; margin-bottom: 40px; }
+}
+
 /* ── CARD GRID ─────────────────────────────────────────────────────────── */
 .services-grid {
   display: grid;

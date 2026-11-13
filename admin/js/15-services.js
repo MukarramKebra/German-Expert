@@ -63,7 +63,30 @@ var SVC_ICONS = [
   'fa-temperature-low','fa-wind','fa-lightbulb','fa-user-gear','fa-car','fa-road'
 ];
 
-var _svcCfg   = { enabled: true, intro: {}, items: [] };
+// The big alternating photo blocks above the card list. Mirrors DEFAULT_BANDS
+// in code/js/09-services.js — change both. `img` is the path WITHOUT the
+// extension: the storefront derives <img>.webp (full) and <img>-sm.webp (half)
+// from it, which is how the two widths in img/services/ are wired up.
+var ADMIN_DEFAULT_BANDS = [
+  { id:'band-brakes', img:'img/services/brakes', tag:'Brakes', cat:'brakes',
+    title:'Brakes done properly',
+    text:'Pads, discs and wear sensors replaced with genuine or OEM-quality parts — then bedded in and road tested before the car goes back to you.',
+    lines:['Genuine & OEM pads and discs','Wear sensors replaced, not bypassed','Bedded in and road tested'] },
+  { id:'band-oil', img:'img/services/oil-service', tag:'Servicing', cat:'oils-fluids',
+    title:'Oil & filter service',
+    text:"The exact oil grade your engine's maker specifies, a new filter, every level topped up and the service light reset.",
+    lines:["Oil to your car's own spec",'New filter every time','Service light reset'] },
+  { id:'band-diag', img:'img/services/diagnostics', tag:'Diagnostics', cat:'electrical',
+    title:'We read the car before we touch it',
+    text:'A full scan on German-specific equipment — every module, not just the engine. You get the codes explained in plain words and a quote before any work starts.',
+    lines:['Every module scanned','Codes explained in plain words','Quote before any work starts'] },
+  { id:'band-shop', img:'img/services/workshop', tag:'Our workshop', cat:'',
+    title:'German cars, all day, every day',
+    text:'Lifts, specialist tools and mechanics who work on Mercedes, BMW, Audi, VW and Porsche — and the parts counter is in the same building, so nothing waits on a delivery.',
+    lines:['Mercedes · BMW · Audi · VW · Porsche','Parts counter on site','Industrial Area, Sharjah'] }
+];
+
+var _svcCfg   = { enabled: true, intro: {}, items: [], bands: [] };
 var _svcDirty = false;
 var _svcLoaded = false;
 
@@ -82,7 +105,10 @@ async function loadServicesTab() {
     intro:   (cfg.intro && typeof cfg.intro === 'object') ? cfg.intro : {},
     items:   (Array.isArray(cfg.items) && cfg.items.length)
                ? cfg.items.map(_svcNormalizeItem)
-               : ADMIN_DEFAULT_SERVICES.map(_svcNormalizeItem)
+               : ADMIN_DEFAULT_SERVICES.map(_svcNormalizeItem),
+    // No bands key at all → seed the shipped four. An explicit empty array is
+    // the owner having deleted them, and is left alone.
+    bands:   (Array.isArray(cfg.bands) ? cfg.bands : ADMIN_DEFAULT_BANDS).map(_svcNormalizeBand)
   };
   // Never saved before → the editor is showing the seeded list, which is NOT
   // yet what the database holds. Flagging it dirty is honest and nudges the
@@ -109,6 +135,144 @@ function _svcNormalizeItem(s, i) {
   };
 }
 
+function _svcNormalizeBand(b, i) {
+  b = b || {};
+  return {
+    id:     String(b.id || ('band' + Date.now() + i)),
+    img:    String(b.img || '').replace(/\.(webp|avif|jpe?g|png)$/i, ''),
+    tag:    String(b.tag || ''),
+    title:  String(b.title || ''),
+    text:   String(b.text || ''),
+    cat:    String(b.cat || ''),
+    lines:  (Array.isArray(b.lines) ? b.lines : []).slice(0, 3).map(String),
+    active: b.active !== false
+  };
+}
+
+// ── PHOTO BANDS EDITOR ───────────────────────────────────────────────────────
+function renderBandsEditor() {
+  var list = document.getElementById('svcBandList');
+  if (!list) return;
+
+  var cats = (typeof getAllCats === 'function' ? getAllCats() : DEFAULT_CATS)
+    .filter(function (c) { return ['hidden', 'cant-find-products'].indexOf(c.slug) === -1; });
+
+  if (!_svcCfg.bands.length) {
+    list.innerHTML = '<div class="svc-adm-empty"><i class="fa fa-images"></i>' +
+      '<p>No photo bands. Press <strong>Add Band</strong> to create one, or <button type="button" class="svc-adm-link" onclick="bandRestoreDefaults()">put the four original bands back</button>.</p></div>';
+    return;
+  }
+
+  list.innerHTML = _svcCfg.bands.map(function (b, i) {
+    var catOpts = '<option value=""' + (b.cat ? '' : ' selected') + '>&mdash; none &mdash;</option>' +
+      cats.map(function (c) {
+        return '<option value="' + encodeHtml(c.slug) + '"' + (c.slug === b.cat ? ' selected' : '') + '>' + encodeHtml(c.label) + '</option>';
+      }).join('');
+
+    // The preview uses the small copy so opening the tab doesn't pull four
+    // full-size photos.
+    var thumb = b.img
+      ? '<img src="' + encodeHtml(b.img) + '-sm.webp" alt="" onerror="this.style.display=\'none\'" />'
+      : '<div class="svc-adm-band-noimg"><i class="fa fa-image"></i></div>';
+
+    var lineInputs = [0, 1, 2].map(function (j) {
+      return '<input type="text" value="' + encodeHtml(b.lines[j] || '') + '" placeholder="Point ' + (j + 1) + ' (short)" oninput="bandSetLine(' + i + ',' + j + ',this.value)" />';
+    }).join('');
+
+    return '' +
+    '<div class="svc-adm-card svc-adm-band' + (b.active ? '' : ' is-off') + '">' +
+      '<div class="svc-adm-band-thumb">' + thumb + '</div>' +
+      '<div class="svc-adm-band-body">' +
+        '<div class="svc-adm-top">' +
+          '<input class="svc-adm-name" type="text" value="' + encodeHtml(b.title) + '" placeholder="Heading (e.g. Brakes done properly)" oninput="bandSet(' + i + ',\'title\',this.value)" />' +
+          '<label class="svc-adm-live" title="Show this band on the site">' +
+            '<input type="checkbox"' + (b.active ? ' checked' : '') + ' onchange="bandSet(' + i + ',\'active\',this.checked,true)" /> Live' +
+          '</label>' +
+          '<div class="svc-adm-ord">' +
+            '<button type="button" class="svc-adm-btn" title="Move up"   onclick="bandMove(' + i + ',-1)"' + (i === 0 ? ' disabled' : '') + '><i class="fa fa-arrow-up"></i></button>' +
+            '<button type="button" class="svc-adm-btn" title="Move down" onclick="bandMove(' + i + ',1)"'  + (i === _svcCfg.bands.length - 1 ? ' disabled' : '') + '><i class="fa fa-arrow-down"></i></button>' +
+            '<button type="button" class="svc-adm-btn svc-adm-del" title="Delete band" onclick="bandDelete(' + i + ')"><i class="fa fa-trash"></i></button>' +
+          '</div>' +
+        '</div>' +
+        '<textarea class="svc-adm-desc" rows="2" placeholder="The paragraph under the heading — two sentences, plain words." oninput="bandSet(' + i + ',\'text\',this.value)">' + encodeHtml(b.text) + '</textarea>' +
+        '<div class="svc-adm-grid">' +
+          '<label>Small label above the heading' +
+            '<input type="text" value="' + encodeHtml(b.tag) + '" placeholder="e.g. Brakes" oninput="bandSet(' + i + ',\'tag\',this.value)" />' +
+          '</label>' +
+          '<label>Photo (no file extension)' +
+            '<input type="text" value="' + encodeHtml(b.img) + '" placeholder="img/services/brakes" oninput="bandSet(' + i + ',\'img\',this.value,true)" />' +
+          '</label>' +
+          '<label>Parts category (adds a &quot;Shop the parts&quot; link)' +
+            '<select onchange="bandSet(' + i + ',\'cat\',this.value)">' + catOpts + '</select>' +
+          '</label>' +
+        '</div>' +
+        '<div class="svc-adm-lines"><span class="svc-adm-makes-lbl">Tick points:</span>' + lineInputs + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function bandSet(i, field, value, rerender) {
+  var b = _svcCfg.bands[i];
+  if (!b) return;
+  if (field === 'active') b.active = !!value;
+  else if (field === 'img') b.img = String(value).replace(/\.(webp|avif|jpe?g|png)$/i, '');
+  else b[field] = String(value);
+  _svcDirty = true;
+  if (rerender) renderBandsEditor();
+  _svcRenderDirty();
+}
+
+function bandSetLine(i, j, value) {
+  var b = _svcCfg.bands[i];
+  if (!b) return;
+  while (b.lines.length <= j) b.lines.push('');
+  b.lines[j] = String(value);
+  _svcDirty = true;
+  _svcRenderDirty();
+}
+
+function bandMove(i, dir) {
+  var j = i + dir;
+  if (j < 0 || j >= _svcCfg.bands.length) return;
+  var t = _svcCfg.bands[i];
+  _svcCfg.bands[i] = _svcCfg.bands[j];
+  _svcCfg.bands[j] = t;
+  _svcDirty = true;
+  renderBandsEditor();
+  _svcRenderDirty();
+}
+
+function bandDelete(i) {
+  var b = _svcCfg.bands[i];
+  if (!b) return;
+  if (!confirm('Delete the "' + (b.title || 'untitled') + '" photo band?\n\nIt disappears from the site as soon as you press Save Services.')) return;
+  _svcCfg.bands.splice(i, 1);
+  _svcDirty = true;
+  renderBandsEditor();
+  _svcRenderDirty();
+}
+
+function bandAdd() {
+  _svcCfg.bands.push(_svcNormalizeBand({ id: 'band' + Date.now(), title: '' }, 0));
+  _svcDirty = true;
+  renderBandsEditor();
+  _svcRenderDirty();
+  var boxes = document.querySelectorAll('#svcBandList .svc-adm-name');
+  if (boxes.length) {
+    boxes[boxes.length - 1].focus();
+    boxes[boxes.length - 1].scrollIntoView({ block: 'center' });
+  }
+}
+
+function bandRestoreDefaults() {
+  if (_svcCfg.bands.length && !confirm('Replace the photo bands with the four originals?')) return;
+  _svcCfg.bands = ADMIN_DEFAULT_BANDS.map(_svcNormalizeBand);
+  _svcDirty = true;
+  renderBandsEditor();
+  _svcRenderDirty();
+}
+
 // ── RENDER ───────────────────────────────────────────────────────────────────
 function renderServicesTab() {
   var list = document.getElementById('svcList');
@@ -122,6 +286,8 @@ function renderServicesTab() {
 
   var cats = (typeof getAllCats === 'function' ? getAllCats() : DEFAULT_CATS)
     .filter(function (c) { return ['hidden', 'cant-find-products'].indexOf(c.slug) === -1; });
+
+  renderBandsEditor();
 
   var liveCount = _svcCfg.items.filter(function (s) { return s.active && s.name; }).length;
   var countEl = document.getElementById('svcCount');
@@ -301,6 +467,19 @@ async function saveServices() {
       price: s.price > 0 ? s.price : 0, from: !!s.from,
       duration: (s.duration || '').trim(), icon: s.icon || 'fa-screwdriver-wrench',
       img: (s.img || '').trim(), cat: s.cat || '', makes: s.makes || [], active: !!s.active
+    };
+  });
+
+  // Same for the bands: an untitled one would render as a picture with no
+  // words next to it.
+  var namedBands = _svcCfg.bands.filter(function (b) { return (b.title || '').trim(); });
+  dropped += _svcCfg.bands.length - namedBands.length;
+  _svcCfg.bands = namedBands.map(function (b) {
+    return {
+      id: b.id, img: (b.img || '').trim(), tag: (b.tag || '').trim(),
+      title: b.title.trim(), text: (b.text || '').trim(), cat: b.cat || '',
+      lines: (b.lines || []).map(function (l) { return String(l).trim(); }).filter(Boolean),
+      active: !!b.active
     };
   });
 

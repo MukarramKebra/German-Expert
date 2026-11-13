@@ -220,10 +220,32 @@
     .svc-adm-make{border:1.5px solid var(--border);background:#fff;color:var(--dark);font-family:inherit;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;cursor:pointer;}
     .svc-adm-make.on{background:var(--bar);color:var(--gold);border-color:var(--bar);}
 
+    /* Divider headings between the two editors (photo bands / bookable jobs) */
+    .svc-adm-sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:26px 0 8px;padding-top:18px;border-top:1px solid var(--border);}
+    .svc-adm-sec-head h3{font-size:15px;font-weight:900;color:var(--dark);display:flex;align-items:center;gap:8px;}
+    .svc-adm-sec-head h3 i{color:var(--orange);font-size:14px;}
+    .svc-adm-sec-head>div{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .svc-adm-sec-head span{font-size:12px;color:var(--gray);}
+
+    /* A band row: photo preview on the left, all its fields on the right. */
+    .svc-adm-band{display:grid;grid-template-columns:210px minmax(0,1fr);gap:16px;align-items:start;}
+    .svc-adm-band-thumb{border-radius:8px;overflow:hidden;background:var(--light);aspect-ratio:2/1;display:flex;align-items:center;justify-content:center;}
+    .svc-adm-band-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+    .svc-adm-band-noimg{color:#c3c8cf;font-size:26px;}
+    .svc-adm-band-body{min-width:0;}
+    .svc-adm-lines{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;align-items:center;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);}
+    .svc-adm-lines input{padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:12px;color:var(--dark);outline:none;}
+    .svc-adm-lines input:focus{border-color:var(--orange);}
+    .svc-adm-lines .svc-adm-makes-lbl{grid-column:1/-1;}
+
     .svc-adm-empty{text-align:center;padding:52px 20px;background:var(--white);border:1px dashed var(--border);border-radius:10px;color:var(--gray);}
     .svc-adm-empty i{font-size:38px;color:#ddd;display:block;margin-bottom:14px;}
     .svc-adm-empty p{font-size:13px;font-weight:600;max-width:460px;margin:0 auto;line-height:1.6;}
 
+    @media(max-width:900px){
+      .svc-adm-band{grid-template-columns:1fr;}
+      .svc-adm-band-thumb{max-width:320px;}
+    }
     @media(max-width:600px){
       .svc-adm-top{gap:8px;}
       .svc-adm-name{flex:1 1 100%;order:3;}

@@ -694,6 +694,16 @@
         <span><i class="fa fa-shield-halved" aria-hidden="true"></i> <span data-i18n="svc_t3">Workmanship guaranteed</span></span>
         <span><i class="fa fa-location-dot" aria-hidden="true"></i> <span data-i18n="svc_t4">Industrial Area, Sharjah</span></span>
       </div>
+      <!-- Photo bands: filled by renderServiceBands() from the same
+           expert_settings 'services' row. Photos live in img/services/ as two
+           WebP widths each. These come BEFORE the card grid on purpose — the
+           pictures are what stop someone scrolling. -->
+      <div class="svc-bands" id="servicesBands"></div>
+
+      <div class="svc-list-head">
+        <h3 data-i18n="svc_list_h">Every job we take on</h3>
+        <p data-i18n="svc_list_p">Tap any job to book it on WhatsApp — we'll confirm the price and a time.</p>
+      </div>
       <div class="services-grid" id="servicesGrid"></div>
       <div class="svc-cta">
         <div class="svc-cta-txt">

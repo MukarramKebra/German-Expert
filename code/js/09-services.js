@@ -81,6 +81,109 @@ function _svcSafeImg(v) {
   return /^[\w.-]+(?:\/[\w.-]+)*\.(?:webp|avif|jpe?g|png|gif|svg)$/i.test(s) ? s : '';
 }
 
+// ── PHOTO BANDS ──────────────────────────────────────────────────────────────
+// The big alternating photo blocks you pass while scrolling the section:
+// picture on one side, heading + three points + a booking button on the other,
+// sides swapping band by band. These are the proof that the work is real; the
+// card grid below them is the bookable list.
+//
+// Each photo ships as two WebP widths produced from the owner's originals
+// (img/services/<slug>.webp and -sm.webp, 2:1), so `img` is stored WITHOUT the
+// extension and both are derived from it. `lines` is at most three short
+// points — anything longer stops being scannable.
+var DEFAULT_BANDS = [
+  { id: 'band-brakes', img: 'img/services/brakes', tag: 'Brakes', cat: 'brakes',
+    title: 'Brakes done properly',
+    text: 'Pads, discs and wear sensors replaced with genuine or OEM-quality parts — then bedded in and road tested before the car goes back to you.',
+    lines: ['Genuine & OEM pads and discs', 'Wear sensors replaced, not bypassed', 'Bedded in and road tested'] },
+  { id: 'band-oil', img: 'img/services/oil-service', tag: 'Servicing', cat: 'oils-fluids',
+    title: 'Oil & filter service',
+    text: "The exact oil grade your engine's maker specifies, a new filter, every level topped up and the service light reset.",
+    lines: ["Oil to your car's own spec", 'New filter every time', 'Service light reset'] },
+  { id: 'band-diag', img: 'img/services/diagnostics', tag: 'Diagnostics', cat: 'electrical',
+    title: 'We read the car before we touch it',
+    text: 'A full scan on German-specific equipment — every module, not just the engine. You get the codes explained in plain words and a quote before any work starts.',
+    lines: ['Every module scanned', 'Codes explained in plain words', 'Quote before any work starts'] },
+  { id: 'band-shop', img: 'img/services/workshop', tag: 'Our workshop', cat: '',
+    title: 'German cars, all day, every day',
+    text: 'Lifts, specialist tools and mechanics who work on Mercedes, BMW, Audi, VW and Porsche — and the parts counter is in the same building, so nothing waits on a delivery.',
+    lines: ['Mercedes · BMW · Audi · VW · Porsche', 'Parts counter on site', 'Industrial Area, Sharjah'] }
+];
+
+// A band's img is an extensionless base ('img/services/brakes') so the two
+// widths can be derived from it, which _svcSafeImg would reject for having no
+// extension — so validate the .webp it stands for, and keep the base. A full
+// remote URL is passed through _svcSafeImg unchanged.
+function _svcSafeBandImg(v) {
+  var s = String(v == null ? '' : v).trim().replace(/\.(webp|avif|jpe?g|png)$/i, '');
+  if (!s) return '';
+  if (/^https?:\/\//i.test(s)) return _svcSafeImg(v);
+  return _svcSafeImg(s + '.webp') ? s : '';
+}
+
+function normalizeBands(raw) {
+  var list = Array.isArray(raw) ? raw : [];
+  return list.filter(function (b) { return b && b.title && b.active !== false; }).map(function (b, i) {
+    return {
+      id:    String(b.id || ('band' + i)),
+      img:   _svcSafeBandImg(b.img),
+      tag:   String(b.tag || ''),
+      title: String(b.title || ''),
+      text:  String(b.text || ''),
+      cat:   String(b.cat || '').replace(/[^a-z0-9-]/gi, ''),
+      lines: Array.isArray(b.lines) ? b.lines.slice(0, 4).map(String) : []
+    };
+  });
+}
+
+function renderServiceBands(bands) {
+  var wrap = document.getElementById('servicesBands');
+  if (!wrap) return;
+  if (!bands.length) { wrap.innerHTML = ''; wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+
+  var BOOK = _svcT('svc_book', 'Book on WhatsApp');
+  var SHOP = _svcT('svc_parts', 'Shop the parts');
+
+  wrap.innerHTML = bands.map(function (b, i) {
+    var base = String(b.img || '').replace(/\.(webp|avif|jpe?g|png)$/i, '');
+    if (!base) return '';
+    var isRemote = /^https?:\/\//i.test(base);
+    var media = isRemote
+      ? '<img src="' + encodeHtmlSvc(b.img) + '" alt="" loading="lazy" decoding="async" />'
+      : '<img src="' + encodeHtmlSvc(base) + '.webp" ' +
+          'srcset="' + encodeHtmlSvc(base) + '-sm.webp 430w, ' + encodeHtmlSvc(base) + '.webp 852w" ' +
+          'sizes="(max-width: 900px) 100vw, 560px" alt="" loading="lazy" decoding="async" />';
+
+    return '<article class="svc-band">' +
+        '<div class="svc-band-media">' + media + '</div>' +
+        '<div class="svc-band-txt">' +
+          (b.tag ? '<span class="svc-band-tag">' + encodeHtmlSvc(b.tag) + '</span>' : '') +
+          '<h3>' + encodeHtmlSvc(b.title) + '</h3>' +
+          (b.text ? '<p>' + encodeHtmlSvc(b.text) + '</p>' : '') +
+          (b.lines.length ? '<ul class="svc-band-list">' + b.lines.map(function (l) {
+            return '<li><i class="fa fa-check" aria-hidden="true"></i> ' + encodeHtmlSvc(l) + '</li>';
+          }).join('') + '</ul>' : '') +
+          '<div class="svc-band-btns">' +
+            '<button type="button" class="svc-book" onclick="bookBand(' + i + ')">' +
+              '<i class="fab fa-whatsapp" aria-hidden="true"></i> ' + encodeHtmlSvc(BOOK) + '</button>' +
+            (b.cat ? '<button type="button" class="svc-parts" onclick="filterProducts(\'' + encodeHtmlSvc(b.cat) + '\')">' +
+              encodeHtmlSvc(SHOP) + ' <i class="fa fa-arrow-right" aria-hidden="true"></i></button>' : '') +
+          '</div>' +
+        '</div>' +
+      '</article>';
+  }).join('');
+}
+
+// Booking straight off a band — same contract as bookService().
+function bookBand(idx) {
+  var b = _servicesConfig().bands[idx];
+  if (!b) return;
+  var msg = 'Hi German Expert, I would like to book:\n\n🔧 *' + b.title + '*\n\n' +
+            'My car: (make / model / year)\nPreferred day & time:';
+  window.open('https://wa.me/' + SHOP_WA + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
 // ── NORMALISE ────────────────────────────────────────────────────────────────
 // Accepts the object shape, the bare array shape, a JSON string, or nothing,
 // and always returns { enabled, intro, items } with usable items.
@@ -107,7 +210,11 @@ function normalizeServices(raw) {
   return {
     enabled: cfg.enabled !== false,
     intro:   (cfg.intro && typeof cfg.intro === 'object') ? cfg.intro : {},
-    items:   items
+    items:   items,
+    // No bands key at all (an older save, or the bare-array shape) → fall back
+    // to the shipped four. An explicit empty array means "no bands", and is
+    // honoured.
+    bands:   normalizeBands(Array.isArray(cfg.bands) ? cfg.bands : DEFAULT_BANDS)
   };
 }
 
@@ -138,10 +245,12 @@ function renderServices() {
 
   var cfg = _servicesConfig();
 
-  // Nothing to show (owner switched the section off, or deleted every service)
-  // → hide the whole band rather than leave an empty heading behind.
-  if (!cfg.enabled || !cfg.items.length) { section.style.display = 'none'; return; }
+  // Nothing to show (owner switched the section off, or emptied both the card
+  // list and the photo bands) → hide the whole section rather than leave an
+  // empty heading behind.
+  if (!cfg.enabled || (!cfg.items.length && !cfg.bands.length)) { section.style.display = 'none'; return; }
   section.style.display = '';
+  renderServiceBands(cfg.bands);
 
   // Optional admin-set heading copy. Left blank → the markup's own
   // data-i18n text stays, so the Arabic strings keep working.

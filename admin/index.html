@@ -516,6 +516,25 @@
       </div>
     </details>
 
+    <div class="svc-adm-sec-head">
+      <h3><i class="fa fa-images"></i> Photo bands</h3>
+      <div>
+        <span>The big picture blocks at the top of the section, before the job list.</span>
+        <button type="button" class="ur-btn" onclick="bandAdd()"><i class="fa fa-plus"></i> Add Band</button>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--gray);margin:0 0 14px;max-width:760px">
+      Photos live in the site's <code>img/services/</code> folder and are written here
+      <strong>without the file extension</strong> &mdash; e.g. <code>img/services/brakes</code>.
+      The site loads a small copy on phones and the full one on a laptop automatically.
+      Send new pictures to Claude at <strong>2400&nbsp;&times;&nbsp;1200</strong> and they'll be added to that folder.
+    </p>
+    <div id="svcBandList"></div>
+
+    <div class="svc-adm-sec-head">
+      <h3><i class="fa fa-list-check"></i> Bookable jobs</h3>
+      <div><span>The card list under the photos. Each one is a WhatsApp booking.</span></div>
+    </div>
     <div id="svcList"></div>
   </div>
 
