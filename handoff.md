@@ -12,7 +12,9 @@ The owner will send a link to their existing online product list later; importin
 
 ## 2) Current state
 
-Head of `main` is **`dba8925b`**. Site and admin are live; the DB is wired; the catalog is empty.
+Head of `main` is **`b59cb624`**. Site and admin are live; the DB is wired; the catalog is empty.
+
+The hero now carries a **rotating ring of ten spare parts around each car** (the elbow callouts are gone), and `#services` opens with the owner's own full-bleed workshop collage directly below the hero. Scroll order: hero → services collage → service cards → categories → products.
 
 **Working:**
 
