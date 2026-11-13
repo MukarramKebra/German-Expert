@@ -63,26 +63,23 @@ var SVC_ICONS = [
   'fa-temperature-low','fa-wind','fa-lightbulb','fa-user-gear','fa-car','fa-road'
 ];
 
-// The 2x2 photo collage above the card list. Mirrors DEFAULT_BANDS in
-// code/js/09-services.js — change both. `img` is the path WITHOUT the
-// extension: the storefront derives <img>.webp (full) and <img>-sm.webp (half)
-// from it, which is how the two widths in img/services/ are wired up.
+// The collage photo and the four labels written over its quadrants. Mirrors
+// DEFAULT_COLLAGE / DEFAULT_BANDS in code/js/09-services.js — change both.
+// "collage" is the path WITHOUT the extension: the storefront derives
+// <base>.webp (1600w) and <base>-sm.webp (800w) from it.
+var ADMIN_DEFAULT_COLLAGE = 'img/services/collage';
 var ADMIN_DEFAULT_BANDS = [
-  { id:'band-brakes', img:'img/services/brakes',
-    name:'Brake Service',
+  { id:'q-brakes',  name:'Brake Service',
     sub:'Pads, discs & wear sensors — bedded in and road tested' },
-  { id:'band-oil', img:'img/services/oil-service',
-    name:'Oil & Filter Service',
-    sub:"Your engine's exact oil spec, new filter, service light reset" },
-  { id:'band-diag', img:'img/services/diagnostics',
-    name:'Computer Diagnostics',
-    sub:'Full ECU scan — every module, codes explained in plain words' },
-  { id:'band-shop', img:'img/services/workshop',
-    name:'Our Workshop',
-    sub:'Mercedes · BMW · Audi · VW · Porsche, lifts and specialist tools' }
+  { id:'q-diag',    name:'Computer Diagnostics',
+    sub:'Full scan on the lift — every module, codes explained' },
+  { id:'q-oil',     name:'Oil & Filter Service',
+    sub:"Your engine's exact oil spec, new filter, light reset" },
+  { id:'q-repairs', name:'Servicing & Repairs',
+    sub:'Mercedes · BMW · Audi · VW · Porsche, in our own bays' }
 ];
 
-var _svcCfg   = { enabled: true, intro: {}, items: [], bands: [] };
+var _svcCfg   = { enabled: true, intro: {}, items: [], bands: [], collage: '' };
 var _svcDirty = false;
 var _svcLoaded = false;
 
@@ -104,7 +101,8 @@ async function loadServicesTab() {
                : ADMIN_DEFAULT_SERVICES.map(_svcNormalizeItem),
     // No bands key at all → seed the shipped four. An explicit empty array is
     // the owner having deleted them, and is left alone.
-    bands:   (Array.isArray(cfg.bands) ? cfg.bands : ADMIN_DEFAULT_BANDS).map(_svcNormalizeBand)
+    bands:   (Array.isArray(cfg.bands) ? cfg.bands : ADMIN_DEFAULT_BANDS).map(_svcNormalizeBand).slice(0, 4),
+    collage: (typeof cfg.collage === 'string') ? cfg.collage.replace(/\.(webp|avif|jpe?g|png)$/i, '') : ADMIN_DEFAULT_COLLAGE
   };
   // Never saved before → the editor is showing the seeded list, which is NOT
   // yet what the database holds. Flagging it dirty is honest and nudges the
@@ -133,66 +131,69 @@ function _svcNormalizeItem(s, i) {
 
 function _svcNormalizeBand(b, i) {
   b = b || {};
-  // Older saves carry the band shape (tag/title/text/lines) — fold the two
-  // fields that still have a home on a tile so nothing is silently lost.
+  // Older saves carry the band shape (tag/title/text/lines/img) — fold the two
+  // fields that still have a home on a quadrant label so nothing is lost.
   return {
-    id:     String(b.id || ('band' + Date.now() + i)),
-    img:    String(b.img || '').replace(/\.(webp|avif|jpe?g|png)$/i, ''),
+    id:     String(b.id || ('quad' + Date.now() + i)),
     name:   String(b.name || b.title || ''),
     sub:    String(b.sub  || b.text  || ''),
     active: b.active !== false
   };
 }
 
-// ── PHOTO TILES EDITOR ───────────────────────────────────────────────────────
+// ── COLLAGE EDITOR ───────────────────────────────────────────────────────────
 function renderBandsEditor() {
   var list = document.getElementById('svcBandList');
   if (!list) return;
 
+  _svcSetVal('svcCollageImg', _svcCfg.collage || '');
+  var prev = document.getElementById('svcCollagePreview');
+  if (prev) {
+    prev.innerHTML = _svcCfg.collage
+      ? '<img src="' + encodeHtml(_svcCfg.collage) + '-sm.webp" alt="" onerror="this.style.display=\'none\'" />'
+      : '<div class="svc-adm-band-noimg"><i class="fa fa-image"></i></div>';
+  }
+
   if (!_svcCfg.bands.length) {
-    list.innerHTML = '<div class="svc-adm-empty"><i class="fa fa-images"></i>' +
-      '<p>No photo tiles. Press <strong>Add Tile</strong> to create one, or <button type="button" class="svc-adm-link" onclick="bandRestoreDefaults()">put the four original tiles back</button>.</p></div>';
+    list.innerHTML = '<div class="svc-adm-empty"><i class="fa fa-font"></i>' +
+      '<p>No labels on the collage. <button type="button" class="svc-adm-link" onclick="bandRestoreDefaults()">Put the four original labels back</button>.</p></div>';
     return;
   }
 
-  list.innerHTML = _svcCfg.bands.map(function (b, i) {
-    // The preview uses the small copy so opening the tab doesn't pull four
-    // full-size photos.
-    var thumb = b.img
-      ? '<img src="' + encodeHtml(b.img) + '-sm.webp" alt="" onerror="this.style.display=\'none\'" />'
-      : '<div class="svc-adm-band-noimg"><i class="fa fa-image"></i></div>';
+  var CORNER = ['Top left', 'Top right', 'Bottom left', 'Bottom right'];
 
+  list.innerHTML = _svcCfg.bands.map(function (b, i) {
     return '' +
-    '<div class="svc-adm-card svc-adm-band' + (b.active ? '' : ' is-off') + '">' +
-      '<div class="svc-adm-band-thumb">' + thumb + '</div>' +
+    '<div class="svc-adm-card svc-adm-quad' + (b.active ? '' : ' is-off') + '">' +
+      '<div class="svc-adm-quad-pos">' + encodeHtml(CORNER[i] || ('#' + (i + 1))) + '</div>' +
       '<div class="svc-adm-band-body">' +
         '<div class="svc-adm-top">' +
-          '<input class="svc-adm-name" type="text" value="' + encodeHtml(b.name) + '" placeholder="Service name on the photo (e.g. Brake Service)" oninput="bandSet(' + i + ',\'name\',this.value)" />' +
-          '<label class="svc-adm-live" title="Show this tile on the site">' +
+          '<input class="svc-adm-name" type="text" value="' + encodeHtml(b.name) + '" placeholder="What we do here (e.g. Brake Service)" oninput="bandSet(' + i + ',\'name\',this.value)" />' +
+          '<label class="svc-adm-live" title="Show this label on the collage">' +
             '<input type="checkbox"' + (b.active ? ' checked' : '') + ' onchange="bandSet(' + i + ',\'active\',this.checked,true)" /> Live' +
           '</label>' +
           '<div class="svc-adm-ord">' +
             '<button type="button" class="svc-adm-btn" title="Move up"   onclick="bandMove(' + i + ',-1)"' + (i === 0 ? ' disabled' : '') + '><i class="fa fa-arrow-up"></i></button>' +
             '<button type="button" class="svc-adm-btn" title="Move down" onclick="bandMove(' + i + ',1)"'  + (i === _svcCfg.bands.length - 1 ? ' disabled' : '') + '><i class="fa fa-arrow-down"></i></button>' +
-            '<button type="button" class="svc-adm-btn svc-adm-del" title="Delete tile" onclick="bandDelete(' + i + ')"><i class="fa fa-trash"></i></button>' +
           '</div>' +
         '</div>' +
-        '<textarea class="svc-adm-desc" rows="2" placeholder="One short line under the name — hidden on small phones, so keep the name doing the work." oninput="bandSet(' + i + ',\'sub\',this.value)">' + encodeHtml(b.sub) + '</textarea>' +
-        '<div class="svc-adm-grid">' +
-          '<label>Photo (no file extension)' +
-            '<input type="text" value="' + encodeHtml(b.img) + '" placeholder="img/services/brakes" oninput="bandSet(' + i + ',\'img\',this.value,true)" />' +
-          '</label>' +
-        '</div>' +
+        '<textarea class="svc-adm-desc" rows="2" placeholder="One short line under the name — hidden on phones, so let the name do the work." oninput="bandSet(' + i + ',\'sub\',this.value)">' + encodeHtml(b.sub) + '</textarea>' +
       '</div>' +
     '</div>';
   }).join('');
+}
+
+// The collage photo itself — one picture behind all four labels.
+function svcSetCollage(v) {
+  _svcCfg.collage = String(v).trim().replace(/\.(webp|avif|jpe?g|png)$/i, '');
+  _svcDirty = true;
+  _svcRenderDirty();
 }
 
 function bandSet(i, field, value, rerender) {
   var b = _svcCfg.bands[i];
   if (!b) return;
   if (field === 'active') b.active = !!value;
-  else if (field === 'img') b.img = String(value).replace(/\.(webp|avif|jpe?g|png)$/i, '');
   else b[field] = String(value);
   _svcDirty = true;
   if (rerender) renderBandsEditor();
@@ -210,31 +211,10 @@ function bandMove(i, dir) {
   _svcRenderDirty();
 }
 
-function bandDelete(i) {
-  var b = _svcCfg.bands[i];
-  if (!b) return;
-  if (!confirm('Delete the "' + (b.name || 'untitled') + '" photo tile?\n\nIt disappears from the site as soon as you press Save Services.')) return;
-  _svcCfg.bands.splice(i, 1);
-  _svcDirty = true;
-  renderBandsEditor();
-  _svcRenderDirty();
-}
-
-function bandAdd() {
-  _svcCfg.bands.push(_svcNormalizeBand({ id: 'band' + Date.now(), name: '' }, 0));
-  _svcDirty = true;
-  renderBandsEditor();
-  _svcRenderDirty();
-  var boxes = document.querySelectorAll('#svcBandList .svc-adm-name');
-  if (boxes.length) {
-    boxes[boxes.length - 1].focus();
-    boxes[boxes.length - 1].scrollIntoView({ block: 'center' });
-  }
-}
-
 function bandRestoreDefaults() {
-  if (_svcCfg.bands.length && !confirm('Replace the photo tiles with the four originals?')) return;
+  if (_svcCfg.bands.length && !confirm('Replace the four collage labels with the originals?')) return;
   _svcCfg.bands = ADMIN_DEFAULT_BANDS.map(_svcNormalizeBand);
+  if (!_svcCfg.collage) _svcCfg.collage = ADMIN_DEFAULT_COLLAGE;
   _svcDirty = true;
   renderBandsEditor();
   _svcRenderDirty();
@@ -437,17 +417,16 @@ async function saveServices() {
     };
   });
 
-  // Same for the tiles: a nameless one would render as a picture with no
-  // words on it.
+  // Same for the labels: a nameless one would be an empty corner of the
+  // picture.
   var namedBands = _svcCfg.bands.filter(function (b) { return (b.name || '').trim(); });
   dropped += _svcCfg.bands.length - namedBands.length;
-  _svcCfg.bands = namedBands.map(function (b) {
+  _svcCfg.bands = namedBands.slice(0, 4).map(function (b) {
     return {
-      id: b.id, img: (b.img || '').trim(),
-      name: b.name.trim(), sub: (b.sub || '').trim(),
-      active: !!b.active
+      id: b.id, name: b.name.trim(), sub: (b.sub || '').trim(), active: !!b.active
     };
   });
+  _svcCfg.collage = String(_svcCfg.collage || '').trim().replace(/\.(webp|avif|jpe?g|png)$/i, '');
 
   var res = await sbFetch(SB_URL + '/rest/v1/expert_settings', {
     method: 'POST',

@@ -81,37 +81,43 @@ function _svcSafeImg(v) {
   return /^[\w.-]+(?:\/[\w.-]+)*\.(?:webp|avif|jpe?g|png|gif|svg)$/i.test(s) ? s : '';
 }
 
-// ── PHOTO TILES (the services collage) ───────────────────────────────────────
-// A 2×2 grid of workshop photos with the service name written across the
-// bottom of each, in the same visual language as the Shop-by-Category tiles —
-// that's what the owner asked for. The whole tile is a button: tapping one
-// opens a WhatsApp booking for that job.
+// The owner's own 2x2 collage of their workshop (img/services/src/collage.png,
+// 1920x1080) exported to two WebP widths. One image, not four — they assembled
+// the grid themselves and asked for it used whole.
+var DEFAULT_COLLAGE = 'img/services/collage';
+
+// One label per quadrant of that collage, in READING ORDER:
+//   0 = top-left, 1 = top-right, 2 = bottom-left, 3 = bottom-right.
+// Each is written over its own quarter of the picture and books that job on
+// WhatsApp. Mirrors ADMIN_DEFAULT_BANDS in admin/js/15-services.js — change
+// both. The key is still "bands" because the stored row is the same shape.
 //
-// Each photo ships as two WebP widths produced from the owner's originals
-// (img/services/<slug>.webp ~852w and -sm.webp 430w, both 2:1), so `img` is
-// stored WITHOUT the extension and both are derived from it.
-//
-// Keep `name` SHORT — it is set in a condensed display face across the tile,
-// and a sentence there wraps to three lines and swallows the picture. The
-// longer wording lives on the bookable cards further down.
-//
-// (The settings key and these function names still say "bands": the first
-// version of this block was a row of alternating photo bands. The stored shape
-// is the same one row in expert_settings, so renaming it buys nothing.)
+// `box` is [left, top, width, height] as PERCENTAGES of the picture, and it
+// is NOT a quarter each. The owner's collage is a pinwheel: the two photos in
+// the top row meet at x=44.1%, the two in the bottom row at x=65.2%, the left
+// column splits at y=50.8% and the right column at y=58.9%. An even 2x2
+// overlay therefore spilled each label's shading onto the photo next door.
+// The seams were measured by scanning the source for the strongest luminance
+// discontinuity inside each expected band — do that again if the picture is
+// ever replaced, don't eyeball it.
 var DEFAULT_BANDS = [
-  { id: 'band-brakes', img: 'img/services/brakes',
+  { id: 'q-brakes',   box: [0, 0, 44.1, 50.8],
     name: 'Brake Service',
     sub: 'Pads, discs & wear sensors — bedded in and road tested' },
-  { id: 'band-oil', img: 'img/services/oil-service',
-    name: 'Oil & Filter Service',
-    sub: "Your engine's exact oil spec, new filter, service light reset" },
-  { id: 'band-diag', img: 'img/services/diagnostics',
+  { id: 'q-diag',     box: [44.1, 0, 55.9, 50.8],
     name: 'Computer Diagnostics',
-    sub: 'Full ECU scan — every module, codes explained in plain words' },
-  { id: 'band-shop', img: 'img/services/workshop',
-    name: 'Our Workshop',
-    sub: 'Mercedes · BMW · Audi · VW · Porsche, lifts and specialist tools' }
+    sub: 'Full scan on the lift — every module, codes explained' },
+  { id: 'q-oil',      box: [0, 50.8, 65.2, 49.2],
+    name: 'Oil & Filter Service',
+    sub: "Your engine's exact oil spec, new filter, light reset" },
+  { id: 'q-repairs',  box: [65.2, 58.9, 34.8, 41.1],
+    name: 'Servicing & Repairs',
+    sub: 'Mercedes · BMW · Audi · VW · Porsche, in our own bays' }
 ];
+
+// Fallback if a stored row has no boxes: an even quartering. Wrong for THIS
+// picture, but it is the only sane guess for one we have not measured.
+var EVEN_BOXES = [[0, 0, 50, 50], [50, 0, 50, 50], [0, 50, 50, 50], [50, 50, 50, 50]];
 
 // A band's img is an extensionless base ('img/services/brakes') so the two
 // widths can be derived from it, which _svcSafeImg would reject for having no
@@ -126,47 +132,60 @@ function _svcSafeBandImg(v) {
 
 function normalizeBands(raw) {
   var list = Array.isArray(raw) ? raw : [];
-  return list.filter(function (b) { return b && b.name && b.active !== false; }).map(function (b, i) {
-    return {
-      id:   String(b.id || ('band' + i)),
-      img:  _svcSafeBandImg(b.img),
-      name: String(b.name || ''),
-      sub:  String(b.sub || '')
-    };
-  });
+  // Four quadrants, so four labels — anything past the fourth has nowhere to
+  // be drawn.
+  return list.filter(function (b) { return b && b.name && b.active !== false; })
+    .slice(0, 4)
+    .map(function (b, i) {
+      var box = (Array.isArray(b.box) && b.box.length === 4 && b.box.every(function (v) {
+        return typeof v === 'number' && isFinite(v) && v >= 0 && v <= 100;
+      })) ? b.box : (EVEN_BOXES[i] || EVEN_BOXES[0]);
+      return {
+        id:   String(b.id || ('quad' + i)),
+        name: String(b.name || ''),
+        sub:  String(b.sub || ''),
+        box:  box
+      };
+    });
 }
 
-function renderServiceBands(bands) {
+// Draws the single collage image with a label written over each quadrant. The
+// quadrants are a CSS grid laid over the picture rather than four separate
+// <img>s, so the owner's own composition — gutters and all — is what ships;
+// each quadrant is still a <button>, because a photo of a job you cannot book
+// is a dead end.
+function renderServiceCollage(collage, labels) {
   var wrap = document.getElementById('servicesBands');
   if (!wrap) return;
-  if (!bands.length) { wrap.innerHTML = ''; wrap.style.display = 'none'; return; }
+  if (!collage || !labels.length) { wrap.innerHTML = ''; wrap.style.display = 'none'; return; }
   wrap.style.display = '';
 
   var BOOK = _svcT('svc_book', 'Book on WhatsApp');
-  var SHOP = _svcT('svc_parts', 'Shop the parts');
+  var ALT  = _svcT('svc_collage_alt', 'Our workshop: brakes, diagnostics, oil service and general repairs');
+  var isRemote = /^https?:\/\//i.test(collage);
+  var img = isRemote
+    ? '<img src="' + encodeHtmlSvc(collage) + '" alt="' + encodeHtmlSvc(ALT) + '" loading="lazy" decoding="async" />'
+    : '<img src="' + encodeHtmlSvc(collage) + '.webp" ' +
+        'srcset="' + encodeHtmlSvc(collage) + '-sm.webp 800w, ' + encodeHtmlSvc(collage) + '.webp 1600w" ' +
+        'sizes="(max-width: 760px) 100vw, 1160px" ' +
+        'alt="' + encodeHtmlSvc(ALT) + '" loading="lazy" decoding="async" />';
 
-  wrap.innerHTML = bands.map(function (b, i) {
-    var base = String(b.img || '').replace(/\.(webp|avif|jpe?g|png)$/i, '');
-    if (!base) return '';
-    var isRemote = /^https?:\/\//i.test(base);
-    var media = isRemote
-      ? '<img src="' + encodeHtmlSvc(b.img) + '" alt="" loading="lazy" decoding="async" />'
-      : '<img src="' + encodeHtmlSvc(base) + '.webp" ' +
-          'srcset="' + encodeHtmlSvc(base) + '-sm.webp 430w, ' + encodeHtmlSvc(base) + '.webp 852w" ' +
-          'sizes="(max-width: 760px) 100vw, 590px" alt="" loading="lazy" decoding="async" />';
-
-    // The whole tile is the button — a photo with a name on it is read as one
-    // thing, so making only the caption clickable would be a trap.
-    return '<button type="button" class="svc-tile" onclick="bookBand(' + i + ')" ' +
+  var quads = labels.map(function (b, i) {
+    // Positioned, not gridded — see the box note on DEFAULT_BANDS.
+    var pos = 'left:' + b.box[0] + '%;top:' + b.box[1] + '%;width:' + b.box[2] + '%;height:' + b.box[3] + '%';
+    // A box that stops short of the bottom of the picture ends in the MIDDLE
+    // of its photo, so its scrim has to fade back out or it draws a visible
+    // horizontal step across the shot.
+    var mid = (b.box[1] + b.box[3]) < 99 ? ' is-mid' : '';
+    return '<button type="button" class="svc-quad' + mid + '" style="' + pos + '" onclick="bookBand(' + i + ')" ' +
         'aria-label="' + encodeHtmlSvc(BOOK + ' — ' + b.name) + '">' +
-        media +
-        '<span class="svc-tile-body">' +
-          '<span class="svc-tile-name">' + encodeHtmlSvc(b.name) + '</span>' +
-          (b.sub ? '<span class="svc-tile-sub">' + encodeHtmlSvc(b.sub) + '</span>' : '') +
-        '</span>' +
-        '<span class="svc-tile-go"><i class="fab fa-whatsapp" aria-hidden="true"></i></span>' +
+        '<span class="svc-quad-name">' + encodeHtmlSvc(b.name) + '</span>' +
+        (b.sub ? '<span class="svc-quad-sub">' + encodeHtmlSvc(b.sub) + '</span>' : '') +
       '</button>';
   }).join('');
+
+  wrap.innerHTML = '<figure class="svc-collage">' + img +
+    '<div class="svc-collage-labels">' + quads + '</div></figure>';
 }
 
 // Booking straight off a band — same contract as bookService().
@@ -208,7 +227,10 @@ function normalizeServices(raw) {
     // No bands key at all (an older save, or the bare-array shape) → fall back
     // to the shipped four. An explicit empty array means "no bands", and is
     // honoured.
-    bands:   normalizeBands(Array.isArray(cfg.bands) ? cfg.bands : DEFAULT_BANDS)
+    bands:   normalizeBands(Array.isArray(cfg.bands) ? cfg.bands : DEFAULT_BANDS),
+    // One image for the whole collage. A saved empty string means the owner
+    // removed it, and the block hides itself.
+    collage: (typeof cfg.collage === 'string') ? _svcSafeBandImg(cfg.collage) : DEFAULT_COLLAGE
   };
 }
 
@@ -244,7 +266,7 @@ function renderServices() {
   // empty heading behind.
   if (!cfg.enabled || (!cfg.items.length && !cfg.bands.length)) { section.style.display = 'none'; return; }
   section.style.display = '';
-  renderServiceBands(cfg.bands);
+  renderServiceCollage(cfg.collage, cfg.bands);
 
   // Optional admin-set heading copy. Left blank → the markup's own
   // data-i18n text stays, so the Arabic strings keep working.

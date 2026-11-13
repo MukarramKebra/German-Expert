@@ -57,107 +57,100 @@
 }
 .svc-trust i { color: var(--orange-light); font-size: 13px; }
 
-/* ── PHOTO TILES (the services collage) ────────────────────────────────────
-   A 2x2 grid of workshop photos with the service name across the bottom —
-   deliberately the same gesture as .cat-card in 02-sections.css (dark tile,
-   gradient scrim, red wash and an arrow on hover) so the two grids read as one
-   system. The whole tile is a <button>: tapping it books that job. */
-.svc-tiles {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin-bottom: 48px;
-}
-
-.svc-tile {
+/* ── THE COLLAGE (one picture, a label written on each quarter) ─────────────
+   The owner composed this 2x2 grid themselves and asked for it whole, so it
+   ships as ONE 16:9 image with a CSS grid of four transparent buttons laid
+   over it. Each button darkens its own quarter from the bottom so the text
+   stays readable over whatever is in the photo. */
+.svc-collage {
   position: relative;
   display: block;
-  width: 100%;
-  padding: 0;
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 12px;
+  margin: 0 0 48px;
+  border-radius: 14px;
   overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.10);
   background: var(--charcoal);
-  cursor: pointer;
-  font-family: inherit;
-  text-align: left;
-  /* The photos are 2:1, so the box is too — no crop, no layout shift. */
-  aspect-ratio: 2 / 1;
-  border-bottom: 3px solid transparent;
-  transition: transform var(--t-base, .25s) var(--ease, ease),
-              border-color var(--t-base, .25s) var(--ease, ease),
-              box-shadow var(--t-base, .25s) var(--ease, ease);
+  /* The source is 1920x1080 — matching it keeps the labels on their own
+     quarters at every width and reserves the space before the image lands. */
+  aspect-ratio: 16 / 9;
 }
-.svc-tile img {
+.svc-collage img {
+  position: absolute;
+  inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform var(--t-base, .4s) var(--ease, ease);
 }
-/* Scrim: without it the white caption sits on whatever the photo happens to
-   be, and three of the four shots have a pale concrete floor exactly there. */
-.svc-tile::before {
+/* The labels are POSITIONED, not gridded: the four photos in the collage do
+   not meet in an even cross (see the box note in 09-services.js), so each one
+   gets the rectangle its own photo actually occupies. */
+.svc-collage-labels {
+  position: absolute;
+  inset: 0;
+}
+
+.svc-quad {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 16px 18px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  color: #fff;
+  overflow: hidden;
+}
+/* Per-quadrant scrim. Without it the caption sits on bare photo, and three of
+   the four quarters have a pale concrete floor exactly there. */
+.svc-quad::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.30) 45%, rgba(0,0,0,0.86) 100%);
-  z-index: 1;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 38%, rgba(0,0,0,0.84) 100%);
+  pointer-events: none;
   transition: background var(--t-base, .25s) var(--ease, ease);
 }
-.svc-tile:hover { transform: translateY(-4px); border-bottom-color: var(--orange-light); box-shadow: 0 16px 38px rgba(0,0,0,0.42); }
-.svc-tile:hover img { transform: scale(1.04); }
-.svc-tile:hover::before { background: linear-gradient(180deg, rgba(193,18,31,0.30) 0%, rgba(0,0,0,0.42) 45%, rgba(0,0,0,0.88) 100%); }
-.svc-tile:active { transform: translateY(-1px) scale(.995); }
-
-.svc-tile-body {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  z-index: 2;
-  display: block;
-  padding: 20px 22px;
+.svc-quad:hover::before,
+.svc-quad:focus-visible::before {
+  background: linear-gradient(180deg, rgba(193,18,31,0.26) 0%, rgba(0,0,0,0.50) 42%, rgba(0,0,0,0.90) 100%);
 }
-.svc-tile-name {
-  display: block;
+/* A box that ends inside its own photo rather than at the foot of the
+   picture: fade the scrim out instead of cutting it off, and sit the text
+   higher so it stays on the dark part. */
+.svc-quad.is-mid { padding-bottom: 34px; }
+.svc-quad.is-mid::before {
+  background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.84) 84%, rgba(0,0,0,0.40) 96%, rgba(0,0,0,0) 100%);
+}
+.svc-quad.is-mid:hover::before,
+.svc-quad.is-mid:focus-visible::before {
+  background: linear-gradient(180deg, rgba(193,18,31,0.24) 0%, rgba(0,0,0,0.52) 40%, rgba(0,0,0,0.90) 84%, rgba(0,0,0,0.42) 96%, rgba(0,0,0,0) 100%);
+}
+
+.svc-quad:active { transform: scale(.995); }
+
+.svc-quad-name,
+.svc-quad-sub { position: relative; z-index: 1; }
+.svc-quad-name {
   font-family: var(--font-display);
-  font-size: clamp(17px, 2.1vw, 25px);
+  font-size: clamp(13px, 1.6vw, 23px);
   font-weight: 800;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  line-height: 1.1;
-  color: #fff;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.65);
+  line-height: 1.12;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.72);
 }
-.svc-tile-sub {
-  display: block;
-  margin-top: 6px;
-  font-size: 12.5px;
+.svc-quad-sub {
+  font-size: clamp(10px, 0.85vw, 13px);
   font-weight: 600;
-  line-height: 1.5;
-  color: rgba(255,255,255,0.84);
-  text-shadow: 0 1px 7px rgba(0,0,0,0.75);
+  line-height: 1.45;
+  color: rgba(255,255,255,0.86);
+  text-shadow: 0 1px 7px rgba(0,0,0,0.82);
 }
-
-/* Booking affordance, matching .cat-card's hover arrow. */
-.svc-tile-go {
-  position: absolute;
-  top: 14px; right: 14px;
-  z-index: 2;
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,0.18);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  color: #fff;
-  font-size: 16px;
-  opacity: 0;
-  transform: translateY(-4px);
-  transition: opacity var(--t-base, .25s) var(--ease, ease),
-              transform var(--t-base, .25s) var(--ease, ease),
-              background var(--t-base, .25s) var(--ease, ease);
-}
-.svc-tile:hover .svc-tile-go,
-.svc-tile:focus-visible .svc-tile-go { opacity: 1; transform: translateY(0); background: #25d366; }
 
 /* Heading over the bookable card list, under the collage. */
 .svc-list-head { text-align: center; margin-bottom: 24px; }
@@ -172,16 +165,14 @@
 }
 .svc-list-head p { font-size: 13px; color: rgba(255,255,255,0.62); }
 
-@media (max-width: 760px) {
-  .svc-tiles { gap: 10px; margin-bottom: 36px; }
-  .svc-tile-body { padding: 14px 15px; }
-  /* Two across still works on a phone for a 2:1 tile, but the caption has to
-     give up the sub-line or it covers the picture. */
-  .svc-tile-sub { display: none; }
-}
-@media (max-width: 460px) {
-  .svc-tiles { grid-template-columns: 1fr; }
-  .svc-tile-sub { display: block; }
+@media (max-width: 860px) {
+  .svc-collage { margin-bottom: 34px; }
+  .svc-quad { padding: 10px 12px; }
+  .svc-quad.is-mid { padding-bottom: 20px; }
+  /* A quarter of a phone-width 16:9 picture is about 190x105 — the name is
+     all that fits, and it is the part that says what we do. */
+  .svc-quad-sub { display: none; }
+  .svc-quad-name { font-size: clamp(11px, 2.7vw, 16px); letter-spacing: .3px; }
 }
 
 /* ── CARD GRID ─────────────────────────────────────────────────────────── */

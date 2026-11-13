@@ -517,18 +517,18 @@
     </details>
 
     <div class="svc-adm-sec-head">
-      <h3><i class="fa fa-images"></i> Photo tiles</h3>
+      <h3><i class="fa fa-images"></i> The collage</h3>
       <div>
-        <span>The 2&times;2 photo collage at the top of the section. Tapping one books that job.</span>
-        <button type="button" class="ur-btn" onclick="bandAdd()"><i class="fa fa-plus"></i> Add Tile</button>
+        <span>One picture at the top of the section, with a label written on each quarter.</span>
       </div>
     </div>
-    <p style="font-size:12px;color:var(--gray);margin:0 0 14px;max-width:760px">
-      Photos live in the site's <code>img/services/</code> folder and are written here
-      <strong>without the file extension</strong> &mdash; e.g. <code>img/services/brakes</code>.
-      The site loads a small copy on phones and the full one on a laptop automatically.
-      Send new pictures to Claude at <strong>2400&nbsp;&times;&nbsp;1200</strong> and they'll be added to that folder.
-    </p>
+    <div class="svc-adm-collage">
+      <div class="svc-adm-collage-prev" id="svcCollagePreview"></div>
+      <label>Collage photo (no file extension)
+        <input type="text" id="svcCollageImg" placeholder="img/services/collage" oninput="svcSetCollage(this.value)" />
+        <span class="svc-adm-hint">One 2&times;2 picture, 16:9. Send a new one to Claude at <strong>1920&nbsp;&times;&nbsp;1080</strong> and it'll be added to <code>img/services/</code> as two WebP widths &mdash; the four labels also have to be re-measured against it, so swap the picture through Claude rather than typing a path here.</span>
+      </label>
+    </div>
     <div id="svcBandList"></div>
 
     <div class="svc-adm-sec-head">
