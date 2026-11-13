@@ -102,7 +102,7 @@
   <!-- Hero skeleton. Reserves the hero's size BEFORE the loader below injects
        code/css/10-hero.css. Without it the hero is only as tall as its copy
        at first paint and then grows ~490px the moment that stylesheet lands,
-       dropping the marquee, categories and makes down the page with it — one
+       dropping the categories grid and everything under it down the page — one
        0.365 layout shift at 2.6s on a throttled phone, i.e. nearly all of the
        page's CLS (0.37 -> 0.01 with this in place).
 
@@ -401,32 +401,6 @@
     </div>
   </section>
 
-  <div class="marquee-wrap">
-    <div class="marquee-track">
-      <span>Mercedes-Benz</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>BMW</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Audi</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Volkswagen</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Porsche</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>MINI</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Brake Pads &amp; Discs</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Oil &amp; Air Filters</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Spark Plugs</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Suspension</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Genuine &amp; OEM</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Mercedes-Benz</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>BMW</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Audi</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Volkswagen</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Porsche</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>MINI</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Brake Pads &amp; Discs</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Oil &amp; Air Filters</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Spark Plugs</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Suspension</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-      <span>Genuine &amp; OEM</span><span class="sep">&nbsp;&#183;&nbsp;</span>
-    </div>
-  </div>
 
   <!-- Shop by make: filters the catalog by expert_settings.fitment_map (see setMakeFilter() in js/02-catalog-render.js) -->
   <section id="makes" class="makes-section" aria-label="Shop by car make">
@@ -534,14 +508,18 @@
         <span><i class="fa fa-shield-halved" aria-hidden="true"></i> <span data-i18n="svc_t3">Workmanship guaranteed</span></span>
         <span><i class="fa fa-location-dot" aria-hidden="true"></i> <span data-i18n="svc_t4">Industrial Area, Sharjah</span></span>
       </div>
-      <!-- Photo collage: filled by renderServiceCollage() from the same
-           expert_settings 'services' row. ONE picture (img/services/collage,
-           two WebP widths) that the owner composed themselves, with a label
-           written over each of its four quadrants by a CSS grid of buttons.
-           Before the card grid on purpose — the pictures are what stop
-           someone scrolling. -->
-      <div id="servicesBands"></div>
+    </div>
 
+    <!-- Photo collage: filled by renderServiceCollage() from the same
+         expert_settings 'services' row. ONE picture (img/services/collage,
+         two WebP widths) that the owner composed themselves, with a label
+         written over each of its four quadrants by a CSS grid of buttons.
+         It sits OUTSIDE .container on purpose — the owner asked for it edge
+         to edge, and moving it out of the wrapper is how you get a true
+         full-bleed without a 100vw rule that trips over the scrollbar. -->
+    <div id="servicesBands"></div>
+
+    <div class="container">
       <div class="svc-list-head">
         <h3 data-i18n="svc_list_h">Every job we take on</h3>
         <p data-i18n="svc_list_p">Tap any job to book it on WhatsApp — we'll confirm the price and a time.</p>

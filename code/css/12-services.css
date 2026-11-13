@@ -65,10 +65,18 @@
 .svc-collage {
   position: relative;
   display: block;
-  margin: 0 0 48px;
-  border-radius: 14px;
+  /* FULL-BLEED. This element lives outside .container in index.html, so it is
+     already the width of the page — no 100vw, which would be half a scrollbar
+     too wide on desktop and shift the centring. Square corners and hairline
+     edges instead of a card, because at this size a rounded box reads as a
+     widget rather than a picture. */
+  width: 100%;
+  margin: clamp(10px, 1.6vw, 26px) 0 clamp(34px, 4vw, 64px);
+  border: 0;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  border-radius: 0;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.10);
   background: var(--charcoal);
   /* The source is 1920x1080 — matching it keeps the labels on their own
      quarters at every width and reserves the space before the image lands. */
@@ -96,7 +104,9 @@
   justify-content: flex-end;
   align-items: flex-start;
   gap: 4px;
-  padding: 16px 18px;
+  /* Scales with the picture: the collage is now as wide as the window, so
+     fixed padding left the labels stranded in a corner. */
+  padding: clamp(12px, 1.9vw, 38px);
   border: 0;
   background: transparent;
   cursor: pointer;
@@ -122,7 +132,7 @@
 /* A box that ends inside its own photo rather than at the foot of the
    picture: fade the scrim out instead of cutting it off, and sit the text
    higher so it stays on the dark part. */
-.svc-quad.is-mid { padding-bottom: 34px; }
+.svc-quad.is-mid { padding-bottom: clamp(22px, 3.4vw, 70px); }
 .svc-quad.is-mid::before {
   background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.84) 84%, rgba(0,0,0,0.40) 96%, rgba(0,0,0,0) 100%);
 }
@@ -132,12 +142,19 @@
 }
 
 .svc-quad:active { transform: scale(.995); }
+/* The scrim is painted in ::before, which would otherwise sit over the shared
+   focus ring from 11-ui-polish.css. */
+.svc-quad:focus-visible { z-index: 2; outline-offset: -4px; }
+/* The fixed WhatsApp float parks in the bottom-right corner of the viewport,
+   which is exactly where the last caption sits once the picture is full-bleed.
+   Give that one quadrant room so the two never collide. */
+.svc-collage-labels > .svc-quad:last-child { padding-right: clamp(12px, 7vw, 132px); }
 
 .svc-quad-name,
 .svc-quad-sub { position: relative; z-index: 1; }
 .svc-quad-name {
   font-family: var(--font-display);
-  font-size: clamp(13px, 1.6vw, 23px);
+  font-size: clamp(13px, 1.95vw, 36px);
   font-weight: 800;
   letter-spacing: 0.6px;
   text-transform: uppercase;
@@ -145,7 +162,8 @@
   text-shadow: 0 2px 10px rgba(0,0,0,0.72);
 }
 .svc-quad-sub {
-  font-size: clamp(10px, 0.85vw, 13px);
+  font-size: clamp(10px, 0.95vw, 17px);
+  max-width: 46ch;
   font-weight: 600;
   line-height: 1.45;
   color: rgba(255,255,255,0.86);
@@ -166,7 +184,7 @@
 .svc-list-head p { font-size: 13px; color: rgba(255,255,255,0.62); }
 
 @media (max-width: 860px) {
-  .svc-collage { margin-bottom: 34px; }
+  .svc-collage { margin-bottom: 26px; }
   .svc-quad { padding: 10px 12px; }
   .svc-quad.is-mid { padding-bottom: 20px; }
   /* A quarter of a phone-width 16:9 picture is about 190x105 — the name is

@@ -76,7 +76,7 @@ var ADMIN_DEFAULT_BANDS = [
   { id:'q-oil',     name:'Oil & Filter Service',
     sub:"Your engine's exact oil spec, new filter, light reset" },
   { id:'q-repairs', name:'Servicing & Repairs',
-    sub:'Mercedes · BMW · Audi · VW · Porsche, in our own bays' }
+    sub:'Mercedes · BMW · Audi · VW · Porsche' }
 ];
 
 var _svcCfg   = { enabled: true, intro: {}, items: [], bands: [], collage: '' };

@@ -29,7 +29,7 @@
 }
 .ge-hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1.4s ease; }
 .ge-hero.shader-on .ge-hero-canvas { opacity: 1; }
-/* Soft fade into the brand marquee bar below */
+/* Soft fade into whatever follows the hero */
 .ge-hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 90px; background: linear-gradient(to bottom, transparent, rgba(15,17,21,.55)); pointer-events: none; z-index: 0; }
 
 .ge-hero-inner {

@@ -112,7 +112,7 @@ var DEFAULT_BANDS = [
     sub: "Your engine's exact oil spec, new filter, light reset" },
   { id: 'q-repairs',  box: [65.2, 58.9, 34.8, 41.1],
     name: 'Servicing & Repairs',
-    sub: 'Mercedes · BMW · Audi · VW · Porsche, in our own bays' }
+    sub: 'Mercedes · BMW · Audi · VW · Porsche' }
 ];
 
 // Fallback if a stored row has no boxes: an even quartering. Wrong for THIS
@@ -166,8 +166,9 @@ function renderServiceCollage(collage, labels) {
   var img = isRemote
     ? '<img src="' + encodeHtmlSvc(collage) + '" alt="' + encodeHtmlSvc(ALT) + '" loading="lazy" decoding="async" />'
     : '<img src="' + encodeHtmlSvc(collage) + '.webp" ' +
-        'srcset="' + encodeHtmlSvc(collage) + '-sm.webp 800w, ' + encodeHtmlSvc(collage) + '.webp 1600w" ' +
-        'sizes="(max-width: 760px) 100vw, 1160px" ' +
+        'srcset="' + encodeHtmlSvc(collage) + '-sm.webp 960w, ' + encodeHtmlSvc(collage) + '.webp 1920w" ' +
+        // Edge to edge at every width, so the picture IS the viewport.
+        'sizes="100vw" ' +
         'alt="' + encodeHtmlSvc(ALT) + '" loading="lazy" decoding="async" />';
 
   var quads = labels.map(function (b, i) {

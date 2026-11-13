@@ -10,21 +10,6 @@ function applyCatBgs() {
 }
 applyCatBgs();
 
-// ── MARQUEE AUTO-FILL ─────────────────────────────────────────────────────
-function fillMarquee() {
-  var track = document.querySelector('.marquee-track');
-  if (!track) return;
-  var origHTML = track.innerHTML;
-  var singleW  = track.scrollWidth;
-  if (!singleW) return;
-  var vw      = window.innerWidth || 1280;
-  var copies  = Math.max(3, Math.ceil(vw / singleW) + 2);
-  var half = '';
-  for (var i = 0; i < copies; i++) half += origHTML;
-  track.innerHTML = half + half;
-  track.style.animationDuration = Math.round((singleW * copies) / 100) + 's';
-}
-fillMarquee();
 
 // ── TRANSLATIONS ──────────────────────────────────────────────────────────
 var _lang = 'en';
@@ -243,14 +228,6 @@ function setLang(lang) {
   // another language, not a new one, so it shouldn't also move the visitor.
   if (typeof renderProducts === 'function') renderProducts(true);
 
-  // Rebuild marquee with translated items
-  var track = document.querySelector('.marquee-track');
-  if (track && t.mq_items) {
-    track.innerHTML = t.mq_items.map(function(item) {
-      return '<span>' + item + '</span><span class="sep">&nbsp;&#183;&nbsp;</span>';
-    }).join('');
-    fillMarquee();
-  }
 }
 
 function toggleLang() {
