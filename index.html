@@ -402,6 +402,55 @@
   </section>
 
 
+  <!-- WORKSHOP SERVICES — our mechanics service the car, not just supply the
+       part. Cards are rendered by renderServices() in code/js/09-services.js
+       from expert_settings.key='services' (admin panel → Services tab); the
+       heading copy below is the fallback the admin can override, and the whole
+       section hides itself if the owner switches it off or empties the list.
+       Styling: code/css/12-services.css. -->
+  <section id="services" aria-labelledby="servicesHeading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag" id="servicesTag" data-i18n="svc_tag">Workshop &amp; Servicing</span>
+        <h2 id="servicesHeading" data-i18n-html="svc_h2">Our Mechanics <span class="orange">Service Your Car</span></h2>
+        <p class="svc-intro" id="servicesIntro" data-i18n="svc_p">German-car specialists in Sharjah — we don't just sell the part, we fit it. Book any job below on WhatsApp and we'll confirm the price and a slot for you.</p>
+      </div>
+      <div class="svc-trust">
+        <span><i class="fa fa-user-gear" aria-hidden="true"></i> <span data-i18n="svc_t1">German-car specialist mechanics</span></span>
+        <span><i class="fa fa-certificate" aria-hidden="true"></i> <span data-i18n="svc_t2">Genuine &amp; OEM parts fitted</span></span>
+        <span><i class="fa fa-shield-halved" aria-hidden="true"></i> <span data-i18n="svc_t3">Workmanship guaranteed</span></span>
+        <span><i class="fa fa-location-dot" aria-hidden="true"></i> <span data-i18n="svc_t4">Industrial Area, Sharjah</span></span>
+      </div>
+    </div>
+
+    <!-- Photo collage: filled by renderServiceCollage() from the same
+         expert_settings 'services' row. ONE picture (img/services/collage,
+         two WebP widths) that the owner composed themselves, with a label
+         written over each of its four quadrants by a CSS grid of buttons.
+         It sits OUTSIDE .container on purpose — the owner asked for it edge
+         to edge, and moving it out of the wrapper is how you get a true
+         full-bleed without a 100vw rule that trips over the scrollbar. -->
+    <div id="servicesBands"></div>
+
+    <div class="container">
+      <div class="svc-list-head">
+        <h3 data-i18n="svc_list_h">Every job we take on</h3>
+        <p data-i18n="svc_list_p">Tap any job to book it on WhatsApp — we'll confirm the price and a time.</p>
+      </div>
+      <div class="services-grid" id="servicesGrid"></div>
+      <div class="svc-cta">
+        <div class="svc-cta-txt">
+          <h3 data-i18n="svc_cta_h">Not sure what your car needs?</h3>
+          <p data-i18n="svc_cta_p">Send us the make, model and what it's doing — a warning light, a noise, a leak — and our mechanics will tell you what it takes.</p>
+        </div>
+        <div class="svc-cta-btns">
+          <button type="button" class="svc-book" onclick="askServiceAdvice()"><i class="fab fa-whatsapp" aria-hidden="true"></i> <span data-i18n="svc_cta_wa">Ask a mechanic</span></button>
+          <a class="svc-cta-call" href="tel:+971525364791"><i class="fa fa-phone" aria-hidden="true"></i> <span data-i18n="svc_cta_call">+971 52 536 4791</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Shop by make: filters the catalog by expert_settings.fitment_map (see setMakeFilter() in js/02-catalog-render.js) -->
   <section id="makes" class="makes-section" aria-label="Shop by car make">
     <div class="container">
@@ -489,54 +538,6 @@
     </div>
   </section>
 
-  <!-- WORKSHOP SERVICES — our mechanics service the car, not just supply the
-       part. Cards are rendered by renderServices() in code/js/09-services.js
-       from expert_settings.key='services' (admin panel → Services tab); the
-       heading copy below is the fallback the admin can override, and the whole
-       section hides itself if the owner switches it off or empties the list.
-       Styling: code/css/12-services.css. -->
-  <section id="services" aria-labelledby="servicesHeading">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag" id="servicesTag" data-i18n="svc_tag">Workshop &amp; Servicing</span>
-        <h2 id="servicesHeading" data-i18n-html="svc_h2">Our Mechanics <span class="orange">Service Your Car</span></h2>
-        <p class="svc-intro" id="servicesIntro" data-i18n="svc_p">German-car specialists in Sharjah — we don't just sell the part, we fit it. Book any job below on WhatsApp and we'll confirm the price and a slot for you.</p>
-      </div>
-      <div class="svc-trust">
-        <span><i class="fa fa-user-gear" aria-hidden="true"></i> <span data-i18n="svc_t1">German-car specialist mechanics</span></span>
-        <span><i class="fa fa-certificate" aria-hidden="true"></i> <span data-i18n="svc_t2">Genuine &amp; OEM parts fitted</span></span>
-        <span><i class="fa fa-shield-halved" aria-hidden="true"></i> <span data-i18n="svc_t3">Workmanship guaranteed</span></span>
-        <span><i class="fa fa-location-dot" aria-hidden="true"></i> <span data-i18n="svc_t4">Industrial Area, Sharjah</span></span>
-      </div>
-    </div>
-
-    <!-- Photo collage: filled by renderServiceCollage() from the same
-         expert_settings 'services' row. ONE picture (img/services/collage,
-         two WebP widths) that the owner composed themselves, with a label
-         written over each of its four quadrants by a CSS grid of buttons.
-         It sits OUTSIDE .container on purpose — the owner asked for it edge
-         to edge, and moving it out of the wrapper is how you get a true
-         full-bleed without a 100vw rule that trips over the scrollbar. -->
-    <div id="servicesBands"></div>
-
-    <div class="container">
-      <div class="svc-list-head">
-        <h3 data-i18n="svc_list_h">Every job we take on</h3>
-        <p data-i18n="svc_list_p">Tap any job to book it on WhatsApp — we'll confirm the price and a time.</p>
-      </div>
-      <div class="services-grid" id="servicesGrid"></div>
-      <div class="svc-cta">
-        <div class="svc-cta-txt">
-          <h3 data-i18n="svc_cta_h">Not sure what your car needs?</h3>
-          <p data-i18n="svc_cta_p">Send us the make, model and what it's doing — a warning light, a noise, a leak — and our mechanics will tell you what it takes.</p>
-        </div>
-        <div class="svc-cta-btns">
-          <button type="button" class="svc-book" onclick="askServiceAdvice()"><i class="fab fa-whatsapp" aria-hidden="true"></i> <span data-i18n="svc_cta_wa">Ask a mechanic</span></button>
-          <a class="svc-cta-call" href="tel:+971525364791"><i class="fa fa-phone" aria-hidden="true"></i> <span data-i18n="svc_cta_call">+971 52 536 4791</span></a>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <section id="products">
     <!-- Rotating brand banners — start where the products start and stay
