@@ -70,6 +70,16 @@ Added 2026-11-12. The shop doesn't only sell parts — its mechanics fit them �
 - `12-services.css` loads **before** `11-ui-polish.css` in `index.html`'s loader array despite the higher number: polish must stay last.
 - Saving needs a real admin login (RLS: `authenticated` + `is_admin()`), so the tab is read-only until the owner bootstraps an account.
 
+### Photo bands (2026-11-13)
+
+Four big alternating photo blocks sit ABOVE the card grid (`#servicesBands` → `renderServiceBands()`), picture one side and copy the other, sides swapping via `:nth-child(even) .svc-band-media { order: 2 }`. They stack photo-first on phones — alternating the order there would put some headings above their picture and some below.
+
+- They live in the SAME `services` row under `bands: [{id, img, tag, title, text, lines[], cat, active}]`, so there's still one request. **A missing `bands` key falls back to `DEFAULT_BANDS`; an explicit `[]` means none** — that distinction is what lets an older save still show the bands.
+- **`img` is stored WITHOUT the extension** (`img/services/brakes`), because each photo ships as two WebP widths and the markup derives `<base>.webp` (852w) + `<base>-sm.webp` (430w) from it. `_svcSafeBandImg()` validates by appending `.webp` and returns the base; `_svcSafeImg()` (the per-card one) accepts a repo-relative path or `https://`, and drops `javascript:`, `data:`, `//host` and `..`.
+- **The source photos had another shop's sign across the top half.** The owner supplied four 1774×887 frames of a workshop branded "Alamdar Germany Auto Parts"; each is cropped to the lower ~47-48% (below the second Arabic sign band at y≈38-50%) so no other company's name is published on this site. Crop rects are in commit `be65233e`; originals in `img/services/src/`. If a future photo arrives with branding, crop it the same way.
+- Produced with the usual browser-canvas pipeline (no Python/sharp here): a temporary `_imgtool.html` at the repo root — same origin as the PNGs or the canvas taints and `toDataURL` throws — drawing a labelled 10% grid to pick crop rects off a screenshot, then POSTing WebPs to a throwaway node server. Both were deleted afterwards.
+- **New photos: 2400 × 1200 (2:1).** Anything under ~1600 wide goes soft on the 560px-wide desktop band at 2× DPR.
+
 ## UI polish layer
 
 `code/css/11-ui-polish.css` is loaded **last** (add any new CSS file to BOTH the loader array and the `<noscript>` list in `index.html`). It holds the motion scale (`--ease`, `--t-fast`, `--t-base`), the single `:focus-visible` ring, press states, and named `transition` properties replacing `transition: all`. It must never introduce a colour — the palette lives in `01-base.css`.

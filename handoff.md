@@ -26,7 +26,7 @@ Head of `main` is **`dba8925b`**. Site and admin are live; the DB is wired; the 
 | Contact | `SHOP_WA = '971525364791'` (+971 52 536 4791) is real and wired everywhere. No `971500000000` remains anywhere in the repo |
 | Palette | **Red**, not gold — `--orange: #c1121f` on light surfaces, `--orange-light`/`--gold: #ef3b42` on dark. `--yellow #f59e0b` is a *status* colour, not the accent |
 | Mode | **Catalog-only** (`ONLINE_ORDERING_ENABLED = false`) and **email offers off** (`EMAIL_OFFERS_ENABLED = false`) |
-| Services | `#services` ("Our Mechanics Service Your Car") is live with **10 seeded services, all "Price on request"**, plus an admin **Services** tab that writes `expert_settings.services`. Saving needs an admin login, so the list stays the seeded one until the owner bootstraps an account and sets real prices |
+| Services | `#services` ("Our Mechanics Service Your Car") is live with **4 photo bands** (owner's workshop shots, cropped free of the Alamdar signage) above **10 seeded services, all "Price on request"**, plus an admin **Services** tab that writes `expert_settings.services`. Saving needs an admin login, so both lists stay the seeded ones until the owner bootstraps an account and sets real prices |
 
 **Live counts (checked 2026-11-10):** products **0**, orders **0**, admin profiles **0**.
 
@@ -163,6 +163,15 @@ Owner's request: *"do the admin page and add mechanics servicing cars"*.
 - Storefront reads the row in `loadSBData()`'s existing `key=in.(…)` batch (one extra key, no extra request) and caches the raw string in `localStorage.expert_services_cache`, so a returning visitor paints the owner's real list rather than the seeded one.
 - Also: `"@type"` in the homepage JSON-LD is now `["AutoPartsStore", "AutoRepair"]`, a **Services** link in the header nav and the footer, and `svc_*` + `nav_services` + `footer_servicing` strings in both `_T.en` and `_T.ar`.
 - **The tab is read-only until an admin account exists** — saving goes through the same `authenticated` + `is_admin()` RLS as every other admin write, and `expert_admin_profiles` is still empty.
+
+### Workshop photo bands (2026-11-13)
+Owner: *"when scrolling down you see 3 or 4 collages type of things of photos showing services"*, then sent four 1774×887 workshop shots.
+
+- Four alternating photo bands now sit above the card grid inside `#services` — picture one side, heading + three tick points + a WhatsApp booking button on the other, sides swapping band by band, photo-first when stacked on a phone. Brakes / Oil & filter / Diagnostics / Our workshop.
+- Stored in the same `expert_settings` `services` row under a new `bands` key (no extra request), editable from the Services tab's new **Photo bands** editor.
+- **The four source frames carry another business's sign** ("Alamdar Germany Auto Parts") across the top half. Each is cropped to the lower ~47-48%, below the second Arabic sign band, so none of that branding reaches the site. The owner was asked twice whether Alamdar is theirs and hasn't answered; **if it is, un-cropping is a one-command re-run** of the pipeline with the crop rect widened to the full frame. Originals in `img/services/src/` (14 MB, matching the `img/hero/src/` convention).
+- Pipeline was the usual browser canvas: temporary `_imgtool.html` at the repo root (same origin as the PNGs, or the canvas taints) drawing a labelled 10% grid to read crop rects off a screenshot, then POSTing WebPs to a throwaway node server. First pass mis-framed `oil-service` (mechanic half out of frame) and left dead floor in `diagnostics`; both re-cropped before shipping. Tool and server deleted.
+- Output: two WebP widths each (~850w and 430w, 2:1), 24-89 KB per file, `srcset`+`sizes` so phones pull the small copy.
 
 ## 5) Failed attempts
 
