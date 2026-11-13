@@ -58,27 +58,30 @@ The `#makes` section is hidden by a block at the end of `code/css/02-sections.cs
 
 ## Workshop services (the mechanics section)
 
-Added 2026-11-12. The shop doesn't only sell parts — its mechanics fit them — so `#services` ("Our Mechanics Service Your Car") sits between the product grid and `#features`: `code/js/09-services.js` + `code/css/12-services.css`, managed from the admin panel's new **Services** tab (`admin/js/15-services.js`, `#servicesSection`, `.svc-adm-*` rules at the end of `admin/css/03-sections.css`).
+Added 2026-11-12. The shop doesn't only sell parts — its mechanics fit them — so `#services` ("Our Mechanics Service Your Car") sits directly BELOW the category grid and ABOVE the product grid (moved there 2026-11-13 at the owner's request — the collage is what stops someone scrolling, so it comes before the price list): `code/js/09-services.js` + `code/css/12-services.css`, managed from the admin panel's new **Services** tab (`admin/js/15-services.js`, `#servicesSection`, `.svc-adm-*` rules at the end of `admin/css/03-sections.css`).
 
 - **One Supabase row**: `expert_settings` key `services` = `{enabled, intro:{tag,h2,p}, items:[{id,name,desc,price,from,duration,icon,img,cat,makes,active}]}`. A bare items ARRAY is accepted too (`normalizeServices()`). The admin tab is the only writer; `loadSBData()` reads it in the same `key=in.(…)` batch as everything else and hands the RAW string to `cacheServices()` → `localStorage.expert_services_cache`.
 - **Nothing here is a product.** No `expert_products` row, no stock, no checkout — every card is a `wa.me` booking link (`bookService()`), consistent with `ONLINE_ORDERING_ENABLED = false`.
 - **`price: 0` renders "Price on request"**, and that's what all 10 seeded services ship with on purpose — inventing labour rates for a real workshop is worse than asking the customer to message. `from: true` renders "From AED 249".
 - **The seeded list is duplicated**: `DEFAULT_SERVICES` (`code/js/09-services.js`) and `ADMIN_DEFAULT_SERVICES` (`admin/js/15-services.js`). The storefront uses its copy until the owner saves the row for the first time, so change both or they drift.
 - **The section hides itself** when `enabled` is false or `items` is empty — no empty heading left behind. That's the switch-off, not a CSS block (unlike cart/accounts/offers).
-- **`cat`** is a parts-category slug and adds a "Shop the parts" link that calls the catalog's own `filterProducts()`; **`makes`** uses the `CAR_MAKES` slugs.
+- **`cat`** is a parts-category slug and adds a "Shop the parts" link that calls the catalog's own `filterProducts()`; **`makes`** uses the `CAR_MAKES` slugs. Both are on the bookable CARDS only — the photo tiles above them carry no `cat` (see below).
 - The editor re-renders only on add/delete/move/toggle, never on a keystroke — re-rendering on `oninput` would throw the caret to the end of the box on every character.
 - `12-services.css` loads **before** `11-ui-polish.css` in `index.html`'s loader array despite the higher number: polish must stay last.
 - Saving needs a real admin login (RLS: `authenticated` + `is_admin()`), so the tab is read-only until the owner bootstraps an account.
 
-### Photo bands (2026-11-13)
+### Photo tiles — the services collage (2026-11-13)
 
-Four big alternating photo blocks sit ABOVE the card grid (`#servicesBands` → `renderServiceBands()`), picture one side and copy the other, sides swapping via `:nth-child(even) .svc-band-media { order: 2 }`. They stack photo-first on phones — alternating the order there would put some headings above their picture and some below.
+Four workshop photos sit ABOVE the card grid as a **2×2 collage** (`#servicesBands` → `renderServiceBands()`, `.svc-tiles`/`.svc-tile` in `12-services.css`), each 2:1, with the service name in display caps across the bottom over a gradient scrim. They started the day as big alternating left/right photo BANDS; the owner rejected that on 2026-11-13 — *"this image should be where [the category grid] is … add the names of the services we do"* — in favour of a tiled collage they mocked up themselves. The container id and the `bands` key are kept because the stored row is the same shape; only the rendering and three fields changed.
 
-- They live in the SAME `services` row under `bands: [{id, img, tag, title, text, lines[], cat, active}]`, so there's still one request. **A missing `bands` key falls back to `DEFAULT_BANDS`; an explicit `[]` means none** — that distinction is what lets an older save still show the bands.
+- **Each tile is ONE `<button>`** wired to `bookBand()` → WhatsApp, deliberately matching `.cat-card` directly above it (dark tile, scrim, red wash + lift on hover) so the two grids read as one system. Because the whole tile is the button there is nowhere to nest a second control, which is why **tiles carry no `cat`** — the bookable cards under the collage already provide the "Shop the parts" links.
+- They live in the SAME `services` row under `bands: [{id, img, name, sub, active}]`, so there's still one request. **A missing `bands` key falls back to `DEFAULT_BANDS`; an explicit `[]` means none** — that distinction is what lets an older save still show them. `_svcNormalizeBand()` in the admin reads `b.name || b.title` and `b.sub || b.text`, so a row saved in the old band shape folds forward instead of vanishing.
+- **`sub` is hidden between 460px and 760px** — two 2:1 tiles across a phone leave ~100px of height, and the sub-line covers the picture. Below 460px the grid goes single-column and the sub comes back. Keep the NAME carrying the meaning.
 - **`img` is stored WITHOUT the extension** (`img/services/brakes`), because each photo ships as two WebP widths and the markup derives `<base>.webp` (852w) + `<base>-sm.webp` (430w) from it. `_svcSafeBandImg()` validates by appending `.webp` and returns the base; `_svcSafeImg()` (the per-card one) accepts a repo-relative path or `https://`, and drops `javascript:`, `data:`, `//host` and `..`.
+- **The seeded four are duplicated** as `DEFAULT_BANDS` (`code/js/09-services.js`) and `ADMIN_DEFAULT_BANDS` (`admin/js/15-services.js`) — change both or they drift, same as the service list.
 - **The source photos had another shop's sign across the top half.** The owner supplied four 1774×887 frames of a workshop branded "Alamdar Germany Auto Parts"; each is cropped to the lower ~47-48% (below the second Arabic sign band at y≈38-50%) so no other company's name is published on this site. Crop rects are in commit `be65233e`; originals in `img/services/src/`. If a future photo arrives with branding, crop it the same way.
 - Produced with the usual browser-canvas pipeline (no Python/sharp here): a temporary `_imgtool.html` at the repo root — same origin as the PNGs or the canvas taints and `toDataURL` throws — drawing a labelled 10% grid to pick crop rects off a screenshot, then POSTing WebPs to a throwaway node server. Both were deleted afterwards.
-- **New photos: 2400 × 1200 (2:1).** Anything under ~1600 wide goes soft on the 560px-wide desktop band at 2× DPR.
+- **New photos: 2400 × 1200 (2:1).** Anything under ~1600 wide goes soft on the ~590px-wide desktop tile at 2× DPR.
 
 ## UI polish layer
 

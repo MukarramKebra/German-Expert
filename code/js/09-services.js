@@ -81,33 +81,36 @@ function _svcSafeImg(v) {
   return /^[\w.-]+(?:\/[\w.-]+)*\.(?:webp|avif|jpe?g|png|gif|svg)$/i.test(s) ? s : '';
 }
 
-// ── PHOTO BANDS ──────────────────────────────────────────────────────────────
-// The big alternating photo blocks you pass while scrolling the section:
-// picture on one side, heading + three points + a booking button on the other,
-// sides swapping band by band. These are the proof that the work is real; the
-// card grid below them is the bookable list.
+// ── PHOTO TILES (the services collage) ───────────────────────────────────────
+// A 2×2 grid of workshop photos with the service name written across the
+// bottom of each, in the same visual language as the Shop-by-Category tiles —
+// that's what the owner asked for. The whole tile is a button: tapping one
+// opens a WhatsApp booking for that job.
 //
 // Each photo ships as two WebP widths produced from the owner's originals
-// (img/services/<slug>.webp and -sm.webp, 2:1), so `img` is stored WITHOUT the
-// extension and both are derived from it. `lines` is at most three short
-// points — anything longer stops being scannable.
+// (img/services/<slug>.webp ~852w and -sm.webp 430w, both 2:1), so `img` is
+// stored WITHOUT the extension and both are derived from it.
+//
+// Keep `name` SHORT — it is set in a condensed display face across the tile,
+// and a sentence there wraps to three lines and swallows the picture. The
+// longer wording lives on the bookable cards further down.
+//
+// (The settings key and these function names still say "bands": the first
+// version of this block was a row of alternating photo bands. The stored shape
+// is the same one row in expert_settings, so renaming it buys nothing.)
 var DEFAULT_BANDS = [
-  { id: 'band-brakes', img: 'img/services/brakes', tag: 'Brakes', cat: 'brakes',
-    title: 'Brakes done properly',
-    text: 'Pads, discs and wear sensors replaced with genuine or OEM-quality parts — then bedded in and road tested before the car goes back to you.',
-    lines: ['Genuine & OEM pads and discs', 'Wear sensors replaced, not bypassed', 'Bedded in and road tested'] },
-  { id: 'band-oil', img: 'img/services/oil-service', tag: 'Servicing', cat: 'oils-fluids',
-    title: 'Oil & filter service',
-    text: "The exact oil grade your engine's maker specifies, a new filter, every level topped up and the service light reset.",
-    lines: ["Oil to your car's own spec", 'New filter every time', 'Service light reset'] },
-  { id: 'band-diag', img: 'img/services/diagnostics', tag: 'Diagnostics', cat: 'electrical',
-    title: 'We read the car before we touch it',
-    text: 'A full scan on German-specific equipment — every module, not just the engine. You get the codes explained in plain words and a quote before any work starts.',
-    lines: ['Every module scanned', 'Codes explained in plain words', 'Quote before any work starts'] },
-  { id: 'band-shop', img: 'img/services/workshop', tag: 'Our workshop', cat: '',
-    title: 'German cars, all day, every day',
-    text: 'Lifts, specialist tools and mechanics who work on Mercedes, BMW, Audi, VW and Porsche — and the parts counter is in the same building, so nothing waits on a delivery.',
-    lines: ['Mercedes · BMW · Audi · VW · Porsche', 'Parts counter on site', 'Industrial Area, Sharjah'] }
+  { id: 'band-brakes', img: 'img/services/brakes',
+    name: 'Brake Service',
+    sub: 'Pads, discs & wear sensors — bedded in and road tested' },
+  { id: 'band-oil', img: 'img/services/oil-service',
+    name: 'Oil & Filter Service',
+    sub: "Your engine's exact oil spec, new filter, service light reset" },
+  { id: 'band-diag', img: 'img/services/diagnostics',
+    name: 'Computer Diagnostics',
+    sub: 'Full ECU scan — every module, codes explained in plain words' },
+  { id: 'band-shop', img: 'img/services/workshop',
+    name: 'Our Workshop',
+    sub: 'Mercedes · BMW · Audi · VW · Porsche, lifts and specialist tools' }
 ];
 
 // A band's img is an extensionless base ('img/services/brakes') so the two
@@ -123,15 +126,12 @@ function _svcSafeBandImg(v) {
 
 function normalizeBands(raw) {
   var list = Array.isArray(raw) ? raw : [];
-  return list.filter(function (b) { return b && b.title && b.active !== false; }).map(function (b, i) {
+  return list.filter(function (b) { return b && b.name && b.active !== false; }).map(function (b, i) {
     return {
-      id:    String(b.id || ('band' + i)),
-      img:   _svcSafeBandImg(b.img),
-      tag:   String(b.tag || ''),
-      title: String(b.title || ''),
-      text:  String(b.text || ''),
-      cat:   String(b.cat || '').replace(/[^a-z0-9-]/gi, ''),
-      lines: Array.isArray(b.lines) ? b.lines.slice(0, 4).map(String) : []
+      id:   String(b.id || ('band' + i)),
+      img:  _svcSafeBandImg(b.img),
+      name: String(b.name || ''),
+      sub:  String(b.sub || '')
     };
   });
 }
@@ -153,25 +153,19 @@ function renderServiceBands(bands) {
       ? '<img src="' + encodeHtmlSvc(b.img) + '" alt="" loading="lazy" decoding="async" />'
       : '<img src="' + encodeHtmlSvc(base) + '.webp" ' +
           'srcset="' + encodeHtmlSvc(base) + '-sm.webp 430w, ' + encodeHtmlSvc(base) + '.webp 852w" ' +
-          'sizes="(max-width: 900px) 100vw, 560px" alt="" loading="lazy" decoding="async" />';
+          'sizes="(max-width: 760px) 100vw, 590px" alt="" loading="lazy" decoding="async" />';
 
-    return '<article class="svc-band">' +
-        '<div class="svc-band-media">' + media + '</div>' +
-        '<div class="svc-band-txt">' +
-          (b.tag ? '<span class="svc-band-tag">' + encodeHtmlSvc(b.tag) + '</span>' : '') +
-          '<h3>' + encodeHtmlSvc(b.title) + '</h3>' +
-          (b.text ? '<p>' + encodeHtmlSvc(b.text) + '</p>' : '') +
-          (b.lines.length ? '<ul class="svc-band-list">' + b.lines.map(function (l) {
-            return '<li><i class="fa fa-check" aria-hidden="true"></i> ' + encodeHtmlSvc(l) + '</li>';
-          }).join('') + '</ul>' : '') +
-          '<div class="svc-band-btns">' +
-            '<button type="button" class="svc-book" onclick="bookBand(' + i + ')">' +
-              '<i class="fab fa-whatsapp" aria-hidden="true"></i> ' + encodeHtmlSvc(BOOK) + '</button>' +
-            (b.cat ? '<button type="button" class="svc-parts" onclick="filterProducts(\'' + encodeHtmlSvc(b.cat) + '\')">' +
-              encodeHtmlSvc(SHOP) + ' <i class="fa fa-arrow-right" aria-hidden="true"></i></button>' : '') +
-          '</div>' +
-        '</div>' +
-      '</article>';
+    // The whole tile is the button — a photo with a name on it is read as one
+    // thing, so making only the caption clickable would be a trap.
+    return '<button type="button" class="svc-tile" onclick="bookBand(' + i + ')" ' +
+        'aria-label="' + encodeHtmlSvc(BOOK + ' — ' + b.name) + '">' +
+        media +
+        '<span class="svc-tile-body">' +
+          '<span class="svc-tile-name">' + encodeHtmlSvc(b.name) + '</span>' +
+          (b.sub ? '<span class="svc-tile-sub">' + encodeHtmlSvc(b.sub) + '</span>' : '') +
+        '</span>' +
+        '<span class="svc-tile-go"><i class="fab fa-whatsapp" aria-hidden="true"></i></span>' +
+      '</button>';
   }).join('');
 }
 
@@ -179,7 +173,7 @@ function renderServiceBands(bands) {
 function bookBand(idx) {
   var b = _servicesConfig().bands[idx];
   if (!b) return;
-  var msg = 'Hi German Expert, I would like to book:\n\n🔧 *' + b.title + '*\n\n' +
+  var msg = 'Hi German Expert, I would like to book:\n\n🔧 *' + b.name + '*\n\n' +
             'My car: (make / model / year)\nPreferred day & time:';
   window.open('https://wa.me/' + SHOP_WA + '?text=' + encodeURIComponent(msg), '_blank');
 }
