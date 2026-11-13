@@ -240,18 +240,21 @@
       will-change: auto !important;
     }
     /* Large alpha-masked images + layered animated drop-shadows were costly. */
-    .ge-car-img, .ge-car-model, .ge-callout-img, .ge-car-chip-img {
+    .ge-car-img, .ge-car-model, .ge-ring-img, .ge-car-chip-img {
       filter: none !important;
       -webkit-filter: none !important;
       animation: none !important;
       will-change: auto !important;
     }
-    .ge-callout-dot::after, .ge-callout-pin::after {
-      animation: none !important;
-      display: none !important;
-    }
-    /* Leave interactive hover/focus UI intact; stop decorative loops. */
-    .ge-hero *, .ge-hero *::before, .ge-hero *::after {
+    /* Leave interactive hover/focus UI intact; stop decorative loops.
+       ⚠ The parts ring is the ONE deliberate exception. It is the feature
+       (the owner asked for the spare parts to rotate around the car), not
+       decoration, and it costs a single animated custom property on the
+       parent plus ten composited translates — nothing next to the WebGPU
+       shader and the 3D car stage this profile already switches off. Drop
+       the :not() and the ring renders frozen, with no error anywhere to
+       say why — so don't "simplify" it back. */
+    .ge-hero *:not(.ge-ring), .ge-hero *::before, .ge-hero *::after {
       animation: none !important;
     }
     @media (prefers-reduced-motion: no-preference) {

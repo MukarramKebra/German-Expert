@@ -24,26 +24,11 @@
 //              caption a "Shop <Make> parts" button that filters the catalog
 //   label    — optional make name (defaults to the CAR_MAKES label)
 //   lead     — optional small line above the name
-//   callouts — parts to annotate ON the car: a red dot on the part, a red
-//              leader line out into the empty black space beside the car,
-//              and a labelled card at the end. Each one is
-//              { x, y, dx, dy, run, brand, part, cat, img }.
-//              dx/dy are the label's pixel offset FROM the dot. The line
-//              is an elbow: a diagonal leg off the dot, then a flat
-//              horizontal leg of `run` px (default 70) into the label.
-//              To place a dot on a NEW car, do not guess: render a 10%
-//              grid inside .ge-car-float (the dots' own coordinate space,
-//              so the stage's 3D transform carries the labels along with
-//              the car), screenshot it and read the part's percentages off
-//              it. getBoundingClientRect() is useless here — that same
-//              transform puts the rects 200-300px out.
-//              dx/dy are plain px, so aim them at the black space that is
-//              free at 1440px; narrower windows fall back to the chip row.
-//              Mind the caption in the bottom-right and the giant badge.
-//              x/y are percentages of the CAR IMAGE box, so a callout
-//              tracks the car at every width.
-//              `cat` makes the card clickable (filters that category).
-//              `img` is an optional product photo for the card.
+//   parts    — OPTIONAL override of the shared HERO_PARTS ring for this car.
+//              Same shape: { brand, part, cat, img, icon }. Left out, every
+//              car orbits the same twelve. The ring is drawn BEHIND the car
+//              so a part can never cover the caption; see .ge-ring in
+//              code/css/10-hero.css for the ellipse and the depth maths.
 //   scale    — optional width multiplier (default 1). The cut-outs differ
 //              wildly in shape — a 911 is long and low, a Touareg short and
 //              tall — so one shared CSS width would make the SUVs tower over
@@ -54,6 +39,35 @@
 //
 // To add the next car: drop its cut-out in img/hero/ and append an entry —
 // nothing else needs touching.
+// Spare parts that orbit every car on the stage. Deliberately ONE shared list
+// rather than a per-car one: the catalogue is the same for every make, and a
+// car entry can still override it with its own `parts` array.
+//   brand/part — the two lines on the chip
+//   cat        — category slug; clicking the chip filters the catalog
+//   img        — optional product photo from img/parts/
+//   icon       — Font Awesome glyph used when there is no photo yet. Only four
+//                real part photos exist, so the rest borrow the same icon
+//                language as the Shop-by-Category tiles. Drop a photo into
+//                img/parts/ and swap icon -> img to upgrade one.
+// TEN is a deliberate count, and the ceiling for this ellipse. A flat ring
+// bunches its items at the left and right extremes, where neighbours are far
+// apart vertically but barely apart horizontally. At twelve the spacing was
+// 30 degrees, which put ~63px between neighbours at the extremes against a
+// 136px chip, and the brand lines overlapped. Ten gives 36 degrees and
+// clears. Add an eleventh and something has to get smaller.
+const HERO_PARTS = [
+  { brand: 'Brembo',      part: 'Brake discs',     cat: 'brakes',       icon: 'fa-circle-stop' },
+  { brand: 'Remsa',       part: 'Brake pads',      cat: 'brakes',       img: 'img/parts/remsa-brake-pads.webp' },
+  { brand: 'Lemförder',   part: 'Control arm',     cat: 'suspension',   img: 'img/parts/lemforder-control-arm.webp' },
+  { brand: 'Sachs',       part: 'Shock absorbers', cat: 'suspension',   icon: 'fa-car-side' },
+  { brand: 'Mann-Filter', part: 'Oil filter',      cat: 'filters',      icon: 'fa-filter' },
+  { brand: 'Mahle',       part: 'Air filter',      cat: 'filters',      icon: 'fa-wind' },
+  { brand: 'Hella',       part: 'Headlight unit',  cat: 'body-lights',  img: 'img/parts/audi-headlight.webp' },
+  { brand: 'Bosch',       part: 'Spark plugs',     cat: 'electrical',   icon: 'fa-bolt' },
+  { brand: 'Behr',        part: 'Radiator',        cat: 'cooling',      icon: 'fa-temperature-low' },
+  { brand: 'Liqui Moly',  part: 'Engine oil',      cat: 'oils-fluids',  icon: 'fa-oil-can' }
+];
+
 const HERO_CARS = [
   {
     src: 'img/hero/mercedes-e-class.webp', w: 1400,
@@ -263,77 +277,54 @@ const HERO_SHADER_PRESET = {
       // custom property needs, since a relative URL inside one resolves
       // against code/css/, not the page.
 
-      // Part callouts. Rendered inside .ge-car-float so each dot stays
-      // glued to its part while the car bobs instead of drifting off it.
-      const callouts = (Array.isArray(c.callouts) ? c.callouts : []).map((co, ci) => {
-        if (!co || !co.part) return '';
-        // dx/dy place the LABEL relative to the dot, in px, and the line
-        // between them is an ELBOW: a straight diagonal leg off the dot,
-        // a corner, then a straight horizontal leg of `run` px into the
-        // label. Technical-drawing leader, not a single long diagonal.
-        const dx = Number.isFinite(co.dx) ? co.dx : -200;
-        const dy = Number.isFinite(co.dy) ? co.dy : 0;
-        const sideCls = dx < 0 ? 'left' : 'right';
-        const sign = dx < 0 ? -1 : 1;
-        // The horizontal leg has to fit inside dx with room for the
-        // diagonal, so a short callout shrinks it rather than doubling
-        // back on itself.
-        const run = Math.max(18, Math.min(Number.isFinite(co.run) ? co.run : 70, Math.abs(dx) - 24));
-        const ex = dx - sign * run;            // the corner
-        const len = Math.round(Math.hypot(ex, dy));
-        const ang = (Math.atan2(dy, ex) * 180 / Math.PI).toFixed(2);
-        const lx = Math.min(dx, ex);           // left edge of the flat leg
-        const thumb = co.img
-          ? `<img class="ge-callout-img" ${pre}src="${esc(co.img)}" alt="" loading="lazy" decoding="async" />`
-          : '';
+      // The orbiting parts ring. Rendered as a sibling of .ge-car-tilt (NOT
+      // inside .ge-car-float) so it orbits the stage rather than bobbing with
+      // the car, and so it can sit on its own z-layer behind the bodywork.
+      //
+      // Every item is a pure translate onto an ellipse — no rotation is ever
+      // applied, so nothing has to be counter-rotated to stay upright. The
+      // single animated angle lives on the parent as --ge-orbit and each item
+      // adds its own fixed offset, which keeps all twelve in step with one
+      // animation instead of twelve that can drift.
+      const partList = (Array.isArray(c.parts) && c.parts.length) ? c.parts : HERO_PARTS;
+      const ringItems = partList.map((p, pi) => {
+        if (!p || !p.part) return '';
+        const media = p.img
+          ? `<img class="ge-ring-img" ${pre}src="${esc(p.img)}" alt="" loading="lazy" decoding="async" />`
+          : `<i class="fa ${esc(p.icon || 'fa-gear')} ge-ring-icon" aria-hidden="true"></i>`;
         const inner =
-          `${thumb}<span class="ge-callout-txt">` +
-            (co.brand ? `<span class="ge-callout-brand">${esc(co.brand)}</span>` : '') +
-            `<span class="ge-callout-part">${esc(co.part)}</span>` +
-          `</span>`;
-        const card = co.cat
-          ? `<button type="button" class="ge-callout-card" data-cat="${esc(co.cat)}">${inner}</button>`
-          : `<span class="ge-callout-card">${inner}</span>`;
-        // Phone/tablet pointer. The elbow and the card need empty stage either
-        // side of the car and below 1025px there is none — but the DOT is on
-        // the part itself and costs no width at all. So below that width the
-        // line and card are hidden and this numbered pin takes the dot's
-        // place, keyed to the same number on its chip in the row under the
-        // car. The part still gets pointed at; only the label moves.
-        const pinLabel = (co.brand ? co.brand + ' ' : '') + co.part;
-        const pin = co.cat
-          ? `<button type="button" class="ge-callout-pin" data-cat="${esc(co.cat)}" aria-label="${esc(pinLabel)}">${ci + 1}</button>`
-          : `<span class="ge-callout-pin" aria-hidden="true">${ci + 1}</span>`;
-        return `
-            <div class="ge-callout ${sideCls}" style="--cx:${esc(co.x || '50%')};--cy:${esc(co.y || '50%')};--dx:${dx}px;--dy:${dy}px;--len:${len}px;--ang:${ang}deg;--lx:${lx}px;--run:${run}px">
-              <span class="ge-callout-dot" aria-hidden="true"></span>
-              <span class="ge-callout-line" aria-hidden="true"></span>
-              <span class="ge-callout-leg" aria-hidden="true"></span>
-              ${pin}
-              ${card}
-            </div>`;
+          `<span class="ge-ring-face">${media}<span class="ge-ring-txt">` +
+            (p.brand ? `<span class="ge-ring-brand">${esc(p.brand)}</span>` : '') +
+            `<span class="ge-ring-part">${esc(p.part)}</span>` +
+          `</span></span>`;
+        const label = (p.brand ? p.brand + ' ' : '') + p.part;
+        return p.cat
+          ? `<button type="button" class="ge-ring-item" style="--i:${pi}" data-cat="${esc(p.cat)}" aria-label="${esc(label)}">${inner}</button>`
+          : `<span class="ge-ring-item" style="--i:${pi}">${inner}</span>`;
       }).join('');
+      // No aria-hidden here: the ring and the phone chip row below are the
+      // same parts, and whichever one is display:none drops out of the
+      // accessibility tree on its own, so neither is announced twice.
+      const ring = ringItems
+        ? `<div class="ge-ring" style="--n:${partList.length}">${ringItems}</div>`
+        : '';
 
-      // Phone treatment for those same parts. A leader line needs empty
-      // space beside the car to point into and there is none at 390px, so
-      // below 1025px the line and card are hidden and this chip row takes
-      // over: same photo, same brand and part, same jumpCat() target, in a
-      // row under the car. The numbered badge ties each chip back to the pin
-      // still sitting on the part itself, so the row reads as a legend for
-      // the pointers rather than as a second, unrelated list.
-      const chips = (Array.isArray(c.callouts) ? c.callouts : []).map((co, ci) => {
-        if (!co || !co.part) return '';
-        const thumb = co.img
-          ? `<img class="ge-car-chip-img" ${pre}src="${esc(co.img)}" alt="" loading="lazy" decoding="async" />`
-          : '';
+      // Phone treatment for those same parts. The ring needs empty stage all
+      // around the car and there is none at 390px, so below 1025px it is
+      // display:none and this row takes over: same photo or icon, same brand
+      // and part, same jumpCat() target, in a row under the car.
+      const chips = partList.map((p) => {
+        if (!p || !p.part) return '';
+        const thumb = p.img
+          ? `<img class="ge-car-chip-img" ${pre}src="${esc(p.img)}" alt="" loading="lazy" decoding="async" />`
+          : `<i class="fa ${esc(p.icon || 'fa-gear')} ge-car-chip-icon" aria-hidden="true"></i>`;
         const inner =
-          `<span class="ge-car-chip-num" aria-hidden="true">${ci + 1}</span>` +
-          `${thumb}<span class="ge-callout-txt">` +
-            (co.brand ? `<span class="ge-callout-brand">${esc(co.brand)}</span>` : '') +
-            `<span class="ge-callout-part">${esc(co.part)}</span>` +
+          `${thumb}<span class="ge-ring-txt">` +
+            (p.brand ? `<span class="ge-ring-brand">${esc(p.brand)}</span>` : '') +
+            `<span class="ge-ring-part">${esc(p.part)}</span>` +
           `</span>`;
-        return co.cat
-          ? `<li><button type="button" class="ge-car-chip" data-cat="${esc(co.cat)}">${inner}</button></li>`
+        return p.cat
+          ? `<li><button type="button" class="ge-car-chip" data-cat="${esc(p.cat)}">${inner}</button></li>`
           : `<li><span class="ge-car-chip">${inner}</span></li>`;
       }).join('');
       const chipList = chips ? `<ul class="ge-car-chips">${chips}</ul>` : '';
@@ -341,6 +332,7 @@ const HERO_SHADER_PRESET = {
       return `
       <figure class="ge-car${i === 0 ? ' is-active' : ''}"${i ? ' aria-hidden="true"' : ''}>
         ${badge}
+        ${ring}
         <div class="ge-car-tilt" style="--scale:${scale}">
           <div class="ge-car-float">
             <div class="ge-car-body">
@@ -348,7 +340,6 @@ const HERO_SHADER_PRESET = {
               <span class="ge-car-sheen" aria-hidden="true"></span>
             </div>
             <span class="ge-car-shadow" aria-hidden="true"></span>
-            ${callouts}
           </div>
         </div>
         ${chipList}

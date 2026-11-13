@@ -54,8 +54,8 @@ Head of `main` is **`dba8925b`**. Site and admin are live; the DB is wired; the 
 | `code/js/01-config-data.js` | **The single config point**: `GE_SB_URL`, `GE_SB_KEY_B64`, `GE_SB_KEY`, `SHOP_WA`, `SITE_URL`, `CURRENCY`, `fmtPrice()`, `roundMoney()`, plus the two feature switches `ONLINE_ORDERING_ENABLED` and `EMAIL_OFFERS_ENABLED`. Also `CAR_MAKES`, `getAllProducts()`, `normalizeCategory()`, `_SUBCAT_LABELS`, `_AR_CATS`, `activeMake` |
 | `code/js/02-catalog-render.js` | `setMakeFilter()`, `normalizeQ()` (collapses repeated **letters** only), `partKey()`, `matchesSearch()`, `_filterProductsBy()`, `DEFAULT_BANNERS = []` |
 | `code/js/06-features.js` | `enquireOnWhatsApp()` — the only buy path while ordering is off |
-| **`code/js/08-hero.js`** | `HERO_CARS` (six cars: src/srcSmall, badge, scale, callouts), the stage builder, the callout + chip renderers, the shader gate and the IntersectionObserver |
-| **`code/css/10-hero.css`** | the stage, the callouts and their `--k` bands, the phone chip row |
+| **`code/js/08-hero.js`** | `HERO_CARS` (six cars: src/srcSmall, badge, scale) and `HERO_PARTS` (the ten orbiting parts, shared by every car), the stage builder, the ring + chip renderers, the shader gate and the IntersectionObserver |
+| **`code/css/10-hero.css`** | the stage, the `@property --ge-orbit` parts ring and its radii, the phone chip strip |
 | `index.html` | head/SEO/JSON-LD, the **hero skeleton `<style>` (must stay ABOVE the CSS loader script)**, the hero preload, `#showcase`, `#makeRow`, category tiles, FAQ, contact, checkout |
 | `code/css/01-base.css`, `02-sections.css` | theme tokens (**red** accent), make chips, icon tiles, spinners |
 | `admin/js/01-core-data.js` | `SB_URL`/`SB_KEY` (**the real key**), `DEFAULT_CATS`, `CAR_MAKES`, `parseMakes()`; `_fixCustomProductIds()` disabled on purpose |
@@ -67,7 +67,7 @@ Head of `main` is **`dba8925b`**. Site and admin are live; the DB is wired; the 
 | `scripts/generate-product-pages.js` | regex-parses `GE_SB_URL`/`GE_SB_KEY_B64`, so keep those simple string literals; `MIN_PRODUCTS` default 0 |
 | `logo.jpg`, `favicon.png`, `apple-touch-icon.png`, `og-image.jpg` | real brand assets generated from the owner's crest |
 | `img/hero/{mercedes-e-class,bmw-m4,porsche-911,audi-a6,vw-touareg,range-rover-sport}.webp` (+ `-sm`, + `src/`) | the six rotating cars |
-| `img/parts/{remsa-brake-pads,audi-headlight,lemforder-control-arm,febi-control-arm}.webp` (+ `src/`) | the callout photos — owner-supplied, white backdrop keyed out, 320px cut-outs. The headlight is an OEM Audi unit, so its card says "OEM" |
+| `img/parts/{remsa-brake-pads,audi-headlight,lemforder-control-arm,febi-control-arm}.webp` (+ `src/`) | the four ring parts that have a real photo — owner-supplied, white backdrop keyed out, 320px cut-outs. The other six ride a Font Awesome icon until a photo exists; swapping one in is `icon:` -> `img:` on that `HERO_PARTS` entry |
 | **`code/js/09-services.js`**, **`code/css/12-services.css`** | the `#services` workshop band: `DEFAULT_SERVICES`, `normalizeServices()`, `renderServices()`, `bookService()`, `askServiceAdvice()`. CSS loads **before** `11-ui-polish.css` despite its number |
 | **`admin/js/15-services.js`** | the admin Services tab: `ADMIN_DEFAULT_SERVICES`, `loadServicesTab()`, `renderServicesTab()`, `svcAdd/svcMove/svcDelete/svcSet/svcToggleMake`, `saveServices()`. Writes the single `expert_settings` row `services` |
 | `CLAUDE.md` | project notes |
@@ -107,7 +107,9 @@ Head of `main` is **`dba8925b`**. Site and admin are live; the DB is wired; the 
 - **Cut-outs only** — a photo with its own background covers the lettering.
 - The owner removed the "German Car Parts Specialists — Sharjah" pill, the "Shop by Make" button and the trust row, leaving one **Shop Parts** CTA with no icon, set in the display face. Nothing was deleted: `.ge-btn-ghost`, `.ge-hero-trust`, `.ge-hero-tag` and the `hero_tag`/`hero_make`/`hero_t1-3` strings (en + ar) all remain, so any of it is one line to put back.
 
-### Hero part callouts (2026-11-10)
+### Hero part callouts (2026-11-10) — SUPERSEDED 2026-11-13 by the parts ring below
+*Kept for the measurement technique and the reasoning, which still apply if anything is ever pinned to a car again. The elbow callouts, the numbered pins and the `--k` label scale are all deleted from the code.*
+
 - **Parts are advertised as callouts ON each car, not as slides of their own** — two hand-drawn SVG part slides were rejected and deleted. Each car carries two `callouts` entries: a pulsing red dot on the part, an **elbow** leader (diagonal leg, corner, flat horizontal run) out into the black space, and a card with a product photo, brand and part name, wired to `jumpCat()`.
 - Geometry is `{ x, y, dx, dy, run }` — x/y are percentages of the car image, dx/dy the label's px offset from the dot, `run` (default 70) the flat leg. Keep right-hand cards clear of the next arrow at mid-stage, hence `dy` around -60 to -75.
 - Thumbnails are **cut-outs, not white tiles** (the owner rejected the tiles): the backdrop is flood-filled inward from the border and feathered before the file is written at 320px. A plain colour-step fill would eat the white label panel on the Remsa box and the chrome inside the headlight.
@@ -123,6 +125,19 @@ Head of `main` is **`dba8925b`**. Site and admin are live; the DB is wired; the 
   | rover | 41 / 41 | 53 / 72 | 93 / 68 | 47 / 84 |
 
 - **`--k`, the narrow-desktop fix.** x/y are percentages so the dots scaled with the car, but dx/dy are plain px so the *labels* did not — at 1040px "Control arm kit" was cut to "arm kit" and the Remsa card ran off the right. All five px properties (`--dx --dy --len --lx --run`) now go through one `--k` multiplier; scaling them by a single factor shrinks the elbow uniformly and keeps the corner on the line, so **`--ang` is deliberately NOT scaled** (it's an angle). Bands: **≥1360px `1`**, **≤1359px `.62`**, **≤1199px `.42`** plus an 86px thumbnail, **≤1024px** callouts off. Verified by screenshot at 1440 / 1280 / 1025 / 1000 / 390.
+
+### The hero parts ring (2026-11-13)
+Owner: *"Now listen add many more spare parts and they should rotate in a ring around each car k and make them bigger bcs lot of free space"*.
+
+- **Ten spare parts now orbit each car** instead of two static elbow callouts. `HERO_PARTS` is ONE shared list — the catalogue is the same whichever car is on stage — and a car can override it with its own `parts` array. Brand, part name, `cat`, and either a photo from `img/parts/` or a Font Awesome icon in the same language as the category tiles. Every item is a button on `jumpCat()`, so the ring is ten more ways into the catalogue, not decoration.
+- **One animated angle, inherited.** `@property --ge-orbit` is registered with `inherits: true` and animated once on `.ge-ring`; each item derives its own `--a` from it and the item index, so ten chips cannot drift out of step. Placement is a **pure translate** onto an ellipse via `cos()`/`sin()` — no rotation anywhere, so nothing needs counter-rotating. `--d: calc((sin(var(--a)) + 1) / 2)` drives scale, opacity and `z-index`, which is the whole depth effect.
+- **The ring sits behind the car** (sibling of `.ge-car-tilt`, not inside `.ge-car-float`), so a part can never cover the model name or the Shop-parts button, and parts visibly pass behind the bodywork.
+- **Ten is the ceiling for this ellipse.** A flat ring bunches its items at the left and right extremes. Twelve gave 30° spacing — ~63px between neighbours against a 136px chip — and the brand lines overlapped. Ten gives 36° and clears, at the size the owner asked for; an eleventh means shrinking them.
+- **The radii are squeezed from both sides.** `--rx: clamp(190px, 36vw, 480px)` has to clear the car, which is sized off the viewport too (`min(55%, 610px)`): at 1100px a 33vw ring surfaced labels *inside* the bodywork, which reads as a bug rather than as depth. `--ry: clamp(92px, 16.4vw, 222px)` has to beat half the car's height but stay inside the stage, which is 52vw and shrinks faster — tried 20vw and the bottom chips landed on the caption and the slide dots.
+- **`.ge-car-cap` gained a `closest-side` radial scrim.** The orbit's bottom-right arc sweeps through that corner. First attempt used a 118%/128% radial and painted a grey rectangle with four hard edges — any radius over 50% is still opaque where the box stops. `closest-side` inscribes the ellipse in the box, so it reaches zero at every edge.
+- **Ring labels carry a tight dark halo.** They orbit in front of the make badge, whose outline is the same red, and a brand line crossing a letter stroke vanished into it.
+- **Phone (≤1024): a horizontal scroll strip, not a justified row.** The ring needs empty stage on all four sides and 390px has none. The old row was `flex: 1 1 0`, written for two chips; with ten it gave each 39px and wrapped every label into one-character columns stacked over the car. Chips are now sized by their own text (`white-space: nowrap`) and the strip scrolls — safe because the hero has nav arrows and no swipe handler of its own. Verified: 10 chips, 10 clickable, no page overflow, clear of the slide dots.
+- Deleted with the old treatment: every `.ge-callout*` rule, `geCalloutPing`/`geCalloutPinPing`, the numbered `.ge-car-chip-num` badges and the `--k` label-scale bands.
 
 ### Phone + small-laptop treatment and performance (2026-11-10)
 - Below 1025px the callouts are hidden and **`.ge-car-chips`** takes over: the same photo, brand, part and `jumpCat()` target as a row of two chips under the car. Built in the same loop in `08-hero.js`, `display: none` above that so the duplicate markup never reaches the tab order. The breakpoint was 900px until the `--k` work showed a leader line cannot fit beside the car below ~1025px **at any scale**.
@@ -167,13 +182,18 @@ Owner's request: *"do the admin page and add mechanics servicing cars"*.
 ### The services collage (2026-11-13)
 Owner: *"when scrolling down you see 3 or 4 collages type of things of photos showing services"*, then sent four 1774×887 workshop shots.
 
-- Four alternating photo bands now sit above the card grid inside `#services` — picture one side, heading + three tick points + a WhatsApp booking button on the other, sides swapping band by band, photo-first when stacked on a phone. Brakes / Oil & filter / Diagnostics / Our workshop.
+- *(First shape, since replaced — see the next bullet.)* Four alternating photo bands sat above the card grid inside `#services` — picture one side, heading + three tick points + a WhatsApp booking button on the other, sides swapping band by band, photo-first when stacked on a phone. Brakes / Oil & filter / Diagnostics / Our workshop.
 - Stored in the same `expert_settings` `services` row: `collage` (one photo path, no extension) + `bands` (max four labels, `{id,name,sub,box,active}`, in reading order). Reshaped twice on 2026-11-13 — alternating photo bands, then four separate tiles, then the owner's own single collage with a name written on each frame; old rows fold forward via `b.name || b.title`. The `#services` section also moved to sit directly below the hero, above the category grid — the owner wanted the collage to be the first thing you meet after the rotating cars. **The labels are positioned by measured percentages, not an even grid — the collage is a pinwheel (seams at x 44.1%/65.2%, y 50.8%/58.9%).** Then made full-bleed by moving `#servicesBands` outside `.container` (no `100vw`), re-exported at the source's native 1920w/960w, with `clamp()`ed type and padding. The red scrolling `.marquee-wrap` strip under the hero was deleted outright in the same pass — markup, CSS and `fillMarquee()`.
 - **The four source frames carry another business's sign** ("Alamdar Germany Auto Parts") across the top half. Each is cropped to the lower ~47-48%, below the second Arabic sign band, so none of that branding reaches the site. The owner was asked twice whether Alamdar is theirs and hasn't answered; **if it is, un-cropping is a one-command re-run** of the pipeline with the crop rect widened to the full frame. Originals in `img/services/src/` (14 MB, matching the `img/hero/src/` convention).
 - Pipeline was the usual browser canvas: temporary `_imgtool.html` at the repo root (same origin as the PNGs, or the canvas taints) drawing a labelled 10% grid to read crop rects off a screenshot, then POSTing WebPs to a throwaway node server. First pass mis-framed `oil-service` (mechanic half out of frame) and left dead floor in `diagnostics`; both re-cropped before shipping. Tool and server deleted.
 - Output: two WebP widths each (~850w and 430w, 2:1), 24-89 KB per file, `srcset`+`sizes` so phones pull the small copy.
 
 ## 5) Failed attempts
+
+**The hero ring rendered frozen, and nothing said why (2026-11-13)**
+- The CSS was correct and loaded — the `.ge-ring` rule carried `60s linear infinite geOrbit`, `@keyframes geOrbit` parsed, `@property` registered — yet `getComputedStyle(ring).animationName` was `"none"`, `ring.getAnimations()` was `[]` and `document.getAnimations()` never listed `geOrbit`. No console error.
+- **Cause: the inline `<style id="ge-low-gpu-mode">` in `index.html`**, a profile inherited from earlier perf work, carries `.ge-hero *, .ge-hero *::before, .ge-hero *::after { animation: none !important }`. The tell was that the car float animation was named `geLowGpuCarFloat`, not `geCarFloat` — that block re-declares the one animation it wants to keep. The ring is now exempted by name: `.ge-hero *:not(.ge-ring)`.
+- **Check that block first** when anything in the hero refuses to animate. It lives in `index.html`, not in `10-hero.css`, so a grep of the stylesheet finds nothing.
 
 **Supabase access**
 - **`create_project` failed** — the free plan allows only 2 active projects per owner. The owner created it themselves under Bahar Al Hind Co.
