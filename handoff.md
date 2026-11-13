@@ -14,7 +14,7 @@ The owner will send a link to their existing online product list later; importin
 
 Head of `main` is **`b59cb624`**. Site and admin are live; the DB is wired; the catalog is empty.
 
-The hero now carries a **rotating ring of ten spare parts around each car** (the elbow callouts are gone), and `#services` opens with the owner's own full-bleed workshop collage directly below the hero. Scroll order: hero → services collage → service cards → categories → products.
+The hero now carries a **rotating ring of eight spare parts around each car**, every one a real cut-out photo shown in its own shape (no circles, since 2026-11-14) (the elbow callouts are gone), and `#services` opens with the owner's own full-bleed workshop collage directly below the hero. Scroll order: hero → services collage → service cards → categories → products.
 
 **Working:**
 
@@ -56,7 +56,7 @@ The hero now carries a **rotating ring of ten spare parts around each car** (the
 | `code/js/01-config-data.js` | **The single config point**: `GE_SB_URL`, `GE_SB_KEY_B64`, `GE_SB_KEY`, `SHOP_WA`, `SITE_URL`, `CURRENCY`, `fmtPrice()`, `roundMoney()`, plus the two feature switches `ONLINE_ORDERING_ENABLED` and `EMAIL_OFFERS_ENABLED`. Also `CAR_MAKES`, `getAllProducts()`, `normalizeCategory()`, `_SUBCAT_LABELS`, `_AR_CATS`, `activeMake` |
 | `code/js/02-catalog-render.js` | `setMakeFilter()`, `normalizeQ()` (collapses repeated **letters** only), `partKey()`, `matchesSearch()`, `_filterProductsBy()`, `DEFAULT_BANNERS = []` |
 | `code/js/06-features.js` | `enquireOnWhatsApp()` — the only buy path while ordering is off |
-| **`code/js/08-hero.js`** | `HERO_CARS` (six cars: src/srcSmall, badge, scale) and `HERO_PARTS` (the ten orbiting parts, shared by every car), the stage builder, the ring + chip renderers, the shader gate and the IntersectionObserver |
+| **`code/js/08-hero.js`** | `HERO_CARS` (six cars: src/srcSmall, badge, scale) and `HERO_PARTS` (the eight orbiting parts, shared by every car), the stage builder, the ring + chip renderers, the shader gate and the IntersectionObserver |
 | **`code/css/10-hero.css`** | the stage, the `@property --ge-orbit` parts ring and its radii, the phone chip strip |
 | `index.html` | head/SEO/JSON-LD, the **hero skeleton `<style>` (must stay ABOVE the CSS loader script)**, the hero preload, `#showcase`, `#makeRow`, category tiles, FAQ, contact, checkout |
 | `code/css/01-base.css`, `02-sections.css` | theme tokens (**red** accent), make chips, icon tiles, spinners |
@@ -69,7 +69,7 @@ The hero now carries a **rotating ring of ten spare parts around each car** (the
 | `scripts/generate-product-pages.js` | regex-parses `GE_SB_URL`/`GE_SB_KEY_B64`, so keep those simple string literals; `MIN_PRODUCTS` default 0 |
 | `logo.jpg`, `favicon.png`, `apple-touch-icon.png`, `og-image.jpg` | real brand assets generated from the owner's crest |
 | `img/hero/{mercedes-e-class,bmw-m4,porsche-911,audi-a6,vw-touareg,range-rover-sport}.webp` (+ `-sm`, + `src/`) | the six rotating cars |
-| `img/parts/{remsa-brake-pads,audi-headlight,lemforder-control-arm,febi-control-arm}.webp` (+ `src/`) | the four ring parts that have a real photo — owner-supplied, white backdrop keyed out, 320px cut-outs. The other six ride a Font Awesome icon until a photo exists; swapping one in is `icon:` -> `img:` on that `HERO_PARTS` entry |
+| `img/parts/*.webp` (+ `src/` originals) | the ring's part photos — all owner-supplied transparent cut-outs, cropped to the part and scaled to 320px max: remsa-brake-pads, lemforder-control-arm, suspension-assembly, audi-headlight, bosch-spark-plug, behr-radiator, engine, front-bumper (febi-control-arm is unused). Adding one = drop the cut-out in, append a `HERO_PARTS` entry with `img:` |
 | **`code/js/09-services.js`**, **`code/css/12-services.css`** | the `#services` workshop band: `DEFAULT_SERVICES`, `normalizeServices()`, `renderServices()`, `bookService()`, `askServiceAdvice()`. CSS loads **before** `11-ui-polish.css` despite its number |
 | **`admin/js/15-services.js`** | the admin Services tab: `ADMIN_DEFAULT_SERVICES`, `loadServicesTab()`, `renderServicesTab()`, `svcAdd/svcMove/svcDelete/svcSet/svcToggleMake`, `saveServices()`. Writes the single `expert_settings` row `services` |
 | `CLAUDE.md` | project notes |
@@ -140,6 +140,13 @@ Owner: *"Now listen add many more spare parts and they should rotate in a ring a
 - **Ring labels carry a tight dark halo.** They orbit in front of the make badge, whose outline is the same red, and a brand line crossing a letter stroke vanished into it.
 - **Phone (≤1024): a horizontal scroll strip, not a justified row.** The ring needs empty stage on all four sides and 390px has none. The old row was `flex: 1 1 0`, written for two chips; with ten it gave each 39px and wrapped every label into one-character columns stacked over the car. Chips are now sized by their own text (`white-space: nowrap`) and the strip scrolls — safe because the hero has nav arrows and no swipe handler of its own. Verified: 10 chips, 10 clickable, no page overflow, clear of the slide dots.
 - Deleted with the old treatment: every `.ge-callout*` rule, `geCalloutPing`/`geCalloutPinPing`, the numbered `.ge-car-chip-num` badges and the `--k` label-scale bands.
+
+### Ring photos in their own shape + first catalog parts (2026-11-14)
+Owner: *"the images in the ring should be the default image shape I gave, not in circles"*, plus five new cut-outs (radiator, spark plug — sent twice, identical, kept once — suspension/axle, AMG engine, front bumper) and *"scrape data from abcspecialist.nl and add some of it not all"*.
+- **No discs.** `.ge-ring-img` is now `width: 100%` of the label box, `object-fit: contain`, no border/background/radius — the part keeps its own silhouette. A white + dark `drop-shadow()` lifts dark parts (engine, axle) off the dark stage; a `box-shadow` would draw a rectangle round the transparent PNG. Hover/focus = scale 1.06 + red glow.
+- **Eight parts, all photos.** The icon-only entries (ignition coil, oil filter, Brembo, Sachs, Mahle, Liqui Moly) were dropped: a red Font Awesome glyph without its disc disappeared into the red outlined make badge behind the car. Eight = 45° spacing, well under the ten-item ceiling. New images were cropped to their alpha bbox (+2%) and saved at 320px max (10–29 KB) with the browser-canvas pipeline; originals renamed into `img/parts/src/`.
+- **12 real catalog products added (ids 2–13), the store's first.** Taken from abcspecialist.nl as FACTS only — part name, OE part number, fitment. Their footer forbids reproducing content without written permission, so **no photos, no copied descriptions, no prices** were taken: descriptions are rewritten, every product is `price 0` → "Price on request / Ask price on WhatsApp", stock 10, no image (they show the gear placeholder). Range: Mercedes V12 spark plugs ×2 + V12 ignition coil, Audi A8 D3 EPB rear calipers L/R, Mercedes ML W164 / GL X164 Airmatic struts ×2 + valve block, ABC valve seal kit, Mercedes S W221 / S W220 / CL C215 tail lights. `sku_map`, `brand_map` (Mercedes-Benz / Audi / ULO) and `fitment_map` were MERGED (`jsonb ||`), not overwritten. ⚠️ The owner hasn't confirmed they stock these — they're starter listings to adjust, price or delete from the admin.
+- Verified: ring shows 8 photos at 1440px; phone strip shows them at 390px with no horizontal scroll; `matchesSearch('A 004 159 14 03')` finds id 2; the Audi filter returns ids 5–6; no console errors.
 
 ### Phone + small-laptop treatment and performance (2026-11-10)
 - Below 1025px the callouts are hidden and **`.ge-car-chips`** takes over: the same photo, brand, part and `jumpCat()` target as a row of two chips under the car. Built in the same loop in `08-hero.js`, `display: none` above that so the duplicate markup never reaches the tab order. The breakpoint was 900px until the `--k` work showed a leader line cannot fit beside the car below ~1025px **at any scale**.

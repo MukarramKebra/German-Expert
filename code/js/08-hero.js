@@ -55,17 +55,19 @@
 // 30 degrees, which put ~63px between neighbours at the extremes against a
 // 136px chip, and the brand lines overlapped. Ten gives 36 degrees and
 // clears. Add an eleventh and something has to get smaller.
+// 2026-11-14: all eight are the owner's own cut-out photos, shown
+// in their natural shape (no circle). Mahle air filter, Liqui Moly oil and
+// every icon-only entry made way for them (a red glyph vanished into the
+// red make badge behind the car). Eight spaces them 45 degrees apart.
 const HERO_PARTS = [
-  { brand: 'Brembo',      part: 'Brake discs',     cat: 'brakes',       icon: 'fa-circle-stop' },
-  { brand: 'Remsa',       part: 'Brake pads',      cat: 'brakes',       img: 'img/parts/remsa-brake-pads.webp' },
-  { brand: 'Lemförder',   part: 'Control arm',     cat: 'suspension',   img: 'img/parts/lemforder-control-arm.webp' },
-  { brand: 'Sachs',       part: 'Shock absorbers', cat: 'suspension',   icon: 'fa-car-side' },
-  { brand: 'Mann-Filter', part: 'Oil filter',      cat: 'filters',      icon: 'fa-filter' },
-  { brand: 'Mahle',       part: 'Air filter',      cat: 'filters',      icon: 'fa-wind' },
-  { brand: 'Hella',       part: 'Headlight unit',  cat: 'body-lights',  img: 'img/parts/audi-headlight.webp' },
-  { brand: 'Bosch',       part: 'Spark plugs',     cat: 'electrical',   icon: 'fa-bolt' },
-  { brand: 'Behr',        part: 'Radiator',        cat: 'cooling',      icon: 'fa-temperature-low' },
-  { brand: 'Liqui Moly',  part: 'Engine oil',      cat: 'oils-fluids',  icon: 'fa-oil-can' }
+  { brand: 'Remsa',         part: 'Brake pads',        cat: 'brakes',      img: 'img/parts/remsa-brake-pads.webp' },
+  { brand: 'Lemförder',     part: 'Control arm',       cat: 'suspension',  img: 'img/parts/lemforder-control-arm.webp' },
+  { brand: 'OEM',           part: 'Suspension & axle', cat: 'suspension',  img: 'img/parts/suspension-assembly.webp' },
+  { brand: 'Hella',         part: 'Headlight unit',    cat: 'body-lights', img: 'img/parts/audi-headlight.webp' },
+  { brand: 'Bosch',         part: 'Spark plugs',       cat: 'electrical',  img: 'img/parts/bosch-spark-plug.webp' },
+  { brand: 'Behr',          part: 'Radiator',          cat: 'cooling',     img: 'img/parts/behr-radiator.webp' },
+  { brand: 'Mercedes-AMG',  part: 'Engine & parts',    cat: 'engine',      img: 'img/parts/engine.webp' },
+  { brand: 'Body',          part: 'Front bumper',      cat: 'body-lights', img: 'img/parts/front-bumper.webp' }
 ];
 
 const HERO_CARS = [

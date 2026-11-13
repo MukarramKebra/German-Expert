@@ -184,29 +184,35 @@ span.ge-ring-item { cursor: default; }
   display: flex; flex-direction: column; align-items: center; gap: 9px;
   width: clamp(96px, 9.8vw, 136px);
 }
+/* Parts show in their OWN shape (owner, 2026-11-14: "the images should be the
+   default image shape I gave, not in circles"). The photos are transparent
+   cut-outs, so no disc, border or crop — `contain` inside a box as wide as
+   the label, so a long radiator and a tall spark plug both fit whole. The
+   soft white drop-shadow is what lifts a dark part (engine, suspension) off
+   the dark stage; a box-shadow would draw a rectangle around it. */
 .ge-ring-img,
 .ge-ring-icon {
-  width: clamp(74px, 7.6vw, 108px);
+  width: 100%;
   height: clamp(74px, 7.6vw, 108px);
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,.16);
-  background: linear-gradient(160deg, rgba(255,255,255,.11), rgba(255,255,255,.03));
-  box-shadow: 0 12px 30px rgba(0,0,0,.5);
-  transition: border-color var(--t-base, .25s) var(--ease, ease),
-              box-shadow var(--t-base, .25s) var(--ease, ease);
+  transition: filter var(--t-base, .25s) var(--ease, ease),
+              transform var(--t-base, .25s) var(--ease, ease);
 }
-.ge-ring-img { object-fit: cover; display: block; }
+.ge-ring-img {
+  display: block; object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,.22)) drop-shadow(0 10px 18px rgba(0,0,0,.55));
+}
 .ge-ring-icon {
   display: flex; align-items: center; justify-content: center;
-  font-size: clamp(27px, 2.9vw, 42px);
+  font-size: clamp(34px, 3.6vw, 52px);
   color: var(--gold);
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,.6));
 }
 button.ge-ring-item:hover .ge-ring-img,
 button.ge-ring-item:hover .ge-ring-icon,
 button.ge-ring-item:focus-visible .ge-ring-img,
 button.ge-ring-item:focus-visible .ge-ring-icon {
-  border-color: var(--orange-light);
-  box-shadow: 0 14px 34px rgba(0,0,0,.55), 0 0 0 3px rgba(239,59,66,.28);
+  transform: scale(1.06);
+  filter: drop-shadow(0 0 12px rgba(239,59,66,.75)) drop-shadow(0 10px 18px rgba(0,0,0,.55));
 }
 button.ge-ring-item:focus-visible { outline: none; }
 
