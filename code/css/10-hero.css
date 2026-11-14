@@ -68,7 +68,7 @@
 .ge-hero-trust i { color: var(--gold); }
 
 /* ── Car stage: giant outlined model number, car in front of it ── */
-.ge-hero-stage { position: relative; height: clamp(320px, 52vw, 660px); perspective: 1400px; perspective-origin: 50% 40%; }
+.ge-hero-stage { position: relative; height: clamp(340px, 56vw, 730px); perspective: 1400px; perspective-origin: 50% 40%; }
 .ge-hero.no-car .ge-hero-stage { display: none; }
 .ge-car {
   position: absolute; inset: 0; margin: 0;
@@ -89,7 +89,9 @@
    covers it and the composition reads as a plain product shot. */
 .ge-car-model {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -54%);
-  width: min(96%, 1020px); height: 92%; z-index: 0; pointer-events: none; overflow: visible;
+  /* --bw (set per car in 08-hero.js) is this word's width as a fraction of the
+     LONGEST badge, so height:auto gives every car identical letter height. */
+  width: calc(min(96%, 1020px) * var(--bw, 1)); height: auto; z-index: 0; pointer-events: none; overflow: visible;
   filter: drop-shadow(0 0 46px rgba(239,59,66, .14));
 }
 
@@ -140,7 +142,7 @@
      the model caption in the bottom corner. The parts are much wider now, so
      the bottom-right one used to slide behind "MERCEDES-BENZ E-CLASS". There
      is headroom above to pay for it: the top arc still clears the header. */
-  position: absolute; inset: 0 0 84px 0; z-index: 0; pointer-events: none;
+  position: absolute; inset: 0 0 128px 0; z-index: 0; pointer-events: none;
   --ge-orbit: 0deg;
   /* Wide and shallow: a flat, tilted ring around the car rather than a circle,
      which is what reads as "orbit" instead of "clock face". */
@@ -154,14 +156,14 @@
      2026-11-14), which is why those moved inboard to 16%. At 1280px the
      VIEWPORT, not the stage, is the binding constraint: half of it is 640px
      and a part is ~76px wide, so anything past ~562px gets clipped. */
-  --rx: clamp(190px, 41vw, 596px);
+  --rx: clamp(200px, 43vw, 626px);
   /* Squeezed from both sides, so leave it alone. It has to beat half the
      car's height plus half a chip or the bottom parts come out from behind
      the wheels mid-word (under ~215 at 1440, where the car is ~277px tall).
      It also has to stay INSIDE the stage, which is 52vw and shrinks faster
      than the ring would: at 20vw the bottom chips landed on the caption and
      the slide dots at 1100px. 16.4vw is the width that satisfies both. */
-  --ry: clamp(92px, 16.4vw, 222px);
+  --ry: clamp(100px, 18vw, 250px);
   animation: geOrbit 60s linear infinite;
 }
 @keyframes geOrbit { to { --ge-orbit: 360deg; } }
@@ -187,7 +189,7 @@
 span.ge-ring-item { cursor: default; }
 
 .ge-ring-face {
-  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
   width: clamp(104px, 10.6vw, 152px);
 }
 /* Parts show in their OWN shape (owner, 2026-11-14: "the images should be the
@@ -411,7 +413,7 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
     -webkit-backdrop-filter: none; backdrop-filter: none;
     background: rgba(12, 14, 18, .58);
   }
-  .ge-car-model { width: 94%; height: 62%; transform: translate(-50%, -78%); }
+  .ge-car-model { width: calc(94% * var(--bw, 1)); height: auto; transform: translate(-50%, -78%); }
   .ge-car-cap { left: 0; right: 0; bottom: 92px; align-items: center; text-align: center; }
   /* A scroll strip, not a justified row. There are ten parts and a 390px
      screen; `flex: 1 1 0` divided that by ten and gave each chip 39px. Each

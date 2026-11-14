@@ -60,16 +60,16 @@
 // every icon-only entry made way for them (a red glyph vanished into the
 // red make badge behind the car). Eight spaces them 45 degrees apart.
 const HERO_PARTS = [
-  { brand: 'Remsa',         part: 'Brake pads',        cat: 'brakes',      img: 'img/parts/remsa-brake-pads.webp' },
-  { brand: 'OEM',           part: 'Brake disc',        cat: 'brakes',      img: 'img/parts/brake-disc.webp' },
-  { brand: 'Lemförder',     part: 'Control arm',       cat: 'suspension',  img: 'img/parts/lemforder-control-arm.webp' },
-  { brand: 'OEM',           part: 'Suspension & axle', cat: 'suspension',  img: 'img/parts/suspension-assembly.webp' },
-  { brand: 'Hella',         part: 'Headlight unit',    cat: 'body-lights', img: 'img/parts/audi-headlight.webp' },
-  { brand: 'Bosch',         part: 'Spark plugs',       cat: 'electrical',  img: 'img/parts/bosch-spark-plug.webp' },
-  { brand: 'OEM',           part: 'Air filter',        cat: 'filters',     img: 'img/parts/air-filter.webp' },
-  { brand: 'Behr',          part: 'Radiator',          cat: 'cooling',     img: 'img/parts/behr-radiator.webp' },
-  { brand: 'Mercedes-AMG',  part: 'Engine & parts',    cat: 'engine',      img: 'img/parts/engine.webp' },
-  { brand: 'Body',          part: 'Front bumper',      cat: 'body-lights', img: 'img/parts/front-bumper.webp' }
+  { part: 'Brake pads',        cat: 'brakes',      img: 'img/parts/remsa-brake-pads.webp' },
+  { part: 'Brake disc',        cat: 'brakes',      img: 'img/parts/brake-disc.webp' },
+  { part: 'Control arm',       cat: 'suspension',  img: 'img/parts/lemforder-control-arm.webp' },
+  { part: 'Suspension & axle', cat: 'suspension',  img: 'img/parts/suspension-assembly.webp' },
+  { part: 'Headlight unit',    cat: 'body-lights', img: 'img/parts/audi-headlight.webp' },
+  { part: 'Spark plugs',       cat: 'electrical',  img: 'img/parts/bosch-spark-plug.webp' },
+  { part: 'Air filter',        cat: 'filters',     img: 'img/parts/air-filter.webp' },
+  { part: 'Radiator',          cat: 'cooling',     img: 'img/parts/behr-radiator.webp' },
+  { part: 'Engine parts',      cat: 'engine',      img: 'img/parts/engine.webp' },
+  { part: 'Body parts',        cat: 'body-lights', img: 'img/parts/front-bumper.webp' }
 ];
 
 const HERO_CARS = [
@@ -133,7 +133,7 @@ const HERO_CARS = [
     srcSmall: 'img/hero/vw-touareg-sm.webp', wSmall: 760,
     model: 'TOUAREG',
     make: 'volkswagen',
-    badge: 'VOLKSWAGEN',
+    badge: 'VW',
     scale: 0.84,
     alt: 'Volkswagen Touareg SUV',
     callouts: [
@@ -150,7 +150,7 @@ const HERO_CARS = [
     srcSmall: 'img/hero/range-rover-sport-sm.webp', wSmall: 760,
     model: 'SPORT',
     label: 'Range Rover',
-    badge: 'RANGE ROVER',
+    badge: 'ROVER',
     scale: 0.9,
     alt: 'Range Rover Sport SUV',
     callouts: [
@@ -200,6 +200,16 @@ const HERO_SHADER_PRESET = {
       const m = (typeof CAR_MAKES !== 'undefined' && Array.isArray(CAR_MAKES)) ? CAR_MAKES.find(x => x.slug === slug) : null;
       return m ? m.label : '';
     };
+    // One shared scale for every badge. Each word used to be fitted to its own
+    // box, so a 3-letter word (BMW) came out with letters twice the height of an
+    // 8-letter one (MERCEDES). Sizing every SVG as a fraction of the LONGEST
+    // word's width gives all of them identical letter height; only the width of
+    // the word changes. Keep badges short or the longest one sets the size.
+    const badgeVbW = c => {
+      const t = String(c.badge || c.label || makeName(c.make) || c.model || '').trim();
+      return Math.max(360, t.length * 190 + 60);
+    };
+    const maxBadgeVbW = Math.max.apply(null, cars.map(badgeVbW));
     stage.innerHTML = cars.map((c, i) => {
       const label = c.label || makeName(c.make);
       const scale = Number(c.scale) > 0 ? Number(c.scale) : 1;
@@ -213,7 +223,7 @@ const HERO_SHADER_PRESET = {
       // so the stroke thins out proportionally instead of staying chunky.
       const vbW = Math.max(360, badgeText.length * 190 + 60);
       const badge = !badgeText ? '' : `
-          <svg class="ge-car-model" viewBox="0 0 ${vbW} 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+          <svg class="ge-car-model" style="--bw:${(vbW / maxBadgeVbW).toFixed(4)}" viewBox="0 0 ${vbW} 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
             <defs>
               <linearGradient id="geModelGrad${i}" x1="0%" y1="100%" x2="100%" y2="0%">
                 <stop offset="0%" stop-color="#c1121f" />
