@@ -174,6 +174,16 @@ Owner: *"text sizes for each car isn't consistent ... more oval ... take the tex
 - ⚠️ Mismatches the owner should know: the tail-light photo is a different lamp from the Mercedes ones; the "Airmatic" struts show a coil-over axle. Both are replaceable from the admin once an account exists.
 - **`scripts/bootstrap-admin.js`** creates the first admin: `node scripts/bootstrap-admin.js`, run by the OWNER in their own terminal; it asks for username, role and a hidden password. Claude never sees or chooses the password. `--dry-run` tested. Live DB confirmed 0 admin profiles, so bootstrap is open.
 
+### Wider badges, taller stage, concentric ring (2026-11-14, last)
+Owner: *"BMW hides fully behind the car you can make that bigger ... take the text where it says engineered in germany ... take it down and then stretch the loop in height so the products don't go behind the cars when rotating"*.
+
+- **Every badge is now as wide as the longest** (MERCEDES): the gaps between letters widen via SVG `textLength` + `lengthAdjust="spacing"`, the glyphs keep one size. BMW is `B   M   W` with B and W clear of the car on both sides; the **M is still behind the roof** (it sits in the middle of the car) — raising the badge above the roofline would fix it, not done. Badge box `min(100%, 1240px)` (was 96%/1020px), `--bw` removed.
+- **Stage 67vw / 900px** (was 56vw / 730px), which pushes "Engineered in Germany…" down (headline top 865 → 1012 at 1440). Skeleton in `index.html` synced.
+- **Ring `--ry` 18vw → 23vw (330px max).** Measured over a full orbit (10 parts × 12 angles × 6 cars) at 1440 and 1085: **zero** overlap between any part image and the car, the caption, the slide dots or either arrow; 25px / 34px of headroom under the header; nothing clipped; no page overflow.
+- ⚠️ **What actually fixed "products go behind the cars" was making things CONCENTRIC, not just bigger.** The ring had been lifted by `inset-bottom` to clear the caption but the car stayed centred, so they were 75px off-axis and the lower parts touched the wheel arches at narrow widths. `--reserve: 150px` on `.ge-hero-stage` is now shared by the ring (`inset`), the car (`padding-bottom`), the badge (`top`) and the arrows (`top`).
+- ⚠️ **Measuring trap, again:** `.ge-car-tilt`'s `getBoundingClientRect()` lies under the stage's perspective. Use its `offsetWidth/offsetHeight` centred on `(stageHeight - reserve) / 2`.
+- Known, not fixed: on a ~1000px-tall viewport the fixed WhatsApp float lands on the bottom-right caption, because the taller stage pushes the caption down into the float's band. It was clear when the stage was shorter.
+
 ### Catalog product photos — mostly NOT possible from free stock (2026-11-14)
 Owner: *"the photos you search them and save them and then add them your selves bcs you chose those products"*.
 
