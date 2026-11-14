@@ -135,7 +135,12 @@
 }
 
 .ge-ring {
-  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  /* Not `inset: 0`. The ring's centre is its 50% line, and reserving space at
+     the bottom lifts the whole orbit — which is what keeps the lower arc off
+     the model caption in the bottom corner. The parts are much wider now, so
+     the bottom-right one used to slide behind "MERCEDES-BENZ E-CLASS". There
+     is headroom above to pay for it: the top arc still clears the header. */
+  position: absolute; inset: 0 0 84px 0; z-index: 0; pointer-events: none;
   --ge-orbit: 0deg;
   /* Wide and shallow: a flat, tilted ring around the car rather than a circle,
      which is what reads as "orbit" instead of "clock face". */
@@ -145,10 +150,11 @@
      viewport too (min(55%, 610px)), so at 1100px it is 605px wide against a
      2x363px ellipse and the left and right parts surfaced INSIDE the
      bodywork — a label half-eaten by a wing reads as a bug, not as depth.
-     36vw keeps the extremes ~90px clear of the car at every width the ring
-     is shown at, and the ceiling still stops short of the prev/next arrows
-     parked at the stage edges, which are on a higher layer. */
-  --rx: clamp(190px, 36vw, 480px);
+     The ceiling now runs the parts OUTSIDE the prev/next arrows (owner,
+     2026-11-14), which is why those moved inboard to 16%. At 1280px the
+     VIEWPORT, not the stage, is the binding constraint: half of it is 640px
+     and a part is ~76px wide, so anything past ~562px gets clipped. */
+  --rx: clamp(190px, 41vw, 596px);
   /* Squeezed from both sides, so leave it alone. It has to beat half the
      car's height plus half a chip or the bottom parts come out from behind
      the wheels mid-word (under ~215 at 1440, where the car is ~277px tall).
@@ -182,7 +188,7 @@ span.ge-ring-item { cursor: default; }
 
 .ge-ring-face {
   display: flex; flex-direction: column; align-items: center; gap: 9px;
-  width: clamp(96px, 9.8vw, 136px);
+  width: clamp(104px, 10.6vw, 152px);
 }
 /* Parts show in their OWN shape (owner, 2026-11-14: "the images should be the
    default image shape I gave, not in circles"). The photos are transparent
@@ -193,7 +199,7 @@ span.ge-ring-item { cursor: default; }
 .ge-ring-img,
 .ge-ring-icon {
   width: 100%;
-  height: clamp(74px, 7.6vw, 108px);
+  height: clamp(82px, 8.4vw, 122px);
   transition: filter var(--t-base, .25s) var(--ease, ease),
               transform var(--t-base, .25s) var(--ease, ease);
 }
@@ -296,8 +302,31 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
 }
 .ge-car-nav:hover { background: var(--orange); border-color: var(--orange); color: #fff; }
 .ge-car-nav:focus-visible { outline: 2px solid var(--orange-light); outline-offset: 3px; }
-.ge-car-nav.prev { left: 0; }
-.ge-car-nav.next { right: 0; }
+/* Inboard, not at the stage edges. The owner wants the parts ring to orbit
+   OUTSIDE the arrows (2026-11-14), and the ring cannot simply grow to do it:
+   at 1280px a part at the stage edge would already hang off the viewport. So
+   the arrows come in instead, to sit in the gap between the car and the ring.
+   16% is the one value that holds at both ends — any further out and the ring
+   catches them at 1280, any further in and they touch the widest car
+   (the Touareg, `scale: 1.15`). Reset to the edges below 1025px, where the
+   ring is hidden and the full width is free again. */
+.ge-car-nav.prev { left: 16%; }
+.ge-car-nav.next { right: 16%; }
+
+/* The narrow-desktop band, where the ring still has to pass outside the
+   arrows but with much less room to do it in. Three things are squeezed at
+   once: the viewport caps how far out a part can sit, the car is sized off
+   that same viewport, and the arrows have to fit in the gap between the two.
+   Shrinking the car and the parts a little is what buys that gap back —
+   without it the arrows land on the bodywork at 1100px. This block sits
+   BELOW the nav rules on purpose: same specificity, so source order decides. */
+@media (max-width: 1199px) {
+  .ge-car-tilt { width: calc(min(50%, 540px) * var(--scale, 1)); }
+  .ge-ring-face { width: clamp(100px, 9.6vw, 118px); }
+  .ge-ring-img, .ge-ring-icon { height: clamp(78px, 7.6vw, 94px); }
+  .ge-car-nav.prev { left: 13%; }
+  .ge-car-nav.next { right: 13%; }
+}
 
 /* Caption, bottom corner of the stage */
 .ge-car-cap { position: absolute; right: 2px; bottom: 6px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
@@ -369,6 +398,10 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
      landing on the bodywork. At 24% the arrows sit beside the glasshouse,
      which is clear on all six cars. */
   .ge-car-nav { width: 38px; height: 38px; font-size: 14px; top: 24%; }
+  /* The ring is hidden from here down, so the arrows go back to the edges —
+     inboard they would sit on the car itself at this width. */
+  .ge-car-nav.prev { left: 0; }
+  .ge-car-nav.next { right: 0; }
   /* Phone performance. The sheen repaints a masked, screen-blended layer on
      every frame, and each nav button blurs the animating stage behind it —
      both cheap on a desktop GPU, both expensive on a phone, for an effect
