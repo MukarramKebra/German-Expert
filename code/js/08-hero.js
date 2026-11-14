@@ -61,10 +61,12 @@
 // red make badge behind the car). Eight spaces them 45 degrees apart.
 const HERO_PARTS = [
   { brand: 'Remsa',         part: 'Brake pads',        cat: 'brakes',      img: 'img/parts/remsa-brake-pads.webp' },
+  { brand: 'OEM',           part: 'Brake disc',        cat: 'brakes',      img: 'img/parts/brake-disc.webp' },
   { brand: 'Lemförder',     part: 'Control arm',       cat: 'suspension',  img: 'img/parts/lemforder-control-arm.webp' },
   { brand: 'OEM',           part: 'Suspension & axle', cat: 'suspension',  img: 'img/parts/suspension-assembly.webp' },
   { brand: 'Hella',         part: 'Headlight unit',    cat: 'body-lights', img: 'img/parts/audi-headlight.webp' },
   { brand: 'Bosch',         part: 'Spark plugs',       cat: 'electrical',  img: 'img/parts/bosch-spark-plug.webp' },
+  { brand: 'OEM',           part: 'Air filter',        cat: 'filters',     img: 'img/parts/air-filter.webp' },
   { brand: 'Behr',          part: 'Radiator',          cat: 'cooling',     img: 'img/parts/behr-radiator.webp' },
   { brand: 'Mercedes-AMG',  part: 'Engine & parts',    cat: 'engine',      img: 'img/parts/engine.webp' },
   { brand: 'Body',          part: 'Front bumper',      cat: 'body-lights', img: 'img/parts/front-bumper.webp' }
