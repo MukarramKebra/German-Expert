@@ -139,7 +139,7 @@ function shareProduct(id) {
   var p = getAllProducts().find(function(x){ return x.id === id; });
   if (!p) return;
   var url = SITE_URL;
-  var msg = '🚗 *' + p.name + '*\n💰 ' + fmtPrice(p.price) + '\n\nCheck it out at Alamdar Auto, Sharjah:\n' + url;
+  var msg = '🚗 *' + p.name + '*\n💰 ' + fmtPrice(p.price) + '\n\nCheck it out at Alamdar Auto, Kuwait:\n' + url;
   window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
 }
 
@@ -165,7 +165,7 @@ function askPriceOnWhatsApp(id, variantIdx) {
 // Same shape as askPriceOnWhatsApp() above, but quotes the price the customer
 // is looking at (option price and any Featured Sale included) so the message
 // matches the page. Items with no visible price fall through to the
-// ask-for-price wording instead of sending "0.00 AED".
+// ask-for-price wording instead of sending "0.00 KD".
 function enquireOnWhatsApp(id, variantIdx) {
   var p = getAllProducts().find(function(x){ return x.id === id; });
   if (!p) return;

@@ -4,9 +4,9 @@
 // and read by the storefront on every page load — same key-value pattern already
 // used for sku_map / brand_map / site_disabled.
 var _seoDefaults = {
-  title: 'Alamdar Auto | Genuine German Car Parts in Sharjah, UAE',
-  description: 'Alamdar Auto supplies genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI in Sharjah, with fast delivery across the UAE.',
-  keywords: 'german car parts sharjah, german car parts uae, mercedes parts sharjah, mercedes spare parts uae, bmw parts sharjah, bmw spare parts uae, audi parts sharjah, audi spare parts uae, volkswagen parts uae, vw parts sharjah, porsche parts uae, mini cooper parts uae, oem car parts uae, genuine car parts sharjah, brake pads sharjah, oil filter uae, spark plugs uae, auto spare parts sharjah, car parts industrial area sharjah, Alamdar Auto'
+  title: 'Alamdar Auto Spare Parts Co. Kuwait | Genuine European Car Parts',
+  description: 'Authorized distributor of genuine auto spare parts in Kuwait: Mercedes-Benz, BMW, Audi, VW, Porsche, Jaguar, Range Rover, Toyota. Shuwaikh Industrial Area.',
+  keywords: 'BMW auto spare parts Kuwait, Mercedes auto spare parts Kuwait, European auto spare parts Kuwait, Mercedes auto parts Kuwait, Mercedes parts Kuwait, European auto parts Kuwait, European parts Kuwait, auto parts Kuwait, Shuwaikh industrial area, Mercedes, BMW service Kuwait, Mercedes truck parts Kuwait, truck ac parts Kuwait, commercial vehicle parts Kuwait, Shuwaikh industrial area Kuwait, passenger cars auto parts Kuwait, Mercedes genuine auto parts Kuwait, BMW genuine auto parts Kuwait, Toyota genuine parts Kuwait, Mercedes Benz parts Kuwait, Benz auto parts Kuwait, BMW parts Kuwait, Audi parts Kuwait, Jaguar parts Kuwait, Porsche parts Kuwait, volkswagen spare parts Kuwait, Volkswagen parts Kuwait, Range Rover parts Kuwait, Alamdar auto spare parts company Kuwait, الشويخ الصناعية الكويت, قطع غيار السيارات الكويت مرسيدس, مرسيدس قطع غيار السيارات حقيقية الكويت, بي ام دبليو قطع غيار السيارات حقيقية الكويت, تويوتا قطع الغيار الأصلية الكويت, مرسيدس بنز اجزاء الكويت, بنز قطع غيار السيارات والكويت, قطع غيار بي ام دبليو, قطع غيار فولكس واجن الكويت, فولكس فاجن قطع الغيار الكويت, جاكوار قطع الغيار الكويت, علمدار قطع غيار السيارات شركة الكويت, مرسيدس بي ام دبليو قطع غيار, كهرباء سيارات'
 };
 
 async function loadSEOSettings() {

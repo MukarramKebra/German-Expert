@@ -223,7 +223,7 @@ function renderDeletedOrdersTab() {
           '<div class="ord-phone" style="opacity:0.6"><i class="fab fa-whatsapp" style="color:var(--green)"></i> '+encodeHtml(o.customer_phone||'—')+'</div></td>' +
       '<td><div class="ord-addr" style="opacity:0.6">'+encodeHtml(o.address||'—')+'</div></td>' +
       '<td><div class="ord-items">'+items+'</div></td>' +
-      '<td style="font-weight:900;color:#aaa">'+parseFloat(o.total||0).toFixed(2)+'</td>' +
+      '<td style="font-weight:900;color:#aaa">'+parseFloat(o.total||0).toFixed(3)+'</td>' +
       '<td><div style="font-size:12px;font-weight:700;color:#666">'+delDateStr+'</div>' +
           '<div style="font-size:10px;font-weight:700;color:'+urgency+'">'+daysLeft+' day'+(daysLeft!==1?'s':'')+' left</div></td>' +
       '<td style="white-space:nowrap">' +
@@ -261,7 +261,7 @@ function renderDeletedTab() {
         '<div style="font-size:10px;color:#aaa">'+getProductSku(d.id)+'&nbsp;&bull;&nbsp;'+(d.isBase?'Built-in':'Custom')+'</div></div>' +
       '</div></td>' +
       '<td><span class="cat-pill" style="opacity:0.5">'+((d.cat||'').replace('-',' '))+'</span></td>' +
-      '<td style="font-weight:700;color:#aaa">'+d.price.toFixed(2)+'</td>' +
+      '<td style="font-weight:700;color:#aaa">'+d.price.toFixed(3)+'</td>' +
       '<td>' +
         '<div style="font-size:12px;font-weight:700;color:#666">'+dateStr+'</div>' +
         '<div style="font-size:10px;font-weight:700;color:'+urgency+'">'+daysLeft+' day'+(daysLeft!==1?'s':'')+' left</div>' +

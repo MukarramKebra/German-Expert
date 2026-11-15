@@ -32,7 +32,7 @@
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
   function money(n) {
-    return (Number(n) || 0).toFixed(2) + ' AED';
+    return (Number(n) || 0).toFixed(3) + ' KD';
   }
 
   var params = new URLSearchParams(window.location.search);
@@ -76,7 +76,7 @@
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:12px">' +
         '<div>' +
           '<div style="color:var(--orange);font-weight:900;font-size:20px;letter-spacing:.5px">ALAMDAR AUTO</div>' +
-          '<div style="color:#888;font-size:12px">German Car Parts &middot; Sharjah, UAE</div>' +
+          '<div style="color:#888;font-size:12px">Auto Spare Parts &middot; Kuwait</div>' +
         '</div>' +
         '<div style="text-align:right">' +
           '<div style="font-size:22px;font-weight:800;color:#111827">INVOICE</div>' +

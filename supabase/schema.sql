@@ -1,12 +1,12 @@
 -- ============================================================================
--- Alamdar Auto (Sharjah) — full database schema, single source of truth.
+-- Alamdar Auto (Kuwait) — full database schema, single source of truth.
 --
 -- Rebuilt on 2026-11-08 from the LIVE schema of the Expert Hardware Kuwait
 -- project this store was forked from (not from its old SQL files, which had
 -- drifted and granted anon write). Run once on an empty Supabase project.
 --
 -- Deliberate differences vs the Kuwait live DB:
---   * money columns are numeric(10,2) (AED, 2 decimals) instead of (10,3)
+--   * money columns are numeric(10,3) (KD, 3 decimals)
 --   * expert_analytics has no anon UPDATE policy (writes go via the RPC)
 --   * expert_reviews inserts are length/rating bounded; admins may moderate
 --   * increment_expert_analytics clamps each call to +10 (storefront sends +1)
@@ -29,7 +29,7 @@ create table if not exists public.expert_products (
   name        text not null,
   category    text,
   subcategory text,
-  price       numeric(10,2) default 0,
+  price       numeric(10,3) default 0,
   img_url     text,            -- plain http(s) links only, never base64
   hidden      boolean default false,
   description text,
@@ -127,7 +127,7 @@ create table if not exists public.expert_orders (
   customer_email text,
   address        text,
   items          text,
-  total          numeric(10,2) default 0,
+  total          numeric(10,3) default 0,
   status         text default 'pending',
   notes          text,
   created_at     timestamptz default now(),
@@ -370,5 +370,5 @@ grant insert on public.offer_subscribers to anon;
 insert into public.expert_settings (key, value) values
   ('asset_version', (extract(epoch from now()) * 1000)::bigint::text),
   ('featured_offers', '[]'),
-  ('seo_settings', '{"title":"Alamdar Auto | Genuine German Car Parts in Sharjah, UAE","description":"Alamdar Auto supplies genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI in Sharjah, with fast delivery across the UAE.","keywords":"german car parts sharjah, mercedes parts sharjah, bmw parts uae, audi parts uae, volkswagen parts, porsche parts, oem car parts uae, auto spare parts sharjah"}')
+  ('seo_settings', '{"title":"Alamdar Auto Spare Parts Co. Kuwait | Genuine European Car Parts","description":"Authorized distributor of genuine auto spare parts in Kuwait: Mercedes-Benz, BMW, Audi, VW, Porsche, Jaguar, Range Rover, Toyota. Shuwaikh Industrial Area.","keywords":"BMW auto spare parts Kuwait, Mercedes auto spare parts Kuwait, European auto spare parts Kuwait, Mercedes auto parts Kuwait, Mercedes parts Kuwait, European auto parts Kuwait, European parts Kuwait, auto parts Kuwait, Shuwaikh industrial area, Mercedes, BMW service Kuwait, Mercedes truck parts Kuwait, truck ac parts Kuwait, commercial vehicle parts Kuwait, Shuwaikh industrial area Kuwait, passenger cars auto parts Kuwait, Mercedes genuine auto parts Kuwait, BMW genuine auto parts Kuwait, Toyota genuine parts Kuwait, Mercedes Benz parts Kuwait, Benz auto parts Kuwait, BMW parts Kuwait, Audi parts Kuwait, Jaguar parts Kuwait, Porsche parts Kuwait, volkswagen spare parts Kuwait, Volkswagen parts Kuwait, Range Rover parts Kuwait, Alamdar auto spare parts company Kuwait, الشويخ الصناعية الكويت, قطع غيار السيارات الكويت مرسيدس, مرسيدس قطع غيار السيارات حقيقية الكويت, بي ام دبليو قطع غيار السيارات حقيقية الكويت, تويوتا قطع الغيار الأصلية الكويت, مرسيدس بنز اجزاء الكويت, بنز قطع غيار السيارات والكويت, قطع غيار بي ام دبليو, قطع غيار فولكس واجن الكويت, فولكس فاجن قطع الغيار الكويت, جاكوار قطع الغيار الكويت, علمدار قطع غيار السيارات شركة الكويت, مرسيدس بي ام دبليو قطع غيار, كهرباء سيارات"}')
 on conflict (key) do nothing;

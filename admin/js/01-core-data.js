@@ -408,7 +408,10 @@ const CAR_MAKES = [
   { slug: 'volkswagen', label: 'Volkswagen' },
   { slug: 'porsche',    label: 'Porsche' },
   { slug: 'mini',       label: 'MINI' },
-  { slug: 'opel',       label: 'Opel' }
+  { slug: 'opel',       label: 'Opel' },
+  { slug: 'landrover',  label: 'Range Rover' },
+  { slug: 'jaguar',     label: 'Jaguar' },
+  { slug: 'toyota',     label: 'Toyota' }
 ];
 function getMakes(id) { var v = (window._sbFitmentMap || {})[String(id)]; return Array.isArray(v) ? v : []; }
 // Accepts "BMW; Mercedes-Benz | audi" etc. -> ['bmw','mercedes','audi'] (unknown words dropped)

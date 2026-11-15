@@ -26,7 +26,7 @@
 //    DEFAULT for every seeded service on purpose: inventing labour rates for a
 //    real workshop is worse than asking the customer to message. The owner sets
 //    the real prices in the admin tab.
-//  • from: true          → renders "From AED 249" (a starting price, not a quote).
+//  • from: true          → renders "From KD 12.500" (a starting price, not a quote).
 //  • cat                 → optional parts-category slug; adds a "Shop the parts"
 //    link that reuses the catalog's own filterProducts().
 //  • makes               → optional car-make slugs, shown as small chips.
@@ -52,7 +52,7 @@ var DEFAULT_SERVICES = [
   { id: 'diagnostics',   name: 'Computer Diagnostics & Fault Scan', icon: 'fa-laptop-medical', duration: '30–45 min', cat: 'electrical',
     desc: 'Full ECU scan on German-specific equipment — we read every module, explain the codes and quote the fix.' },
   { id: 'ac-service',    name: 'A/C Service & Gas Refill',        icon: 'fa-snowflake',       duration: '1 hr',      cat: 'cooling',
-    desc: 'Leak test, compressor and condenser check, cabin filter and a full regas for proper UAE-summer cooling.' },
+    desc: 'Leak test, compressor and condenser check, cabin filter and a full regas for proper Kuwait-summer cooling.' },
   { id: 'suspension',    name: 'Suspension & Steering Repair',    icon: 'fa-car-side',        duration: '2–4 hrs',   cat: 'suspension',
     desc: 'Shock absorbers, control arms, bushes and links — the usual cure for knocks, clunks and uneven tyre wear.' },
   { id: 'timing',        name: 'Timing Chain & Belt Replacement', icon: 'fa-gear',            duration: '1–2 days',  cat: 'engine',

@@ -90,7 +90,7 @@ async function openProductView(id) {
       '<textarea class="pv-desc-input" id="pvDesc" rows="3" placeholder="Product description..." onblur="pvOnDescBlur()">' + encodeHtml(p.desc || '') + '</textarea>' +
       '<input class="pv-desc-input" id="pvKeywords" style="margin-top:8px" placeholder="SEO keywords, comma separated..." value="' + encodeHtml((window._sbProductKeywords||{})[id] || '') + '" onblur="pvOnKeywordsBlur()" />' +
       '<div class="pv-price-row">' +
-        '<div class="pv-price-field"><input type="number" step="0.01" min="0" id="pvPrice" value="' + displayPrice.toFixed(2) + '" oninput="pvOnPriceEdit()" /><span>AED</span></div>' +
+        '<div class="pv-price-field"><input type="number" step="0.001" min="0" id="pvPrice" value="' + displayPrice.toFixed(3) + '" oninput="pvOnPriceEdit()" /><span>KD</span></div>' +
         '<button class="pv-toggle-btn" onclick="pvTogglePriceHidden()">' +
           (priceHidden ? '<i class="fa fa-eye"></i> Show Price' : '<i class="fa fa-eye-slash"></i> Hide Price (Ask on WhatsApp)') +
         '</button>' +
@@ -98,7 +98,7 @@ async function openProductView(id) {
       (priceHidden ? '<div class="pv-hint"><i class="fa fa-info-circle"></i> Customers see "Price on request" + an Ask Price on WhatsApp button instead.</div>' : '') +
       '<div class="pv-price-row">' +
         '<div class="pv-price-field"><input type="number" step="1" min="0" max="95" id="pvSale" value="' + salePct + '" onblur="pvOnSaleBlur()" /><span>% Sale</span></div>' +
-        (salePct > 0 ? '<span class="pv-hint" style="margin:0"><i class="fa fa-tag"></i> Shown in the homepage offers strip at ' + (displayPrice * (1 - salePct/100)).toFixed(2) + ' AED</span>' : '<span class="pv-hint" style="margin:0">0 = not on sale (also removes it from the offers strip)</span>') +
+        (salePct > 0 ? '<span class="pv-hint" style="margin:0"><i class="fa fa-tag"></i> Shown in the homepage offers strip at ' + (displayPrice * (1 - salePct/100)).toFixed(3) + ' KD</span>' : '<span class="pv-hint" style="margin:0">0 = not on sale (also removes it from the offers strip)</span>') +
       '</div>' +
       '<div class="pv-stock-row">' +
         '<span class="status-dot"><span class="dot ' + statusCls + '"></span>' + statusTxt + '</span>' +
@@ -119,7 +119,7 @@ async function openProductView(id) {
       '<div class="pv-divider"></div>' +
       '<div class="pv-features">' +
         '<div class="pv-feat"><i class="fa fa-check-circle"></i> Genuine &amp; OEM-quality part</div>' +
-        '<div class="pv-feat"><i class="fa fa-shipping-fast"></i> Same-day delivery in Sharjah · 1-2 days UAE-wide</div>' +
+        '<div class="pv-feat"><i class="fa fa-shipping-fast"></i> Delivery across Kuwait</div>' +
         '<div class="pv-feat"><i class="fa fa-shield-alt"></i> Easy returns &amp; after-sales support</div>' +
         '<div class="pv-feat"><i class="fa fa-tags"></i> Trade pricing for garages &amp; workshops</div>' +
       '</div>' +

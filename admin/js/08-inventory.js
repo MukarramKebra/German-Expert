@@ -278,7 +278,7 @@ function addVariantRow(label, price, image, description, sku) {
     '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">' +
       '<div style="display:flex;gap:8px">' +
         '<input type="text" class="vr-label" placeholder="e.g. 2&quot; (50 box/ctn)" style="flex:1;min-width:0;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px" />' +
-        '<input type="number" class="vr-price" min="0" step="0.01" placeholder="0.00" title="Price (AED) — leave empty to use the product price" style="width:90px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px" />' +
+        '<input type="number" class="vr-price" min="0" step="0.001" placeholder="0.000" title="Price (KD) — leave empty to use the product price" style="width:90px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px" />' +
         '<button type="button" class="del-btn" onclick="this.closest(\'.variant-row\').remove()" title="Remove option"><i class="fa fa-trash"></i></button>' +
       '</div>' +
       '<input type="text" class="vr-sku" placeholder="SKU for this option — defaults to the product\'s own" style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px" />' +

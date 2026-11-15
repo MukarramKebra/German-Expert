@@ -39,7 +39,7 @@ var ADMIN_DEFAULT_SERVICES = [
   { id:'diagnostics',  name:'Computer Diagnostics & Fault Scan', icon:'fa-laptop-medical',   duration:'30–45 min', cat:'electrical',
     desc:'Full ECU scan on German-specific equipment — we read every module, explain the codes and quote the fix.' },
   { id:'ac-service',   name:'A/C Service & Gas Refill',          icon:'fa-snowflake',        duration:'1 hr',      cat:'cooling',
-    desc:'Leak test, compressor and condenser check, cabin filter and a full regas for proper UAE-summer cooling.' },
+    desc:'Leak test, compressor and condenser check, cabin filter and a full regas for proper Kuwait-summer cooling.' },
   { id:'suspension',   name:'Suspension & Steering Repair',      icon:'fa-car-side',         duration:'2–4 hrs',   cat:'suspension',
     desc:'Shock absorbers, control arms, bushes and links — the usual cure for knocks, clunks and uneven tyre wear.' },
   { id:'timing',       name:'Timing Chain & Belt Replacement',   icon:'fa-gear',             duration:'1–2 days',  cat:'engine',
@@ -279,11 +279,11 @@ function renderServicesTab() {
       '</div>' +
       '<textarea class="svc-adm-desc" rows="2" placeholder="What the job includes — one or two plain sentences the customer will read." oninput="svcSet(' + i + ',\'desc\',this.value)">' + encodeHtml(s.desc) + '</textarea>' +
       '<div class="svc-adm-grid">' +
-        '<label>Price (AED)' +
+        '<label>Price (KD)' +
           '<input type="number" min="0" step="1" value="' + (s.price > 0 ? s.price : '') + '" placeholder="Blank = price on request" oninput="svcSet(' + i + ',\'price\',this.value)" />' +
         '</label>' +
         '<label>Starting price?' +
-          '<span class="svc-adm-inline"><input type="checkbox"' + (s.from ? ' checked' : '') + ' onchange="svcSet(' + i + ',\'from\',this.checked,true)" /> show as &quot;From AED …&quot;</span>' +
+          '<span class="svc-adm-inline"><input type="checkbox"' + (s.from ? ' checked' : '') + ' onchange="svcSet(' + i + ',\'from\',this.checked,true)" /> show as &quot;From KD …&quot;</span>' +
         '</label>' +
         '<label>How long' +
           '<input type="text" value="' + encodeHtml(s.duration) + '" placeholder="e.g. 1–2 hrs" oninput="svcSet(' + i + ',\'duration\',this.value)" />' +

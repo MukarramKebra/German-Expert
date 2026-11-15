@@ -2,7 +2,7 @@
 /*
  * generate-product-pages.js
  * ---------------------------------------------------------------------------
- * Static SEO page generator for Alamdar Auto (German car parts, Sharjah).
+ * Static SEO page generator for Alamdar Auto (auto spare parts, Kuwait).
  *
  * WHY: the storefront (index.html) renders every product client-side from
  * Supabase, so no individual product has a crawlable URL and Google cannot
@@ -214,11 +214,11 @@ function renderPage(p) {
   // Products whose name/brand collapse to an identical title (size/pack variants
   // listed as separate products) get their SKU appended — see markDuplicateTitles().
   const title = p.dupTitle
-    ? clip(titleName, 50) + ' (' + p.sku + ') | Alamdar Auto Sharjah'
-    : clip(titleName, 65) + ' | Alamdar Auto Sharjah';
+    ? clip(titleName, 50) + ' (' + p.sku + ') | Alamdar Auto Kuwait'
+    : clip(titleName, 65) + ' | Alamdar Auto Kuwait';
   const descBase = p.desc
     ? p.desc
-    : [brandTxt, p.name, catTxt ? 'in ' + catTxt : '', 'Buy from Alamdar Auto, German car parts specialists in Sharjah, UAE.']
+    : [brandTxt, p.name, catTxt ? 'in ' + catTxt : '', 'Buy from Alamdar Auto Spare Parts Co., Shuwaikh Industrial Area, Kuwait.']
         .filter(Boolean).join(' ');
   const metaDesc = clip(descBase, 155);
   const priceShown = (p.price > 0 && !p.priceHidden);
@@ -243,7 +243,7 @@ function renderPage(p) {
     } : undefined,
     offers: priceShown ? {
       '@type': 'Offer',
-      priceCurrency: 'AED',
+      priceCurrency: 'KWD',
       price: p.price,
       priceValidUntil: new Date(Date.now() + 365 * 864e5).toISOString().slice(0, 10),
       itemCondition: 'https://schema.org/NewCondition',
@@ -262,7 +262,7 @@ function renderPage(p) {
   const jsonld = (o) => JSON.stringify(o, (k, v) => v === undefined ? undefined : v);
 
   const priceHtml = priceShown
-    ? `<p class="p-price">${p.price.toFixed(2)} <span>AED</span></p>`
+    ? `<p class="p-price">${p.price.toFixed(3)} <span>KD</span></p>`
     : `<p class="p-price p-ask">Price on request</p>`;
   const availHtml = priceShown
     ? `<p class="p-avail ${inStock ? 'in' : 'out'}">${inStock ? '✔ In stock' : '✖ Out of stock'}</p>`
@@ -275,7 +275,7 @@ function renderPage(p) {
     ? `<div class="p-variants">
         <p class="p-variants-label">Available options:</p>
         <ul class="p-variants-list">
-          ${p.variants.map((v) => `<li>${esc(v.label)}${(priceShown && v.price > 0 && v.price !== p.price) ? ' — ' + v.price.toFixed(2) + ' AED' : ''}</li>`).join('')}
+          ${p.variants.map((v) => `<li>${esc(v.label)}${(priceShown && v.price > 0 && v.price !== p.price) ? ' — ' + v.price.toFixed(3) + ' KD' : ''}</li>`).join('')}
         </ul>
       </div>`
     : '';
@@ -297,7 +297,7 @@ function renderPage(p) {
   <meta property="og:url" content="${esc(url)}" />
   <meta property="og:image" content="${esc(ogImage)}" />
   ${priceShown ? `<meta property="product:price:amount" content="${p.price}" />
-  <meta property="product:price:currency" content="AED" />` : ''}
+  <meta property="product:price:currency" content="KWD" />` : ''}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${esc(titleName)}" />
   <meta name="twitter:description" content="${esc(metaDesc)}" />
@@ -358,7 +358,7 @@ function renderPage(p) {
       </div>
     </div>
     <footer>
-      <strong>Alamdar Auto</strong> — German car parts specialists in Sharjah, UAE.
+      <strong>Alamdar Auto</strong> — authorized auto spare parts distributor, Shuwaikh Industrial Area, Kuwait.
       Genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI.
       <br />This page is a catalog listing; browse the full store to order.
     </footer>

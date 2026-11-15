@@ -142,10 +142,9 @@ const HERO_CARS = [
     ],
   },
   {
-    // Deliberately no `make`: Land Rover is not in CAR_MAKES, so a
-    // "Shop Land Rover parts" button would filter the catalog to nothing.
-    // The caption shows the name only. Add make: 'landrover' here AND to
-    // CAR_MAKES in both config files once the shop actually stocks it.
+    // `make: 'landrover'` is the Range Rover slug (added to CAR_MAKES in both config
+    // files for the Kuwait shop, which stocks Range Rover parts).
+    make: 'landrover',
     src: 'img/hero/range-rover-sport.webp', w: 1400,
     srcSmall: 'img/hero/range-rover-sport-sm.webp', wSmall: 760,
     model: 'SPORT',

@@ -54,7 +54,7 @@ function renderOrdersTab() {
     card('fa-receipt','ic-orange','Total Orders', total, 'All time') +
     card('fa-clock','ic-yellow','Pending', pending, 'Awaiting confirmation') +
     card('fa-truck','ic-green','Delivered', delivered, 'Completed orders') +
-    card('fa-coins','ic-blue','Revenue', revenue.toFixed(2)+' AED', 'All orders');
+    card('fa-coins','ic-blue','Revenue', revenue.toFixed(3)+' KD', 'All orders');
 
   document.getElementById('ordCountLbl').textContent = list.length + ' order' + (list.length!==1?'s':'') + ' shown';
 
@@ -69,7 +69,7 @@ function renderOrdersTab() {
     var items = '';
     try {
       var arr = typeof o.items === 'string' ? JSON.parse(o.items) : (o.items || []);
-      items = arr.map(function(it){ return '<span style="display:block">• '+encodeHtml(it.name)+' ×'+encodeHtml(Number(it.qty)||0)+' — '+(parseFloat(it.price)||0).toFixed(2)+' AED</span>'; }).join('');
+      items = arr.map(function(it){ return '<span style="display:block">• '+encodeHtml(it.name)+' ×'+encodeHtml(Number(it.qty)||0)+' — '+(parseFloat(it.price)||0).toFixed(3)+' KD</span>'; }).join('');
     } catch(e){ items = encodeHtml(String(o.items||'')); }
     var statusOpts = ['pending','confirmed','delivered','cancelled'];
     var statusSel  = '<select class="ord-status '+(statusOpts.indexOf(o.status)>-1?o.status:'pending')+'" onchange="updateOrderStatus('+o.id+',this.value,this)">'
@@ -81,7 +81,7 @@ function renderOrdersTab() {
       '<td><div class="ord-name">'+encodeHtml(o.customer_name||'—')+'</div><div class="ord-phone"><i class="fab fa-whatsapp" style="color:var(--green)"></i> '+encodeHtml(o.customer_phone||'—')+'</div></td>'+
       '<td><div class="ord-addr">'+encodeHtml(o.address||'—')+'</div>'+(o.notes?'<div class="ord-notes">'+encodeHtml(o.notes)+'</div>':'')+'</td>'+
       '<td><div class="ord-items">'+items+'</div></td>'+
-      '<td><span class="ord-total">'+parseFloat(o.total||0).toFixed(2)+'</span></td>'+
+      '<td><span class="ord-total">'+parseFloat(o.total||0).toFixed(3)+'</span></td>'+
       '<td>'+statusSel+'</td>'+
       '<td><button class="del-btn" onclick="deleteOrder('+o.id+')" title="Delete order"><i class="fa fa-trash"></i></button></td>'+
     '</tr>';
@@ -109,18 +109,18 @@ async function updateOrderStatus(id, newStatus, selectEl) {
 }
 
 function _buildOrdersWorkbook() {
-  var rows = [['#','Date & Time','Customer Name','Phone / WhatsApp','Delivery Address','Notes','Items Ordered','Total (AED)','Status']];
+  var rows = [['#','Date & Time','Customer Name','Phone / WhatsApp','Delivery Address','Notes','Items Ordered','Total (KD)','Status']];
   _allOrders.forEach(function(o, i){
     var dt = o.created_at ? new Date(o.created_at).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
     var itemStr = '';
     try {
       var arr = typeof o.items === 'string' ? JSON.parse(o.items) : (o.items || []);
-      itemStr = arr.map(function(it){ return it.name+' x'+it.qty+' ('+parseFloat(it.price).toFixed(2)+' AED)'; }).join(' | ');
+      itemStr = arr.map(function(it){ return it.name+' x'+it.qty+' ('+parseFloat(it.price).toFixed(3)+' KD)'; }).join(' | ');
     } catch(e){ itemStr = String(o.items||''); }
-    rows.push([i+1, dt, o.customer_name||'', o.customer_phone||'', o.address||'', o.notes||'', itemStr, parseFloat(o.total||0).toFixed(2), o.status||'']);
+    rows.push([i+1, dt, o.customer_name||'', o.customer_phone||'', o.address||'', o.notes||'', itemStr, parseFloat(o.total||0).toFixed(3), o.status||'']);
   });
   var totalRev = _allOrders.reduce(function(s,o){ return s+(parseFloat(o.total)||0); }, 0);
-  rows.push(['','','','','','','TOTAL', parseFloat(totalRev.toFixed(2)),'']);
+  rows.push(['','','','','','','TOTAL', parseFloat(totalRev.toFixed(3)),'']);
   var ws = XLSX.utils.aoa_to_sheet(rows);
   ws['!cols'] = [{wch:4},{wch:18},{wch:22},{wch:18},{wch:28},{wch:20},{wch:50},{wch:12},{wch:12}];
   var wb = XLSX.utils.book_new();
@@ -164,7 +164,7 @@ function renderOrdersReport() {
     '<div class="rpt-sum-item"><span class="sv">'+total+'</span><span class="sl">Total Orders</span></div>'+
     '<div class="rpt-sum-item"><span class="sv" style="color:var(--yellow)">'+pending+'</span><span class="sl">Pending</span></div>'+
     '<div class="rpt-sum-item"><span class="sv" style="color:var(--green)">'+delivered+'</span><span class="sl">Delivered</span></div>'+
-    '<div class="rpt-sum-item"><span class="sv" style="color:var(--orange)">'+revenue.toFixed(2)+'</span><span class="sl">Revenue AED</span></div>';
+    '<div class="rpt-sum-item"><span class="sv" style="color:var(--orange)">'+revenue.toFixed(3)+'</span><span class="sl">Revenue KD</span></div>';
 
   if (!total) {
     document.getElementById('rptOrdBody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#aaa;font-size:13px"><i class="fa fa-receipt" style="margin-right:8px"></i>No orders yet</td></tr>';
@@ -188,13 +188,13 @@ function renderOrdersReport() {
       '<td style="font-size:11px">'+encodeHtml(o.address||'—')+'</td>'+
       '<td style="font-size:11px;color:var(--gray);font-style:italic">'+encodeHtml(o.notes||'—')+'</td>'+
       '<td style="font-size:11px">'+itemStr+'</td>'+
-      '<td style="font-weight:800;color:var(--green)">'+parseFloat(o.total||0).toFixed(2)+'</td>'+
+      '<td style="font-weight:800;color:var(--green)">'+parseFloat(o.total||0).toFixed(3)+'</td>'+
       '<td><span class="rpt-status '+(sc==='delivered'?'in':sc==='pending'?'low':'out')+'">'+sc+'</span></td>'+
     '</tr>';
   }).join('');
   document.getElementById('rptOrdFoot').innerHTML =
     '<tr><td colspan="7" style="font-weight:800">TOTAL ('+total+' orders)</td>'+
-    '<td style="font-weight:800">'+revenue.toFixed(2)+' AED</td><td></td></tr>';
+    '<td style="font-weight:800">'+revenue.toFixed(3)+' KD</td><td></td></tr>';
 }
 
 // â”€â”€ STATS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -221,7 +221,7 @@ function renderStats() {
   document.getElementById('statsGrid').innerHTML =
     card('fa-boxes','ic-orange','Total Products', total, active + ' active products') +
     card('fa-layer-group','ic-blue','Total Units', units.toLocaleString(), 'In stock') +
-    card('fa-coins','ic-green','Inventory Value', value.toFixed(2)+' AED', 'Total stock value') +
+    card('fa-coins','ic-green','Inventory Value', value.toFixed(3)+' KD', 'Total stock value') +
     card('fa-exclamation-triangle','ic-red','Alerts', low+out, low+' low &nbsp;|&nbsp; '+out+' out');
   // Manually-ignored alerts (see ignoreAlert()) — dismissed permanently until un-ignored
   var ignored = window._sbIgnoredAlerts || {};
@@ -326,7 +326,7 @@ function renderTable() {
     const cls    = qty===0?'out':qty<=10?'low':'';
     const dotCls = qty===0?'dot-red':qty<=10?'dot-yellow':'dot-green';
     const status = qty===0?'Out of Stock':qty<=10?'Low Stock':'In Stock';
-    const val    = (p.price*qty).toFixed(2);
+    const val    = (p.price*qty).toFixed(3);
     const rawPh  = photos[p.id];
     const thumb  = (rawPh && (rawPh.startsWith('http') || rawPh.startsWith('data:'))) ? rawPh : (p.img || NO_IMG);
     const vCount = views[p.id]||0;
@@ -358,7 +358,7 @@ function renderTable() {
       '</div></td>' +
       '<td>'+catPills+'</td>' +
       '<td><div class="brand-cell"><input class="brand-input" id="bi'+p.id+'" value="'+encodeHtml(getBrand(p.id))+'" placeholder="Brand" oninput="onBrandEdit('+p.id+')" /><button class="brand-menu-btn" title="Brand actions" onclick="openBrandMenu('+p.id+',event)"><i class="fa fa-ellipsis-v"></i></button></div></td>' +
-      '<td><input class="price-input" id="pi'+p.id+'" type="number" step="0.01" min="0" value="'+((_prodOverrides[p.id]||{}).price!==undefined?(_prodOverrides[p.id].price).toFixed(2):p.price.toFixed(2))+'" oninput="onPriceEdit('+p.id+')" /></td>' +
+      '<td><input class="price-input" id="pi'+p.id+'" type="number" step="0.001" min="0" value="'+((_prodOverrides[p.id]||{}).price!==undefined?(_prodOverrides[p.id].price).toFixed(3):p.price.toFixed(3))+'" oninput="onPriceEdit('+p.id+')" /></td>' +
       '<td>' + (window._hideStockNumbers
         ? '<span class="status-dot"><span class="dot '+dotCls+'"></span>'+status+'</span>'
         : '<input type="number" class="stock-input '+cls+'" id="si'+p.id+'" value="'+qty+'" min="0" oninput="onStock('+p.id+')" />') + '</td>' +
@@ -393,7 +393,7 @@ function renderTable() {
   const tu = list.reduce(function(s,p){ return s+(stockData[p.id]||0); },0);
   document.getElementById('tblFoot').innerHTML =
     '<tr class="tfoot-row"><td colspan="6">TOTAL ('+list.length+' shown, '+list.filter(function(p){return p.hidden;}).length+' hidden)</td>' +
-    '<td>'+tu+' units</td><td></td><td>'+tv.toFixed(2)+' AED</td><td></td></tr>';
+    '<td>'+tu+' units</td><td></td><td>'+tv.toFixed(3)+' KD</td><td></td></tr>';
   // Sync select-all checkbox state
   var allChks = document.querySelectorAll('.row-chk');
   var sa = document.getElementById('selectAll');

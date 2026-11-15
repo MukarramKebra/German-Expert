@@ -952,9 +952,9 @@ function _foRenderList(q) {
     var thumb = (rawPh && (rawPh.startsWith('http') || rawPh.startsWith('data:'))) ? rawPh : (p.img || NO_IMG);
     var brand = (typeof getBrand === 'function' ? getBrand(p.id) : '') || '';
     var priceCell = sale > 0
-      ? '<div><div style="text-decoration:line-through;color:#aaa;font-size:11px">' + p.price.toFixed(2) + '</div>' +
-        '<div class="price-cell" style="color:var(--red)">' + _foOfferPrice(p.price, sale).toFixed(2) + '</div></div>'
-      : '<span class="price-cell">' + p.price.toFixed(2) + '</span>';
+      ? '<div><div style="text-decoration:line-through;color:#aaa;font-size:11px">' + p.price.toFixed(3) + '</div>' +
+        '<div class="price-cell" style="color:var(--red)">' + _foOfferPrice(p.price, sale).toFixed(3) + '</div></div>'
+      : '<span class="price-cell">' + p.price.toFixed(3) + '</span>';
     var saleCell = '<div style="display:flex;align-items:center;gap:5px" onclick="event.stopPropagation()">' +
       '<input type="number" min="0" max="95" placeholder="—" value="' + (sale > 0 ? sale : '') + '" ' +
         'style="width:54px;padding:6px 7px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;text-align:center;font-family:inherit" ' +

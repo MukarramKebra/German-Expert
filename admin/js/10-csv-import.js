@@ -184,7 +184,7 @@ function previewCSVRows(rows) {
     : '';
   preview.innerHTML = embeddedNote +
     '<div class="csv-count"><i class="fa fa-check-circle"></i> '+_csvParsedRows.length+' product'+(+_csvParsedRows.length!==1?'s':'')+' ready to import</div>' +
-    '<table class="csv-prev-tbl"><thead><tr>'+(showImgCol?'<th>Image</th>':'')+'<th>Name</th><th>Category</th><th>Brand</th><th>Price AED</th><th>Stock</th></tr></thead><tbody>' +
+    '<table class="csv-prev-tbl"><thead><tr>'+(showImgCol?'<th>Image</th>':'')+'<th>Name</th><th>Category</th><th>Brand</th><th>Price KD</th><th>Stock</th></tr></thead><tbody>' +
     show.map(function(r, i){
       var imgCell = '';
       if (showImgCol) {
@@ -193,7 +193,7 @@ function previewCSVRows(rows) {
           ? '<td><img src="'+src+'" style="width:36px;height:36px;border-radius:5px;object-fit:cover;border:1px solid #e9d5ff" /></td>'
           : '<td style="color:#ccc;font-size:11px">—</td>';
       }
-      return '<tr>'+imgCell+'<td>'+r.name+'</td><td>'+r.category+'</td><td>'+(r.brand||'—')+'</td><td>'+parseFloat(r.price).toFixed(2)+'</td><td>'+(r.stock||'50')+'</td></tr>';
+      return '<tr>'+imgCell+'<td>'+r.name+'</td><td>'+r.category+'</td><td>'+(r.brand||'—')+'</td><td>'+parseFloat(r.price).toFixed(3)+'</td><td>'+(r.stock||'50')+'</td></tr>';
     }).join('') +
     (_csvParsedRows.length>5 ? '<tr><td colspan="'+(showImgCol?6:5)+'" style="text-align:center;color:#aaa;font-style:italic">… and '+(_csvParsedRows.length-5)+' more</td></tr>' : '') +
     '</tbody></table>';

@@ -173,8 +173,8 @@
         <thead>
           <tr>
             <th class="chk-col"><input type="checkbox" id="selectAll" title="Select all" onchange="toggleSelectAll(this.checked)" /></th>
-            <th>#</th><th>Product</th><th>Category</th><th>Brand</th><th>Price AED</th>
-            <th>Stock Qty</th><th>Status</th><th>Value AED</th><th>Actions</th>
+            <th>#</th><th>Product</th><th>Category</th><th>Brand</th><th>Price KD</th>
+            <th>Stock Qty</th><th>Status</th><th>Value KD</th><th>Actions</th>
           </tr>
         </thead>
         <tbody id="tblBody"></tbody>
@@ -198,7 +198,7 @@
     <div id="delProductsPane">
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>#</th><th>Product</th><th>Category</th><th>Price AED</th><th>Deleted On</th><th>Actions</th></tr></thead>
+          <thead><tr><th>#</th><th>Product</th><th>Category</th><th>Price KD</th><th>Deleted On</th><th>Actions</th></tr></thead>
           <tbody id="deletedBody"></tbody>
         </table>
       </div>
@@ -207,7 +207,7 @@
     <div id="delOrdersPane" style="display:none">
       <div class="tbl-wrap">
         <table class="ord-tbl">
-          <thead><tr><th>#</th><th>Date</th><th>Customer</th><th>Address</th><th>Items</th><th>Total AED</th><th>Deleted On</th><th>Actions</th></tr></thead>
+          <thead><tr><th>#</th><th>Date</th><th>Customer</th><th>Address</th><th>Items</th><th>Total KD</th><th>Deleted On</th><th>Actions</th></tr></thead>
           <tbody id="deletedOrdersBody"></tbody>
         </table>
       </div>
@@ -280,7 +280,7 @@
               <th>Customer</th>
               <th>Delivery Address</th>
               <th>Items Ordered</th>
-              <th>Total AED</th>
+              <th>Total KD</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -314,7 +314,7 @@
         <div class="rpt-summary" id="rptInvSummary"></div>
         <div class="rpt-tbl-wrap">
           <table class="rpt-tbl">
-            <thead><tr><th>#</th><th>SKU</th><th>Product</th><th>Category</th><th>Price AED</th><th>Stock</th><th>Status</th><th>Value AED</th></tr></thead>
+            <thead><tr><th>#</th><th>SKU</th><th>Product</th><th>Category</th><th>Price KD</th><th>Stock</th><th>Status</th><th>Value KD</th></tr></thead>
             <tbody id="rptInvBody"></tbody>
             <tfoot id="rptInvFoot"></tfoot>
           </table>
@@ -336,7 +336,7 @@
         <div class="rpt-summary" id="rptSalesSummary"></div>
         <div class="rpt-tbl-wrap">
           <table class="rpt-tbl">
-            <thead><tr><th>#</th><th>SKU</th><th>Product</th><th>Category</th><th>Price AED</th><th>Cart Adds</th><th>Searches</th><th>Est. Revenue AED</th></tr></thead>
+            <thead><tr><th>#</th><th>SKU</th><th>Product</th><th>Category</th><th>Price KD</th><th>Cart Adds</th><th>Searches</th><th>Est. Revenue KD</th></tr></thead>
             <tbody id="rptSalesBody"></tbody>
             <tfoot id="rptSalesFoot"></tfoot>
           </table>
@@ -361,7 +361,7 @@
       <div class="rpt-tbl-wrap">
         <table class="rpt-tbl">
           <thead>
-            <tr><th>#</th><th>Date &amp; Time</th><th>Customer Name</th><th>Phone / WhatsApp</th><th>Delivery Address</th><th>Notes</th><th>Items Ordered</th><th>Total AED</th><th>Status</th></tr>
+            <tr><th>#</th><th>Date &amp; Time</th><th>Customer Name</th><th>Phone / WhatsApp</th><th>Delivery Address</th><th>Notes</th><th>Items Ordered</th><th>Total KD</th><th>Status</th></tr>
           </thead>
           <tbody id="rptOrdBody"></tbody>
           <tfoot id="rptOrdFoot"></tfoot>
@@ -461,7 +461,7 @@
           <tr>
             <th style="width:30px"></th>
             <th class="chk-col"><input type="checkbox" id="foSelectAll" title="Select/unselect all (filtered)" onchange="foToggleSelectAll()" /></th>
-            <th>Product</th><th>Brand</th><th>Price AED</th><th>Sale %</th><th>Description</th><th></th>
+            <th>Product</th><th>Brand</th><th>Price KD</th><th>Sale %</th><th>Description</th><th></th>
           </tr>
         </thead>
         <tbody id="foTblBody"></tbody>
@@ -511,7 +511,7 @@
           <input type="text" id="svcIntroH2" placeholder="Our Mechanics Service Your Car" oninput="svcSetIntro('h2',this.value)" />
         </label>
         <label style="grid-column:1/-1">Intro paragraph
-          <input type="text" id="svcIntroP" placeholder="German-car specialists in Sharjah — we don't just sell the part, we fit it…" oninput="svcSetIntro('p',this.value)" />
+          <input type="text" id="svcIntroP" placeholder="German-car specialists in Shuwaikh, Kuwait — we don't just sell the part, we fit it…" oninput="svcSetIntro('p',this.value)" />
         </label>
       </div>
     </details>
@@ -550,7 +550,7 @@
     <div style="max-width:640px;display:flex;flex-direction:column;gap:16px">
       <div>
         <label style="display:block;font-size:12px;font-weight:700;color:var(--dark);margin-bottom:6px">Page Title <span style="color:#aaa;font-weight:400" id="seoTitleCount"></span></label>
-        <input type="text" id="seoTitle" placeholder="Alamdar Auto | Genuine German Car Parts in Sharjah..." style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px" oninput="_seoUpdateCounts()" />
+        <input type="text" id="seoTitle" placeholder="Alamdar Auto Spare Parts Co. Kuwait | Genuine European Car Parts" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px" oninput="_seoUpdateCounts()" />
       </div>
       <div>
         <label style="display:block;font-size:12px;font-weight:700;color:var(--dark);margin-bottom:6px">Meta Description <span style="color:#aaa;font-weight:400" id="seoDescCount"></span></label>
@@ -872,7 +872,7 @@
           </div>
           <small style="color:var(--gray);font-size:10px;margin-top:3px;display:block">Auto-filled — next available number</small>
         </div>
-        <div class="ap-field"><label>Price (AED) *</label><input type="number" id="apPrice" placeholder="0.00" step="0.01" min="0" /></div>
+        <div class="ap-field"><label>Price (KD) *</label><input type="number" id="apPrice" placeholder="0.000" step="0.001" min="0" /></div>
       </div>
       <!-- Stock + Badge -->
       <div class="ap-row">
@@ -947,7 +947,7 @@
         <tbody>
           <tr><td>name</td><td>Yes</td><td>Front Brake Pad Set</td></tr>
           <tr><td>category</td><td>Yes</td><td>brakes</td></tr>
-          <tr><td>price</td><td>Yes</td><td>285.00 (AED)</td></tr>
+          <tr><td>price</td><td>Yes</td><td>12.500 (KD)</td></tr>
           <tr><td>stock</td><td>Optional</td><td>20</td></tr>
           <tr><td>description</td><td>Optional</td><td>Front axle pads with wear sensor contact</td></tr>
           <tr><td>badge</td><td>Optional</td><td>Best Seller</td></tr>

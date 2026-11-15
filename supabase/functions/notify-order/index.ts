@@ -24,8 +24,8 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
 
 // TODO-CONTACT: set real addresses. FROM must be on a domain verified in Resend.
 // Both can be overridden with the OWNER_EMAIL / FROM_EMAIL function secrets.
-const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "info@german-expert.ae";
-const FROM = Deno.env.get("FROM_EMAIL") ?? "Alamdar Auto <orders@german-expert.ae>";
+const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "info@alamdar-auto.com";
+const FROM = Deno.env.get("FROM_EMAIL") ?? "Alamdar Auto <orders@alamdar-auto.com>";
 const SITE_BASE = "https://mukarramkebra.github.io/German-Expert/";
 
 const CORS = {
@@ -43,7 +43,7 @@ function esc(s: unknown): string {
 }
 
 function money(n: number): string {
-  return n.toFixed(2) + " AED";
+  return n.toFixed(3) + " KD";
 }
 
 async function db(path: string, init: RequestInit = {}) {
@@ -172,7 +172,7 @@ Deno.serve(async (req) => {
               </div>
             </div>
             <div style="padding:14px 24px;border-top:1px solid #eee;font-size:11px;color:#999;text-align:center">
-              <a href="${SITE_BASE}" style="color:#999">Alamdar Auto, Sharjah</a>
+              <a href="${SITE_BASE}" style="color:#999">Alamdar Auto, Kuwait</a>
             </div>
           </div></body></html>`;
         const custRes = await fetch("https://api.resend.com/emails", {

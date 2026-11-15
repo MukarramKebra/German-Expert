@@ -9,19 +9,19 @@ const GE_SB_KEY_B64 = 'c2JfcHVibGlzaGFibGVfV244b1BpZW5TWHlMR0NhR2JZSVk5Z185RWhLd
 const GE_SB_KEY = (function() { try { return atob(GE_SB_KEY_B64); } catch (e) { return ''; } })();
 
 // ── SHOP CONTACT / SITE ──────────────────────────────────────────────────
-const SHOP_WA  = '971525364791';   // international format, digits only, used for wa.me links
+const SHOP_WA  = '96599115215';   // international format, digits only, used for wa.me links
 const SITE_URL = 'https://mukarramkebra.github.io/German-Expert/';
 
-// ── PRICE FORMAT (AED, 2 decimals) ────────────────────────────────────────
+// ── PRICE FORMAT (KD, 3 decimals) ────────────────────────────────────────
 // Every price shown on the storefront goes through this so the currency and
 // precision live in one place.
-const CURRENCY = 'AED';
+const CURRENCY = 'KD';
 function fmtPrice(n) {
   var v = Number(n);
   if (!isFinite(v)) v = 0;
-  return v.toFixed(2) + ' ' + CURRENCY;
+  return v.toFixed(3) + ' ' + CURRENCY;
 }
-function roundMoney(n) { return Math.round((Number(n) || 0) * 100) / 100; }
+function roundMoney(n) { return Math.round((Number(n) || 0) * 1000) / 1000; }
 
 // ── ONLINE ORDERING (DISABLED ON PURPOSE — catalog-only mode) ─────────────
 // The shop isn't taking orders through the website yet, so the whole
@@ -104,7 +104,7 @@ const WISHLIST_ENABLED = false;
             We are currently performing maintenance.<br>We'll be back shortly. Thank you for your patience.
           </div>
           <div style="font-size:15px;font-weight:800;color:#ef3b42;line-height:1.3;letter-spacing:2px">ALAMDAR AUTO</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:6px;">German Car Parts — Sharjah, UAE</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:6px;">Auto Spare Parts — Shuwaikh, Kuwait</div>
         </div>`;
       document.body.appendChild(overlay);
       // Prevent scrolling while closed
@@ -263,7 +263,10 @@ const CAR_MAKES = [
   { slug: 'volkswagen', label: 'Volkswagen' },
   { slug: 'porsche',    label: 'Porsche' },
   { slug: 'mini',       label: 'MINI' },
-  { slug: 'opel',       label: 'Opel' }
+  { slug: 'opel',       label: 'Opel' },
+  { slug: 'landrover',  label: 'Range Rover' },
+  { slug: 'jaguar',     label: 'Jaguar' },
+  { slug: 'toyota',     label: 'Toyota' }
 ];
 function getProductMakes(id) {
   var v = _sbFitmentMap[String(id)];

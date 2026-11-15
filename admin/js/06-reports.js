@@ -23,13 +23,13 @@ function renderReports() {
   document.getElementById('rptInvSummary').innerHTML =
     '<div class="rpt-sum-item"><span class="sv">'+all.length+'</span><span class="sl">Products</span></div>' +
     '<div class="rpt-sum-item"><span class="sv">'+totalUnits+'</span><span class="sl">Total Units</span></div>' +
-    '<div class="rpt-sum-item"><span class="sv">'+totalValue.toFixed(2)+'</span><span class="sl">Total Value AED</span></div>' +
+    '<div class="rpt-sum-item"><span class="sv">'+totalValue.toFixed(3)+'</span><span class="sl">Total Value KD</span></div>' +
     '<div class="rpt-sum-item"><span class="sv" style="color:var(--yellow)">'+lowCount+'</span><span class="sl">Low Stock</span></div>' +
     '<div class="rpt-sum-item"><span class="sv" style="color:var(--red)">'+outCount+'</span><span class="sl">Out of Stock</span></div>';
 
   var invRows = all.map(function(p){
     var qty=stockData[p.id]||0;
-    var val=(p.price*qty).toFixed(2);
+    var val=(p.price*qty).toFixed(3);
     var statusCls=qty===0?'out':qty<=10?'low':'in';
     var statusLbl=qty===0?'Out of Stock':qty<=10?'Low Stock':'In Stock';
     return '<tr>'+
@@ -37,7 +37,7 @@ function renderReports() {
       '<td style="font-family:monospace;font-size:11px;color:var(--orange)">'+getProductSku(p.id)+'</td>'+
       '<td style="font-weight:700;color:var(--dark)">'+encodeHtml(p.name)+'</td>'+
       '<td><span class="cat-pill">'+p.cat+'</span></td>'+
-      '<td style="font-weight:800">'+p.price.toFixed(2)+'</td>'+
+      '<td style="font-weight:800">'+p.price.toFixed(3)+'</td>'+
       '<td style="font-weight:800;text-align:center">'+qty+'</td>'+
       '<td><span class="rpt-status '+statusCls+'">'+statusLbl+'</span></td>'+
       '<td style="font-weight:700">'+val+'</td>'+
@@ -47,7 +47,7 @@ function renderReports() {
   document.getElementById('rptInvFoot').innerHTML =
     '<tr><td colspan="5" style="font-weight:800">TOTAL ('+all.length+' products)</td>'+
     '<td style="font-weight:800;text-align:center">'+totalUnits+' units</td><td></td>'+
-    '<td style="font-weight:800">'+totalValue.toFixed(2)+' AED</td></tr>';
+    '<td style="font-weight:800">'+totalValue.toFixed(3)+' KD</td></tr>';
 
   // ── SALES ──────────────────────────────────────────────────────────────────
   const salesData = all.map(function(p){
@@ -63,7 +63,7 @@ function renderReports() {
   document.getElementById('rptSalesSummary').innerHTML =
     '<div class="rpt-sum-item"><span class="sv">'+totalCartAdds+'</span><span class="sl">Total Cart Adds</span></div>' +
     '<div class="rpt-sum-item"><span class="sv">'+totalSearches+'</span><span class="sl">Total Searches</span></div>' +
-    '<div class="rpt-sum-item"><span class="sv">'+totalEstRev.toFixed(2)+'</span><span class="sl">Est. Revenue AED</span></div>' +
+    '<div class="rpt-sum-item"><span class="sv">'+totalEstRev.toFixed(3)+'</span><span class="sl">Est. Revenue KD</span></div>' +
     '<div class="rpt-sum-item"><span class="sv">'+(salesData.filter(function(r){return r.cartAdds>0;}).length)+'</span><span class="sl">Products Selling</span></div>';
 
   var salesRows = salesData.map(function(r,i){
@@ -72,10 +72,10 @@ function renderReports() {
       '<td style="font-family:monospace;font-size:11px;color:var(--orange)">'+getProductSku(r.p.id)+'</td>'+
       '<td style="font-weight:700;color:var(--dark)">'+encodeHtml(r.p.name)+'</td>'+
       '<td><span class="cat-pill">'+r.p.cat+'</span></td>'+
-      '<td style="font-weight:800">'+r.p.price.toFixed(2)+'</td>'+
+      '<td style="font-weight:800">'+r.p.price.toFixed(3)+'</td>'+
       '<td style="font-weight:900;text-align:center;color:'+(r.cartAdds>0?'var(--orange)':'#ccc')+'">'+r.cartAdds+'</td>'+
       '<td style="text-align:center;color:'+(r.searchHits>0?'var(--purple)':'#ccc')+'">'+r.searchHits+'</td>'+
-      '<td style="font-weight:700;color:'+(r.estRev>0?'var(--green)':'#ccc')+'">'+r.estRev.toFixed(2)+'</td>'+
+      '<td style="font-weight:700;color:'+(r.estRev>0?'var(--green)':'#ccc')+'">'+r.estRev.toFixed(3)+'</td>'+
     '</tr>';
   }).join('');
   document.getElementById('rptSalesBody').innerHTML = salesRows;
@@ -83,23 +83,23 @@ function renderReports() {
     '<tr><td colspan="5" style="font-weight:800">TOTAL ('+all.length+' products)</td>'+
     '<td style="font-weight:800;text-align:center">'+totalCartAdds+'</td>'+
     '<td style="font-weight:800;text-align:center">'+totalSearches+'</td>'+
-    '<td style="font-weight:800">'+totalEstRev.toFixed(2)+' AED</td></tr>';
+    '<td style="font-weight:800">'+totalEstRev.toFixed(3)+' KD</td></tr>';
 }
 
 function exportInventoryExcel() {
   if (typeof XLSX === 'undefined') { showToast('Excel library loading — try again'); return; }
   const all = getAllAdminProducts();
   const now = new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  const rows = [['#','SKU','Product Name','Category','Price (AED)','Stock Qty','Status','Value (AED)']];
+  const rows = [['#','SKU','Product Name','Category','Price (KD)','Stock Qty','Status','Value (KD)']];
   var totalUnits=0, totalValue=0;
   all.forEach(function(p){
     var qty=stockData[p.id]||0;
-    var val=parseFloat((p.price*qty).toFixed(2));
+    var val=parseFloat((p.price*qty).toFixed(3));
     var status=qty===0?'Out of Stock':qty<=10?'Low Stock':'In Stock';
     totalUnits+=qty; totalValue+=val;
-    rows.push([p.id, getProductSku(p.id), p.name, p.cat, parseFloat(p.price.toFixed(2)), qty, status, val]);
+    rows.push([p.id, getProductSku(p.id), p.name, p.cat, parseFloat(p.price.toFixed(3)), qty, status, val]);
   });
-  rows.push(['','','','','TOTAL',totalUnits,'',parseFloat(totalValue.toFixed(2))]);
+  rows.push(['','','','','TOTAL',totalUnits,'',parseFloat(totalValue.toFixed(3))]);
   var ws = XLSX.utils.aoa_to_sheet(rows);
   ws['!cols'] = [{wch:6},{wch:12},{wch:32},{wch:16},{wch:12},{wch:10},{wch:14},{wch:12}];
   var wb = XLSX.utils.book_new();
@@ -117,14 +117,14 @@ function exportSalesExcel() {
   const salesData = all.map(function(p){
     return { p:p, cartAdds:views[p.id]||0, searchHits:searches[p.id]||0, estRev:((views[p.id]||0)*p.price) };
   }).sort(function(a,b){ return b.cartAdds - a.cartAdds; });
-  const rows = [['Rank','SKU','Product Name','Category','Price (AED)','Cart Adds','Searches','Est. Revenue (AED)']];
+  const rows = [['Rank','SKU','Product Name','Category','Price (KD)','Cart Adds','Searches','Est. Revenue (KD)']];
   var totalAdds=0,totalSearches=0,totalRev=0;
   salesData.forEach(function(r,i){
-    var rev=parseFloat(r.estRev.toFixed(2));
+    var rev=parseFloat(r.estRev.toFixed(3));
     totalAdds+=r.cartAdds; totalSearches+=r.searchHits; totalRev+=rev;
-    rows.push([i+1, getProductSku(r.p.id), r.p.name, r.p.cat, parseFloat(r.p.price.toFixed(2)), r.cartAdds, r.searchHits, rev]);
+    rows.push([i+1, getProductSku(r.p.id), r.p.name, r.p.cat, parseFloat(r.p.price.toFixed(3)), r.cartAdds, r.searchHits, rev]);
   });
-  rows.push(['','','','','TOTAL',totalAdds,totalSearches,parseFloat(totalRev.toFixed(2))]);
+  rows.push(['','','','','TOTAL',totalAdds,totalSearches,parseFloat(totalRev.toFixed(3))]);
   var ws = XLSX.utils.aoa_to_sheet(rows);
   ws['!cols'] = [{wch:6},{wch:12},{wch:32},{wch:16},{wch:12},{wch:10},{wch:10},{wch:16}];
   var wb = XLSX.utils.book_new();
@@ -179,16 +179,16 @@ function _loadFsHandle(key) {
 
 function _buildInventoryWorkbook() {
   var all = getAllAdminProducts();
-  var rows = [['#','SKU','Product Name','Category','Price (AED)','Stock Qty','Status','Value (AED)']];
+  var rows = [['#','SKU','Product Name','Category','Price (KD)','Stock Qty','Status','Value (KD)']];
   var totalUnits=0, totalValue=0;
   all.forEach(function(p){
     var qty=stockData[p.id]||0;
-    var val=parseFloat((p.price*qty).toFixed(2));
+    var val=parseFloat((p.price*qty).toFixed(3));
     var status=qty===0?'Out of Stock':qty<=10?'Low Stock':'In Stock';
     totalUnits+=qty; totalValue+=val;
-    rows.push([p.id, getProductSku(p.id), p.name, p.cat, parseFloat(p.price.toFixed(2)), qty, status, val]);
+    rows.push([p.id, getProductSku(p.id), p.name, p.cat, parseFloat(p.price.toFixed(3)), qty, status, val]);
   });
-  rows.push(['','','','','TOTAL',totalUnits,'',parseFloat(totalValue.toFixed(2))]);
+  rows.push(['','','','','TOTAL',totalUnits,'',parseFloat(totalValue.toFixed(3))]);
   var ws = XLSX.utils.aoa_to_sheet(rows);
   ws['!cols'] = [{wch:6},{wch:12},{wch:32},{wch:16},{wch:12},{wch:10},{wch:14},{wch:12}];
   var wb = XLSX.utils.book_new();
@@ -203,14 +203,14 @@ function _buildSalesWorkbook() {
   var salesData = all.map(function(p){
     return { p:p, cartAdds:views[p.id]||0, searchHits:searches[p.id]||0, estRev:((views[p.id]||0)*p.price) };
   }).sort(function(a,b){ return b.cartAdds - a.cartAdds; });
-  var rows = [['Rank','SKU','Product Name','Category','Price (AED)','Cart Adds','Searches','Est. Revenue (AED)']];
+  var rows = [['Rank','SKU','Product Name','Category','Price (KD)','Cart Adds','Searches','Est. Revenue (KD)']];
   var totalAdds=0,totalSearches=0,totalRev=0;
   salesData.forEach(function(r,i){
-    var rev=parseFloat(r.estRev.toFixed(2));
+    var rev=parseFloat(r.estRev.toFixed(3));
     totalAdds+=r.cartAdds; totalSearches+=r.searchHits; totalRev+=rev;
-    rows.push([i+1, getProductSku(r.p.id), r.p.name, r.p.cat, parseFloat(r.p.price.toFixed(2)), r.cartAdds, r.searchHits, rev]);
+    rows.push([i+1, getProductSku(r.p.id), r.p.name, r.p.cat, parseFloat(r.p.price.toFixed(3)), r.cartAdds, r.searchHits, rev]);
   });
-  rows.push(['','','','','TOTAL',totalAdds,totalSearches,parseFloat(totalRev.toFixed(2))]);
+  rows.push(['','','','','TOTAL',totalAdds,totalSearches,parseFloat(totalRev.toFixed(3))]);
   var ws = XLSX.utils.aoa_to_sheet(rows);
   ws['!cols'] = [{wch:6},{wch:12},{wch:32},{wch:16},{wch:12},{wch:10},{wch:10},{wch:16}];
   var wb = XLSX.utils.book_new();
