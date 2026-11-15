@@ -93,8 +93,8 @@
    covers it and the composition reads as a plain product shot. */
 .ge-car-model {
   position: absolute; left: 50%; top: calc((100% - var(--reserve)) / 2); transform: translate(-50%, -54%);
-  /* --bw (set per car in 08-hero.js) is this word's width as a fraction of the
-     LONGEST badge, so height:auto gives every car identical letter height. */
+  /* Each badge is its own SVG box (viewBox width = max(900, natural word width),
+     see BADGE_MIN_W in 08-hero.js); height:auto follows that box. */
   width: min(100%, 1240px); height: auto; z-index: 0; pointer-events: none; overflow: visible;
   filter: drop-shadow(0 0 46px rgba(239,59,66, .14));
 }

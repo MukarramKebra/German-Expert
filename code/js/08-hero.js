@@ -133,7 +133,7 @@ const HERO_CARS = [
     srcSmall: 'img/hero/vw-touareg-sm.webp', wSmall: 760,
     model: 'TOUAREG',
     make: 'volkswagen',
-    badge: 'VW',
+    badge: 'VOLKSWAGEN',
     scale: 0.84,
     alt: 'Volkswagen Touareg SUV',
     callouts: [
@@ -150,7 +150,7 @@ const HERO_CARS = [
     srcSmall: 'img/hero/range-rover-sport-sm.webp', wSmall: 760,
     model: 'SPORT',
     label: 'Range Rover',
-    badge: 'ROVER',
+    badge: 'RANGE ROVER',
     scale: 0.9,
     alt: 'Range Rover Sport SUV',
     callouts: [
@@ -200,21 +200,16 @@ const HERO_SHADER_PRESET = {
       const m = (typeof CAR_MAKES !== 'undefined' && Array.isArray(CAR_MAKES)) ? CAR_MAKES.find(x => x.slug === slug) : null;
       return m ? m.label : '';
     };
-    // One shared scale for every badge. Each word used to be fitted to its own
-    // box, so a 3-letter word (BMW) came out with letters twice the height of an
-    // 8-letter one (MERCEDES). Sizing every SVG as a fraction of the LONGEST
-    // word's width gives all of them identical letter height; only the width of
-    // the word changes. Keep badges short or the longest one sets the size.
-    // Short words (BMW, VW, AUDI) used to sit entirely BEHIND the car: ~665px of
-    // bodywork against a 400px word. So EVERY badge is stretched to the width of the
-    // longest one, by widening the gaps between letters (the glyphs keep one size).
-    // The first and last letters then land clear of the car on both sides, and all
-    // six cars frame it identically.
-    const badgeNatW = c => {
-      const t = String(c.badge || c.label || makeName(c.make) || c.model || '').trim();
-      return t.length * 190 + 60;
-    };
-    const BADGE_W = Math.max.apply(null, cars.map(badgeNatW));
+    // 2026-11-15, owner: the stretched "B   M   W" "looks weird", but a tight BMW
+    // hides behind the car. So no stretching any more — every word keeps its
+    // natural letter spacing in its OWN box, and short words get a FLOOR on that
+    // box (BADGE_MIN_W) instead. The floor is what sets their size: smaller
+    // floor = bigger letters. At 900, BMW renders ~830px wide at 1440 — about a
+    // quarter wider than the ~665px car, so B and W stand clear either side —
+    // with letters ~1.7x MERCEDES's height, not the full-stage height they had
+    // at the old floor of 360. Long names (VOLKSWAGEN, RANGE ROVER) are wider
+    // than the floor and simply come out a little smaller, as they did before.
+    const BADGE_MIN_W = 900;
     stage.innerHTML = cars.map((c, i) => {
       const label = c.label || makeName(c.make);
       const scale = Number(c.scale) > 0 ? Number(c.scale) : 1;
@@ -226,10 +221,7 @@ const HERO_SHADER_PRESET = {
       // gradient, and -webkit-text-stroke only takes a flat colour. The glyphs
       // are drawn at a nominal 280px and the viewBox scales them to the stage,
       // so the stroke thins out proportionally instead of staying chunky.
-      const vbW = BADGE_W;
-      // textLength + lengthAdjust=spacing stretches ONLY the gaps between letters.
-      const spread = badgeText.length * 190 + 60 < BADGE_W
-        ? ` textLength="${vbW - 60}" lengthAdjust="spacing"` : '';
+      const vbW = Math.max(BADGE_MIN_W, badgeText.length * 190 + 60);
       const badge = !badgeText ? '' : `
           <svg class="ge-car-model" viewBox="0 0 ${vbW} 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
             <defs>
@@ -241,7 +233,7 @@ const HERO_SHADER_PRESET = {
             </defs>
             <text x="${vbW / 2}" y="252" text-anchor="middle" fill="none" stroke="url(#geModelGrad${i})"
                   stroke-width="4" font-family="Inter, system-ui, sans-serif" font-size="280"
-                  font-weight="800" letter-spacing="8"${spread}>${esc(badgeText)}</text>
+                  font-weight="800" letter-spacing="8">${esc(badgeText)}</text>
           </svg>`;
 
       const name = c.name || [label, model].filter(Boolean).join(' ');
