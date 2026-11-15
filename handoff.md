@@ -20,7 +20,7 @@ The owner will send a link to their existing online product list later; importin
 
 Head of `main` is **`b59cb624`**. Site and admin are live; the DB is wired; the catalog is empty.
 
-The hero now carries a **rotating ring of eight spare parts around each car**, every one a real cut-out photo shown in its own shape (no circles, since 2026-11-14) (the elbow callouts are gone), and `#services` opens with the owner's own full-bleed workshop collage directly below the hero. Scroll order: hero → services collage → service cards → categories → products.
+The hero now carries a **rotating ring of eight spare parts around each car**, every one a real cut-out photo shown in its own shape (no circles, since 2026-11-14) (the elbow callouts are gone), and `#services` (the owner's own full-bleed workshop collage + service cards) now closes the page, just above the footer. Scroll order: hero → categories → products → features → FAQ → contact → about → services → footer.
 
 **Working:**
 
@@ -34,7 +34,7 @@ The hero now carries a **rotating ring of eight spare parts around each car**, e
 | Contact | `SHOP_WA = '971525364791'` (+971 52 536 4791) is real and wired everywhere. No `971500000000` remains anywhere in the repo |
 | Palette | **Red**, not gold — `--orange: #c1121f` on light surfaces, `--orange-light`/`--gold: #ef3b42` on dark. `--yellow #f59e0b` is a *status* colour, not the accent |
 | Mode | **Catalog-only** (`ONLINE_ORDERING_ENABLED = false`) and **email offers off** (`EMAIL_OFFERS_ENABLED = false`) |
-| Services | `#services` ("Our Mechanics Service Your Car") is the first section below the hero (above the category grid), and is live with the owner's **own 2×2 collage photo, full-bleed edge to edge**, a service name written over each of its four frames (each one a WhatsApp booking), above **10 seeded services, all "Price on request"**, plus an admin **Services** tab that writes `expert_settings.services`. Saving needs an admin login, so both lists stay the seeded ones until the owner bootstraps an account and sets real prices |
+| Services | `#services` ("Our Mechanics Service Your Car") is the LAST section of `<main>` (after About, above the footer; moved there 2026-11-15), and is live with the owner's **own 2×2 collage photo, full-bleed edge to edge**, a service name written over each of its four frames (each one a WhatsApp booking), above **10 seeded services, all "Price on request"**, plus an admin **Services** tab that writes `expert_settings.services`. Saving needs an admin login, so both lists stay the seeded ones until the owner bootstraps an account and sets real prices |
 
 **Live counts (checked 2026-11-10):** products **0**, orders **0**, admin profiles **0**.
 
@@ -247,6 +247,9 @@ Owner: *"when scrolling down you see 3 or 4 collages type of things of photos sh
 - **The four source frames carry another business's sign** ("Alamdar Germany Auto Parts") across the top half. Each is cropped to the lower ~47-48%, below the second Arabic sign band, so none of that branding reaches the site. The owner was asked twice whether Alamdar is theirs and hasn't answered; **if it is, un-cropping is a one-command re-run** of the pipeline with the crop rect widened to the full frame. Originals in `img/services/src/` (14 MB, matching the `img/hero/src/` convention).
 - Pipeline was the usual browser canvas: temporary `_imgtool.html` at the repo root (same origin as the PNGs, or the canvas taints) drawing a labelled 10% grid to read crop rects off a screenshot, then POSTing WebPs to a throwaway node server. First pass mis-framed `oil-service` (mechanic half out of frame) and left dead floor in `diagnostics`; both re-cropped before shipping. Tool and server deleted.
 - Output: two WebP widths each (~850w and 430w, 2:1), 24-89 KB per file, `srcset`+`sizes` so phones pull the small copy.
+
+### Services moved to the end of the page (2026-11-15)
+Owner (with a screenshot of the "Every job we take on" cards): *"I want all of this parts to be in the end instead of before categories and products"*. The whole `#services` block (heading, trust row, full-bleed collage, job cards, "Not sure what your car needs?" call-out) was cut from between the hero and `#makes` and pasted just before `</main>`, after `#about`. Pure markup move — no CSS/JS changes, since `12-services.css` scopes everything to `#services` and `09-services.js` finds it by id. Verified locally: section order, 10 cards rendered, collage loads when scrolled to, clean seam into the footer, no console errors.
 
 ## 5) Failed attempts
 
