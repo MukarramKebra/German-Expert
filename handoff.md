@@ -1,5 +1,7 @@
 # Handoff — German Expert (as of 2026-11-10)
 
+> **2026-11-15 — SEO landing pages**: 74 make/model + 11 category static pages generated from the old site's vehicle tree, in sitemap, linked from the footer. Product/category photos from the old site are unrecoverable — still need photos from the owner. See CLAUDE.md.
+
 > **2026-11-15 — KUWAIT SWITCH**: same shop as old alamdar-auto.com; site now Kuwait / KD (3 dp) / +965 / old SEO keywords; 25 live products imported without images. See CLAUDE.md.
 
 > **2026-11-15 — REBRAND: German Expert → Alamdar Auto** (site, admin, emails, invoices, Arabic copy, new crest logo/favicon/share card, live `seo_settings`). See CLAUDE.md top note for what was intentionally left (repo path, `german-expert.internal`, `GE_*`).

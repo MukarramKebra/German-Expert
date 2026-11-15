@@ -29,6 +29,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const buildLandingPages = require('./landing-pages');
 
 const ROOT = path.resolve(__dirname, '..');
 // SEO_OUT redirects output to a scratch dir for local testing; unset in
@@ -94,13 +95,14 @@ async function loadData() {
       brandMap: fx.brandMap || {},
       keywords: fx.keywords || {},
       hiddenPrices: fx.hiddenPrices || {},
-      variantMap: fx.variantMap || {}
+      variantMap: fx.variantMap || {},
+      fitmentMap: fx.fitmentMap || {}
     };
   }
   const cfg = readSupabaseConfig();
   if (!cfg) {
     console.log('Supabase key not configured yet (GE_SB_KEY_B64 placeholder) — generating an empty catalog.');
-    return { products: [], photos: [], hidden: [], stock: [], reviews: [], skuMap: {}, brandMap: {}, keywords: {}, hiddenPrices: {}, variantMap: {} };
+    return { products: [], photos: [], hidden: [], stock: [], reviews: [], skuMap: {}, brandMap: {}, keywords: {}, hiddenPrices: {}, variantMap: {}, fitmentMap: {} };
   }
   const { SB_URL, SB_KEY } = cfg;
   // Critical tables (products, photos, hidden, stock): if any of these fail
@@ -116,7 +118,7 @@ async function loadData() {
     sbGet(SB_URL, SB_KEY, 'expert_hidden?select=product_id'),
     sbGet(SB_URL, SB_KEY, 'expert_stock?select=product_id,qty'),
     sbGetSoft(SB_URL, SB_KEY, 'expert_reviews?select=product_id,rating', []),
-    sbGetSoft(SB_URL, SB_KEY, 'expert_settings?key=in.(sku_map,brand_map,product_keywords,hidden_prices,product_variants)&select=key,value', [])
+    sbGetSoft(SB_URL, SB_KEY, 'expert_settings?key=in.(sku_map,brand_map,product_keywords,hidden_prices,product_variants,fitment_map)&select=key,value', [])
   ]);
   const settingVal = (k) => {
     const row = settings.find((s) => s.key === k);
@@ -129,7 +131,8 @@ async function loadData() {
     brandMap: settingVal('brand_map'),
     keywords: settingVal('product_keywords'),
     hiddenPrices: settingVal('hidden_prices'),
-    variantMap: settingVal('product_variants')
+    variantMap: settingVal('product_variants'),
+    fitmentMap: settingVal('fitment_map')
   };
 }
 
@@ -359,7 +362,7 @@ function renderPage(p) {
     </div>
     <footer>
       <strong>Alamdar Auto</strong> — authorized auto spare parts distributor, Shuwaikh Industrial Area, Kuwait.
-      Genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI.
+      Genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche, Jaguar, Range Rover and Toyota.
       <br />This page is a catalog listing; browse the full store to order.
     </footer>
   </main>
@@ -380,13 +383,20 @@ function renderPage(p) {
 // ignores a lastmod it can't trust — better omitted than invented.
 const STATIC_PAGES = ['terms.html', 'accessibility.html'];
 
-function renderSitemap(products) {
+function renderSitemap(products, landing) {
   const urls = [
     `  <url>\n    <loc>${SITE_BASE}</loc>\n    <lastmod>${TODAY}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>`
   ];
   for (const page of STATIC_PAGES) {
     urls.push(
       `  <url>\n    <loc>${SITE_BASE}${page}</loc>\n    <changefreq>yearly</changefreq>\n    <priority>0.3</priority>\n  </url>`
+    );
+  }
+  // make / model / category landing pages (scripts/landing-pages.js). No
+  // lastmod: they only change when the vehicle tree or catalog does.
+  for (const pg of (landing || [])) {
+    urls.push(
+      `  <url>\n    <loc>${SITE_BASE}${pg.rel}</loc>\n    <changefreq>${pg.changefreq}</changefreq>\n    <priority>${pg.priority}</priority>\n  </url>`
     );
   }
   for (const p of products) {
@@ -442,6 +452,7 @@ async function main() {
       image: rawImg,
       sku: skuLabel(id, data.skuMap),
       keywords: data.keywords[String(id)] || '',
+      makes: Array.isArray(data.fitmentMap[String(id)]) ? data.fitmentMap[String(id)] : [],
       variants: Array.isArray(data.variantMap[String(id)]) ? data.variantMap[String(id)] : [],
       availability: (qty !== null && qty <= 0) ? 'out-of-stock' : 'in-stock',
       reviewAvg: rv ? rv.total / rv.count : 0,
@@ -496,12 +507,23 @@ async function main() {
   for (const p of built) {
     fs.writeFileSync(path.join(OUT_DIR, p.slug + '.html'), renderPage(p));
   }
-  fs.writeFileSync(path.join(OUT_BASE, 'sitemap.xml'), renderSitemap(built));
+  // Landing pages: wipe + rewrite make/ and category/ the same way as product/.
+  const cfgSrc = fs.readFileSync(path.join(ROOT, 'code', 'js', '01-config-data.js'), 'utf8');
+  const waM = cfgSrc.match(/const\s+SHOP_WA\s*=\s*'(\d+)'/);
+  if (!waM) throw new Error('Could not read SHOP_WA from code/js/01-config-data.js');
+  const landing = buildLandingPages({ SITE_BASE, products: built, wa: waM[1], esc, clip, slugify });
+  for (const d of ['make', 'category']) {
+    try { fs.rmSync(path.join(OUT_BASE, d), { recursive: true, force: true }); } catch (_) {}
+    fs.mkdirSync(path.join(OUT_BASE, d), { recursive: true });
+  }
+  for (const pg of landing) fs.writeFileSync(path.join(OUT_BASE, pg.rel), pg.html);
+  fs.writeFileSync(path.join(OUT_BASE, 'sitemap.xml'), renderSitemap(built, landing));
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(nextManifest, null, 2) + '\n');
 
   const bumped = built.filter((p) => p.lastmod === TODAY).length;
   console.log(`Generated ${built.length} product pages into /product (skipped ${skipped}).`);
-  console.log(`Wrote sitemap.xml with ${built.length + 1} URLs (homepage + products).`);
+  console.log(`Generated ${landing.length} landing pages into /make and /category.`);
+  console.log(`Wrote sitemap.xml with ${built.length + landing.length + STATIC_PAGES.length + 1} URLs.`);
   console.log(`lastmod: ${bumped} bumped to ${TODAY}, ${built.length - bumped} reused from manifest.`);
 }
 

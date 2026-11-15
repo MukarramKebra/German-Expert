@@ -1,0 +1,119 @@
+{
+  "_note": "Copied 2026-11-15 from the old alamdar-auto.com WooCommerce category tree (Car Brands > make > model > generation). Fixes: the old site filed the Volkswagen models under 'Jaguar' and left 'Volkswagen' and 'Lexus' empty. Mercedes was spelled 'Mecerdes Benz' there. Jaguar and Lexus had no models at all, so Jaguar gets a make page only and Lexus is omitted.",
+  "makes": [
+    {
+      "slug": "mercedes", "label": "Mercedes-Benz", "ar": "مرسيدس بنز", "short": "Mercedes", "trucks": true,
+      "models": [
+        { "name": "A Class", "gens": ["W176 (2013-2018)", "W177 (2019-Up)"] },
+        { "name": "B Class", "gens": ["W245 (2005-2011)", "W246 (2012-2018)"] },
+        { "name": "C Class", "gens": ["W202 (1994-2000)", "W203 (2001-2007)", "W204 (2008-2014)", "W205 (2015-Up)"] },
+        { "name": "CL Class", "gens": ["W215 (1999-2005)", "W216 (2007-2014)"] },
+        { "name": "CLA Class", "gens": ["C117 (2013-2018)"] },
+        { "name": "CLK Class", "gens": ["W208 (1997-2002)", "W209 (2003-2009)"] },
+        { "name": "CLS Class", "gens": ["W219 (2004-2010)", "W218 (2011-2018)", "C257 (2019-Up)"] },
+        { "name": "E Class", "gens": ["W124 (1986-1995)", "W210 (1996-2002)", "W211 (2003-2009)", "W212 (2010-2016)", "W213 (2017-Up)", "Coupe W207 (2010-2016)"] },
+        { "name": "G Class", "gens": ["W463 (1992-Up)"] },
+        { "name": "GL Class", "gens": ["X164 (2006-2012)", "X166 (2013-2015)"] },
+        { "name": "GLA Class", "gens": ["X156 (2014-Up)"] },
+        { "name": "GLC Class", "gens": ["W253 (2016-Up)"] },
+        { "name": "GLE Class", "gens": ["W166 (2015-2018)", "W292 Coupe (2015-Up)"] },
+        { "name": "GLK Class", "gens": ["X204 (2009-2015)"] },
+        { "name": "GLS Class", "gens": ["X166 (2016-2019)"] },
+        { "name": "M / ML Class", "gens": ["W163 (1997-2004)", "W164 (2005-2010)", "W166 (2012-2014)"] },
+        { "name": "R Class", "gens": ["W251 (2006-2013)"] },
+        { "name": "S Class", "gens": ["W140 (1993-1998)", "W220 (1999-2005)", "W221 (2006-2013)", "W222 (2014-Up)"] },
+        { "name": "SL Class", "gens": ["W129 (1989-2002)", "W230 (2003-2011)"] },
+        { "name": "SLK Class", "gens": ["W170 (1997-2003)", "W171 (2004-2010)", "W172 (2011-Up)"] },
+        { "name": "Vito", "gens": [] }
+      ]
+    },
+    {
+      "slug": "bmw", "label": "BMW", "ar": "بي ام دبليو", "short": "BMW",
+      "models": [
+        { "name": "1 Series", "gens": ["E81 3 Door (2004-2011)", "E82 Coupe (2004-2011)", "E87 5 Door (2004-2011)", "E88 Convertible (2004-2011)", "F20 5 Door / F21 3 Door (2011-2019)"] },
+        { "name": "2 Series", "gens": ["F22 (2014-Up)"] },
+        { "name": "3 Series", "gens": ["E36 (1991-1997)", "E46 (1998-2004)", "E90 (2005-2011)", "E92 Coupe (2005-2011)", "E93 Convertible (2005-2011)", "F30 (2012-2018)", "G20 (2019-Up)"] },
+        { "name": "4 Series", "gens": ["F32 2 Door (2014-Up)", "F36 4 Door (2014-Up)"] },
+        { "name": "5 Series", "gens": ["E39 (1995-2002)", "E60 (2003-2009)", "F10 (2010-Up)", "F18 (2010-Up)", "G30 (2017-Up)"] },
+        { "name": "6 Series", "gens": ["E63 (2004-2010)", "F06 4 Door", "F13 2 Door (2012-2018)"] },
+        { "name": "7 Series", "gens": ["E38 (1995-2001)", "E65 / E66 (2002-2008)", "F01 / F02 (2009-2015)", "G11 (2016-Up)", "G12 (2016-Up)"] },
+        { "name": "X1", "gens": ["E84 (2009-2015)", "F48 (2016-Up)"] },
+        { "name": "X3", "gens": ["E83 (2004-2010)", "F25 (2011-2017)", "G01 (2018-Up)"] },
+        { "name": "X4", "gens": ["F26 (2014-2018)", "G02 (2019-Up)"] },
+        { "name": "X5", "gens": ["E53 (2000-2006)", "E70 (2007-2013)", "F15 (2013-2018)"] },
+        { "name": "X6", "gens": ["E71 (2008-2014)", "F16 (2015-Up)"] },
+        { "name": "Z4", "gens": ["E89 (2009-2012)"] }
+      ]
+    },
+    {
+      "slug": "audi", "label": "Audi", "ar": "أودي", "short": "Audi",
+      "models": [
+        { "name": "A3", "gens": ["2013-2016", "2017-Up"] },
+        { "name": "A4", "gens": ["2008-2015", "2016-Up"] },
+        { "name": "A5", "gens": ["2007-2016", "2017-Up"] },
+        { "name": "A6", "gens": ["2011-Up"] },
+        { "name": "A7", "gens": ["2011-Up"] },
+        { "name": "A8", "gens": ["2012-2017", "2018-Up"] },
+        { "name": "Q3", "gens": ["2012-2014", "2015-2018"] },
+        { "name": "Q5", "gens": ["2008-2016", "2017-Up"] },
+        { "name": "Q7", "gens": ["2007-2015", "2015-Up"] },
+        { "name": "R8 Quattro", "gens": ["2009-Up"] },
+        { "name": "TT", "gens": ["2008-Up"] }
+      ]
+    },
+    {
+      "slug": "volkswagen", "label": "Volkswagen", "ar": "فولكس فاجن", "short": "VW",
+      "models": [
+        { "name": "Arteon", "gens": ["2018-Up"] },
+        { "name": "Beetle", "gens": ["2011-Up"] },
+        { "name": "CC", "gens": ["2009-2017"] },
+        { "name": "Golf", "gens": ["Mk5 (2003-2008)", "Mk6 (2008-2012)", "Mk7 (2013-2016)", "Mk7.5 (2017-Up)"] },
+        { "name": "Jetta", "gens": ["2012-2018", "2019-Up"] },
+        { "name": "Passat", "gens": ["2011-2014", "2015-2019", "2020-Up"] },
+        { "name": "Scirocco", "gens": ["2008-Up"] },
+        { "name": "Tiguan", "gens": ["2008-2011", "2012-2016", "2017-Up"] },
+        { "name": "Touareg", "gens": ["2002-2009", "2010-2017", "2018-Up"] }
+      ]
+    },
+    {
+      "slug": "porsche", "label": "Porsche", "ar": "بورشه", "short": "Porsche",
+      "models": [
+        { "name": "Boxster", "gens": ["1996-2004"] },
+        { "name": "Carrera 911", "gens": ["1999-Up"] },
+        { "name": "Cayenne", "gens": ["2002-2006", "2007-2009", "2010-2014", "2015-2017", "2018-Up"] },
+        { "name": "Macan", "gens": ["2014-2018", "2019-Up"] },
+        { "name": "Panamera", "gens": ["2010-2016", "2017-Up"] }
+      ]
+    },
+    {
+      "slug": "range-rover", "label": "Range Rover", "ar": "رنج روفر", "short": "Range Rover", "fitSlug": "landrover",
+      "models": [
+        { "name": "Discovery", "gens": ["2009-Up"] },
+        { "name": "Evoque", "gens": ["2011-Up"] },
+        { "name": "Sport", "gens": ["2005-2012", "2013-2017", "2018-Up"] },
+        { "name": "Velar", "gens": ["2017-Up"] },
+        { "name": "Vogue", "gens": ["2002-2012", "2013-2017", "2018-Up"] }
+      ]
+    },
+    { "slug": "jaguar", "label": "Jaguar", "ar": "جاكوار", "short": "Jaguar", "models": [] },
+    {
+      "slug": "toyota", "label": "Toyota", "ar": "تويوتا", "short": "Toyota",
+      "models": [
+        { "name": "Camry", "gens": [] },
+        { "name": "Corolla", "gens": [] }
+      ]
+    }
+  ],
+  "partGroups": [
+    { "name": "Air conditioning (A/C)", "items": ["AC Compressor", "AC Condenser", "AC Evaporator", "AC Fan", "AC Filter"] },
+    { "name": "Body components", "items": ["Body Kit", "Bumpers", "Door", "Engine Hood (Bonnet)", "Fenders", "Grille", "Mirrors", "Side Skirts", "Skid Plate", "Spoilers"] },
+    { "name": "Brake system", "items": ["Brake Pads", "Brake Discs", "Brake Pad Cover"] },
+    { "name": "Electrical system", "items": ["Alternator", "Spark Plugs", "Ignition Coils"] },
+    { "name": "Engine cooling system", "items": ["Radiator", "Radiator Fan", "Radiator Air Duct", "Radiator Core and Panel Support", "Expansion Tank", "Water Pump", "Thermostat", "Coolant Hose", "Oil Cooler", "Intercooler", "Cooling Fan Clutch", "Air Conduction"] },
+    { "name": "Exhaust system", "items": ["Exhaust Pipe"] },
+    { "name": "Exterior", "items": ["Bull Bars (Grille Guards)", "Horn", "Molding", "Mud Flap", "Pillar", "Roof Racks", "Running Boards & Step Bars", "Side Decals", "Spare Tire Covers", "Wiper Arm Cover"] },
+    { "name": "Heating and ventilation", "items": ["Heater Blower Motor (Interior Blower)"] },
+    { "name": "Interior", "items": ["Cargo Net", "Floor Mat"] },
+    { "name": "Lighting and signaling", "items": ["Daytime Running Light (DRL)", "Fog Lamp", "Head Lamp", "Head Light Bracket", "Head Light Control Unit", "Head Light Lens", "Corner Lamp", "Tail Lamp", "Third Brake Light", "Trunk Lamp"] }
+  ]
+}

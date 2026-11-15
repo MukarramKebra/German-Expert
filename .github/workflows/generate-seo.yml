@@ -13,6 +13,8 @@ on:
     branches: [ main ]
     paths-ignore:
       - 'product/**'
+      - 'make/**'
+      - 'category/**'
       - 'sitemap.xml'
   schedule:
     - cron: '17 3 * * *'   # daily at 03:17 UTC
@@ -46,7 +48,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # product/ may not exist yet while the catalog is empty
-          for p in product sitemap.xml sitemap-manifest.json; do [ -e "$p" ] && git add "$p"; done
+          for p in product make category sitemap.xml sitemap-manifest.json; do [ -e "$p" ] && git add "$p"; done
           if git diff --cached --quiet; then
             echo "No SEO changes to commit."
           else

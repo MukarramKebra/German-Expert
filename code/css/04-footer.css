@@ -52,3 +52,10 @@ footer { background: var(--bar); padding: 64px 0 0; border-top: 1px solid rgba(0
 .subscribe-band,
 #offersNudge,
 #googleSubscribePrompt { display: none !important; }
+
+/* Crawlable make / category links (generated landing pages). */
+.footer-seo { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; padding: 0 0 36px; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 28px; }
+.footer-seo h3 { color: rgba(255,255,255,0.95); font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 14px; }
+.footer-seo a { display: inline-block; color: rgba(255,255,255,0.82); text-decoration: none; font-size: 13px; margin: 0 16px 8px 0; }
+.footer-seo a:hover { color: #fff; }
+@media (max-width: 640px) { .footer-seo { grid-template-columns: 1fr; } }
