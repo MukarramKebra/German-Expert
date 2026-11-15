@@ -252,7 +252,10 @@
        shader and the 3D car stage this profile already switches off. Drop
        the :not() and the ring renders frozen, with no error anywhere to
        say why — so don't "simplify" it back. */
-    .ge-hero *:not(.ge-ring), .ge-hero *::before, .ge-hero *::after {
+    /* The phone chip strip's loop (.ge-car-track) is exempt for the same reason
+       as the ring: it is a feature, one composited translate, and without the
+       :not() it sits frozen on exactly the phones this profile targets. */
+    .ge-hero *:not(.ge-ring):not(.ge-car-track), .ge-hero *::before, .ge-hero *::after {
       animation: none !important;
     }
     @media (prefers-reduced-motion: no-preference) {

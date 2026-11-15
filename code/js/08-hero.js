@@ -340,7 +340,16 @@ const HERO_SHADER_PRESET = {
           ? `<li><button type="button" class="ge-car-chip" data-cat="${esc(p.cat)}">${inner}</button></li>`
           : `<li><span class="ge-car-chip">${inner}</span></li>`;
       }).join('');
-      const chipList = chips ? `<ul class="ge-car-chips">${chips}</ul>` : '';
+      // A second, inert copy follows the real one so the strip can loop
+      // seamlessly (the track slides left by exactly half its width). The copy
+      // is aria-hidden and its buttons leave the tab order, so nothing is
+      // announced or focused twice.
+      const chipsCopy = chips
+        ? chips.replace(/<li>/g, '<li aria-hidden="true">').replace(/<button /g, '<button tabindex="-1" ')
+        : '';
+      const chipList = chips
+        ? `<div class="ge-car-chips"><ul class="ge-car-track">${chips}${chipsCopy}</ul></div>`
+        : '';
 
       return `
       <figure class="ge-car${i === 0 ? ' is-active' : ''}"${i ? ' aria-hidden="true"' : ''}>

@@ -384,7 +384,8 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
 .ge-hero.is-idle .ge-car-float,
 .ge-hero.is-idle .ge-car-shadow,
 .ge-hero.is-idle .ge-car-sheen,
-.ge-hero.is-idle .ge-ring { animation-play-state: paused; }
+.ge-hero.is-idle .ge-ring,
+.ge-hero.is-idle .ge-car-track { animation-play-state: paused; }
 
 @keyframes geCarShadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(.9); opacity: .7; } }
 @keyframes geCarSheen { 0% { background-position: 100% 0; } 55%, 100% { background-position: 0 0; } }
@@ -422,23 +423,42 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
     -webkit-backdrop-filter: none; backdrop-filter: none;
     background: rgba(12, 14, 18, .58);
   }
-  .ge-car-model { width: 100%; height: auto; transform: translate(-50%, -78%); }
+  /* Badge lifted ~70px (owner: "text behind cars go more up, car stays"). It is
+     anchored from the stage BOTTOM, 198px (the car's padding) + a roof-line
+     allowance up, so it tracks the car at every phone width. Only the badge
+     moves: the car's position comes from .ge-car's bottom padding. */
+  .ge-car-model { width: 100%; height: auto; top: calc(100% - 198px - min(32vw, 150px)); transform: translate(-50%, -50%); }
   .ge-car-cap { left: 0; right: 0; bottom: 92px; align-items: center; text-align: center; }
   /* A scroll strip, not a justified row. There are ten parts and a 390px
      screen; `flex: 1 1 0` divided that by ten and gave each chip 39px. Each
      chip is now sized by its own text and the strip scrolls sideways, which
      is safe here because the hero has nav arrows and no swipe handler of its
      own to fight over the gesture. */
+  /* Now an auto-scrolling LOOP (owner, 2026-11-15: "the loop on phone doesn't
+     move"). The viewport clips; the track holds two copies of the ten chips
+     and slides left by exactly half its width, so the join is invisible. Chips
+     use margin-right (not gap) so each copy is the same width. Pauses while a
+     finger is on it; falls back to a manual scroll strip for reduced motion.
+     The low-GPU profile in index.html exempts .ge-car-track by name. */
   .ge-car-chips {
     position: absolute; left: 0; right: 0; bottom: 14px; z-index: 3;
-    display: flex; flex-wrap: nowrap; justify-content: flex-start; gap: 10px;
-    margin: 0; padding: 4px 16px; list-style: none;
-    overflow-x: auto; overscroll-behavior-x: contain;
-    scroll-snap-type: x proximity;
-    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    display: block; margin: 0; padding: 4px 0; overflow: hidden;
   }
-  .ge-car-chips::-webkit-scrollbar { display: none; }
-  .ge-car-chips li { flex: 0 0 auto; display: flex; scroll-snap-align: start; }
+  .ge-car-track {
+    display: flex; flex-wrap: nowrap; width: max-content;
+    margin: 0; padding: 0; list-style: none;
+    animation: geChipsLoop 38s linear infinite;
+  }
+  .ge-car-chips:active .ge-car-track,
+  .ge-car-chips:focus-within .ge-car-track { animation-play-state: paused; }
+  .ge-car-track li { flex: 0 0 auto; display: flex; margin-right: 10px; }
+  @keyframes geChipsLoop { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) {
+    .ge-car-chips { overflow-x: auto; scrollbar-width: none; }
+    .ge-car-chips::-webkit-scrollbar { display: none; }
+    .ge-car-track { animation: none; padding: 0 16px; }
+    .ge-car-track li[aria-hidden="true"] { display: none; }
+  }
   .ge-hero-title { font-size: clamp(30px, 8vw, 44px); }
   .ge-hero-text { font-size: 15px; margin-bottom: 26px; }
 }
