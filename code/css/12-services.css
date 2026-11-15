@@ -82,6 +82,12 @@
      quarters at every width and reserves the space before the image lands. */
   aspect-ratio: 16 / 9;
 }
+/* The collage's own band, directly under the hero (#workshopBand in index.html)
+   rather than inside #services. Dark so the hero's bottom fade runs straight
+   into it; no margins, so the picture meets the hero and the next section edge
+   to edge. Beats the 860px `margin-bottom` below on specificity. */
+.svc-band { background: var(--charcoal); }
+.svc-band .svc-collage { margin: 0; }
 .svc-collage img {
   position: absolute;
   inset: 0;

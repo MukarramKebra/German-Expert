@@ -402,6 +402,17 @@
     </div>
   </section>
 
+  <!-- WORKSHOP COLLAGE — directly under the hero (owner, 2026-11-15: the collage
+       stays up here, only the service heading/cards went to the end of the page).
+       Filled by renderServiceCollage() in code/js/09-services.js from the
+       expert_settings 'services' row: ONE picture (img/services/collage, two WebP
+       widths) the owner composed, with a label over each of its four photos.
+       Full-bleed on purpose — outside any .container. Styling: .svc-band /
+       .svc-collage in code/css/12-services.css. -->
+  <section id="workshopBand" class="svc-band" aria-label="Our workshop">
+    <div id="servicesBands"></div>
+  </section>
+
   <!-- Shop by make: filters the catalog by expert_settings.fitment_map (see setMakeFilter() in js/02-catalog-render.js) -->
   <section id="makes" class="makes-section" aria-label="Shop by car make">
     <div class="container">
@@ -828,15 +839,8 @@
       </div>
     </div>
 
-    <!-- Photo collage: filled by renderServiceCollage() from the same
-         expert_settings 'services' row. ONE picture (img/services/collage,
-         two WebP widths) that the owner composed themselves, with a label
-         written over each of its four quadrants by a CSS grid of buttons.
-         It sits OUTSIDE .container on purpose — the owner asked for it edge
-         to edge, and moving it out of the wrapper is how you get a true
-         full-bleed without a 100vw rule that trips over the scrollbar. -->
-    <div id="servicesBands"></div>
-
+    <!-- The workshop photo collage is NOT here: it sits directly under the hero
+         (#workshopBand). Only the heading + job cards moved to the end. -->
     <div class="container">
       <div class="svc-list-head">
         <h3 data-i18n="svc_list_h">Every job we take on</h3>

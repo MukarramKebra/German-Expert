@@ -265,7 +265,13 @@ function renderServices() {
   // Nothing to show (owner switched the section off, or emptied both the card
   // list and the photo bands) → hide the whole section rather than leave an
   // empty heading behind.
-  if (!cfg.enabled || (!cfg.items.length && !cfg.bands.length)) { section.style.display = 'none'; return; }
+  // The collage lives in its own band under the hero (#workshopBand), outside
+  // #services, so switching the section off has to clear it explicitly.
+  if (!cfg.enabled || (!cfg.items.length && !cfg.bands.length)) {
+    section.style.display = 'none';
+    renderServiceCollage(null, []);
+    return;
+  }
   section.style.display = '';
   renderServiceCollage(cfg.collage, cfg.bands);
 
