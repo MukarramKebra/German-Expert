@@ -19,8 +19,8 @@
 }
 
 :root {
-  /* German Expert palette — graphite / white / grey surfaces with a single RED accent,
-     taken straight from the logo (red GX monogram on a grey ring).
+  /* Alamdar Auto palette — graphite / white / grey surfaces with a single RED accent,
+     taken straight from the logo (the red ring of the Alamdar crest).
      Token names are inherited from the Kuwait fork: --orange is the primary ACCENT
      (buttons with white text, accent text on light backgrounds), not literally orange. */
   --orange: #c1121f;        /* accent on LIGHT surfaces: 6.2:1 on white, carries white text */

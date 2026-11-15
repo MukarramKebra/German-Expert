@@ -139,7 +139,7 @@ function shareProduct(id) {
   var p = getAllProducts().find(function(x){ return x.id === id; });
   if (!p) return;
   var url = SITE_URL;
-  var msg = '🚗 *' + p.name + '*\n💰 ' + fmtPrice(p.price) + '\n\nCheck it out at German Expert, Sharjah:\n' + url;
+  var msg = '🚗 *' + p.name + '*\n💰 ' + fmtPrice(p.price) + '\n\nCheck it out at Alamdar Auto, Sharjah:\n' + url;
   window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
 }
 
@@ -178,7 +178,7 @@ function enquireOnWhatsApp(id, variantIdx) {
   var base = (v && v.price > 0) ? v.price : p.price;
   var sale = (typeof getFeaturedSale === 'function') ? getFeaturedSale(id) : 0;
   if (sale > 0 && base > 0) base = base * (1 - sale / 100);
-  var msg = 'Hi, I would like to order this from German Expert:\n\n'
+  var msg = 'Hi, I would like to order this from Alamdar Auto:\n\n'
     + '*' + p.name + (v ? ' — ' + v.label : '') + '*\n'
     + 'Part No: ' + (v ? _variantSku(v, id) : getProductSku(id)) + '\n'
     + 'Price: ' + fmtPrice(roundMoney(base)) + '\n\n'
@@ -341,7 +341,7 @@ function sendBulkQuote() {
   var msg = '📋 *Bulk / Garage Quote Request*\n';
   if (name) msg += '👤 Name: ' + name + '\n';
   if (phone) msg += '📞 Phone: ' + phone + '\n';
-  msg += '\n*Items Requested:*\n' + lines.join('\n') + '\n\n_From German Expert Website_';
+  msg += '\n*Items Requested:*\n' + lines.join('\n') + '\n\n_From Alamdar Auto Website_';
   window.open('https://wa.me/' + SHOP_WA + '?text=' + encodeURIComponent(msg), '_blank');
   closeBulkQuote();
 }
@@ -501,7 +501,7 @@ async function trackOrder() {
 // FEATURE: WHATSAPP CHAT FAB
 // ══════════════════════════════════════════════════════════════════════════════
 function openWAChat() {
-  window.open('https://wa.me/' + SHOP_WA + '?text=' + encodeURIComponent('Hi! I\'d like to ask about your parts at German Expert 🚗'), '_blank');
+  window.open('https://wa.me/' + SHOP_WA + '?text=' + encodeURIComponent('Hi! I\'d like to ask about your parts at Alamdar Auto 🚗'), '_blank');
 }
 
 // Call on page load to restore recently viewed and wishlist state

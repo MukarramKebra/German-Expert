@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════════
 //  Edge Function: send-offers  (Deno / TypeScript)
-//  Secure server-side sender for German Expert marketing campaigns.
+//  Secure server-side sender for Alamdar Auto marketing campaigns.
 //
 //  A static frontend can't hold the Resend API key, so ALL sending happens
 //  here. Two callers, two different auth paths:
@@ -32,7 +32,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 // TODO-CONTACT: FROM must be on a domain verified in Resend (override with the FROM_EMAIL secret).
-const FROM = Deno.env.get("FROM_EMAIL") ?? "German Expert <offers@german-expert.ae>";
+const FROM = Deno.env.get("FROM_EMAIL") ?? "Alamdar Auto <offers@german-expert.ae>";
 const SITE_BASE = "https://mukarramkebra.github.io/German-Expert/";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -103,10 +103,10 @@ function unsubscribeUrl(token: string) {
 function wrapEmail(html: string, unsubUrl: string) {
   return `<!DOCTYPE html><html><body style="margin:0;background:#f6f7f9;font-family:Arial,Helvetica,sans-serif;color:#1f2937">
   <div style="max-width:600px;margin:0 auto;background:#fff">
-    <div style="background:#16191f;padding:18px 24px"><span style="color:#fff;font-size:18px;font-weight:800;letter-spacing:.5px">GERMAN EXPERT</span></div>
+    <div style="background:#16191f;padding:18px 24px"><span style="color:#fff;font-size:18px;font-weight:800;letter-spacing:.5px">ALAMDAR AUTO</span></div>
     <div style="padding:24px;line-height:1.7;font-size:15px">${html}</div>
     <div style="padding:18px 24px;border-top:1px solid #eee;font-size:12px;color:#8a8a8a;line-height:1.6">
-      You are receiving this because you subscribed to offers from German Expert, Sharjah, UAE.<br>
+      You are receiving this because you subscribed to offers from Alamdar Auto, Sharjah, UAE.<br>
       <a href="${unsubUrl}" style="color:#8a8a8a;text-decoration:underline">Unsubscribe</a> &middot;
       <a href="${SITE_BASE}" style="color:#8a8a8a;text-decoration:underline">Visit our store</a>
     </div>

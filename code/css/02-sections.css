@@ -212,7 +212,7 @@
 .grid-sentinel { display: none; justify-content: center; align-items: center; min-height: 60px; padding: 18px 0 4px; }
 .grid-more-btn { min-width: 220px; }
 
-/* German Expert: icon tiles (no category photos yet — an admin-uploaded
+/* Alamdar Auto: icon tiles (no category photos yet — an admin-uploaded
    background from expert_cat_bgs still overrides via inline background-image). */
 .cat-card .cat-icon { position: relative; z-index: 2; font-size: 34px; color: var(--gold); margin-bottom: 12px; text-shadow: 0 2px 10px rgba(0,0,0,.45); transition: transform .25s; }
 .cat-card:hover .cat-icon { transform: scale(1.1); color: #fff; }

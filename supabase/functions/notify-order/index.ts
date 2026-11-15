@@ -25,7 +25,7 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
 // TODO-CONTACT: set real addresses. FROM must be on a domain verified in Resend.
 // Both can be overridden with the OWNER_EMAIL / FROM_EMAIL function secrets.
 const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "info@german-expert.ae";
-const FROM = Deno.env.get("FROM_EMAIL") ?? "German Expert <orders@german-expert.ae>";
+const FROM = Deno.env.get("FROM_EMAIL") ?? "Alamdar Auto <orders@german-expert.ae>";
 const SITE_BASE = "https://mukarramkebra.github.io/German-Expert/";
 
 const CORS = {
@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
           </div>
         </div>
         <div style="padding:14px 24px;border-top:1px solid #eee;font-size:11px;color:#999;text-align:center">
-          <a href="${SITE_BASE}" style="color:#999">German Expert</a>
+          <a href="${SITE_BASE}" style="color:#999">Alamdar Auto</a>
         </div>
       </div></body></html>`;
 
@@ -172,7 +172,7 @@ Deno.serve(async (req) => {
               </div>
             </div>
             <div style="padding:14px 24px;border-top:1px solid #eee;font-size:11px;color:#999;text-align:center">
-              <a href="${SITE_BASE}" style="color:#999">German Expert, Sharjah</a>
+              <a href="${SITE_BASE}" style="color:#999">Alamdar Auto, Sharjah</a>
             </div>
           </div></body></html>`;
         const custRes = await fetch("https://api.resend.com/emails", {
@@ -182,7 +182,7 @@ Deno.serve(async (req) => {
             from: FROM,
             to: custEmail,
             reply_to: OWNER_EMAIL,
-            subject: `Your German Expert order ${shortId}`,
+            subject: `Your Alamdar Auto order ${shortId}`,
             html: custHtml,
           }),
         });

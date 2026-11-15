@@ -2,7 +2,7 @@
 /*
  * generate-product-pages.js
  * ---------------------------------------------------------------------------
- * Static SEO page generator for German Expert (German car parts, Sharjah).
+ * Static SEO page generator for Alamdar Auto (German car parts, Sharjah).
  *
  * WHY: the storefront (index.html) renders every product client-side from
  * Supabase, so no individual product has a crawlable URL and Google cannot
@@ -45,7 +45,7 @@ const TODAY = new Date().toISOString().slice(0, 10);
 // the rare case where you really do want to publish an empty-catalog site.
 const MIN_PRODUCTS = Number.isFinite(parseInt(process.env.SEO_MIN_PRODUCTS, 10))
   ? parseInt(process.env.SEO_MIN_PRODUCTS, 10)
-  : 0;   // German Expert starts with an empty catalog — raise this once it has real products
+  : 0;   // Alamdar Auto starts with an empty catalog — raise this once it has real products
 
 // ── Supabase config (read from the site's own file — no separate secret) ────
 function readSupabaseConfig() {
@@ -214,11 +214,11 @@ function renderPage(p) {
   // Products whose name/brand collapse to an identical title (size/pack variants
   // listed as separate products) get their SKU appended — see markDuplicateTitles().
   const title = p.dupTitle
-    ? clip(titleName, 50) + ' (' + p.sku + ') | German Expert Sharjah'
-    : clip(titleName, 65) + ' | German Expert Sharjah';
+    ? clip(titleName, 50) + ' (' + p.sku + ') | Alamdar Auto Sharjah'
+    : clip(titleName, 65) + ' | Alamdar Auto Sharjah';
   const descBase = p.desc
     ? p.desc
-    : [brandTxt, p.name, catTxt ? 'in ' + catTxt : '', 'Buy from German Expert, German car parts specialists in Sharjah, UAE.']
+    : [brandTxt, p.name, catTxt ? 'in ' + catTxt : '', 'Buy from Alamdar Auto, German car parts specialists in Sharjah, UAE.']
         .filter(Boolean).join(' ');
   const metaDesc = clip(descBase, 155);
   const priceShown = (p.price > 0 && !p.priceHidden);
@@ -291,7 +291,7 @@ function renderPage(p) {
   <link rel="canonical" href="${esc(url)}" />
   <meta name="robots" content="index, follow" />
   <meta property="og:type" content="product" />
-  <meta property="og:site_name" content="German Expert" />
+  <meta property="og:site_name" content="Alamdar Auto" />
   <meta property="og:title" content="${esc(titleName)}" />
   <meta property="og:description" content="${esc(metaDesc)}" />
   <meta property="og:url" content="${esc(url)}" />
@@ -339,7 +339,7 @@ function renderPage(p) {
 </head>
 <body>
   <header class="p-header">
-    <a href="../"><img src="../logo.jpg" alt="German Expert" style="height:44px;border-radius:50%" /></a>
+    <a href="../"><img src="../logo.jpg" alt="Alamdar Auto" style="height:44px;border-radius:50%" /></a>
   </header>
   <main>
     <nav class="crumb"><a href="../">Home</a> &rsaquo; ${esc(catTxt || 'Products')} &rsaquo; ${esc(clip(p.name, 40))}</nav>
@@ -358,7 +358,7 @@ function renderPage(p) {
       </div>
     </div>
     <footer>
-      <strong>German Expert</strong> — German car parts specialists in Sharjah, UAE.
+      <strong>Alamdar Auto</strong> — German car parts specialists in Sharjah, UAE.
       Genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI.
       <br />This page is a catalog listing; browse the full store to order.
     </footer>

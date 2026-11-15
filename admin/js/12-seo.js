@@ -4,9 +4,9 @@
 // and read by the storefront on every page load — same key-value pattern already
 // used for sku_map / brand_map / site_disabled.
 var _seoDefaults = {
-  title: 'German Expert | Genuine German Car Parts in Sharjah, UAE',
-  description: 'German Expert supplies genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI in Sharjah, with fast delivery across the UAE.',
-  keywords: 'german car parts sharjah, german car parts uae, mercedes parts sharjah, mercedes spare parts uae, bmw parts sharjah, bmw spare parts uae, audi parts sharjah, audi spare parts uae, volkswagen parts uae, vw parts sharjah, porsche parts uae, mini cooper parts uae, oem car parts uae, genuine car parts sharjah, brake pads sharjah, oil filter uae, spark plugs uae, auto spare parts sharjah, car parts industrial area sharjah, German Expert'
+  title: 'Alamdar Auto | Genuine German Car Parts in Sharjah, UAE',
+  description: 'Alamdar Auto supplies genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI in Sharjah, with fast delivery across the UAE.',
+  keywords: 'german car parts sharjah, german car parts uae, mercedes parts sharjah, mercedes spare parts uae, bmw parts sharjah, bmw spare parts uae, audi parts sharjah, audi spare parts uae, volkswagen parts uae, vw parts sharjah, porsche parts uae, mini cooper parts uae, oem car parts uae, genuine car parts sharjah, brake pads sharjah, oil filter uae, spark plugs uae, auto spare parts sharjah, car parts industrial area sharjah, Alamdar Auto'
 };
 
 async function loadSEOSettings() {

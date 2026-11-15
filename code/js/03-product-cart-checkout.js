@@ -683,7 +683,7 @@ function handleCheckoutSubmit() {
   }
 
   const msg = [
-    '🚗 *German Expert Order* 🚗',
+    '🚗 *Alamdar Auto Order* 🚗',
     '🆔 *Order ID:* ' + orderCodeShown,
     '',
     '👤 *Name:* ' + name,
@@ -725,7 +725,7 @@ function handleCheckoutSubmit() {
     <div class="co-success">
       <i class="fab fa-whatsapp"></i>
       <h3>Order Sent!</h3>
-      <p>Your order has been sent to German Expert on WhatsApp.<br/>We will confirm and arrange ${isPickup ? 'pick up' : 'delivery'} shortly.<br/><br/><strong>Thank you, ${name}!</strong></p>
+      <p>Your order has been sent to Alamdar Auto on WhatsApp.<br/>We will confirm and arrange ${isPickup ? 'pick up' : 'delivery'} shortly.<br/><br/><strong>Thank you, ${name}!</strong></p>
       <div class="co-success-ref">Order ID — keep this to track or cancel your order<br/>
         <strong style="font-size:22px;letter-spacing:2px;user-select:all">${orderCodeShown}</strong><br/>
         <button class="btn btn-outline" style="margin-top:6px;padding:4px 12px;font-size:12px" onclick="copyLastOrderId(this)"><i class="fa fa-copy"></i> Copy Order ID</button>

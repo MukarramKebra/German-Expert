@@ -560,7 +560,7 @@ var _editBannerId = null;
 // — the storefront's brand-interleave split (_splitBanners() in
 // js/02-catalog-render.js) decides its side, same as before this existed.
 var _bannerSides = {};
-// German Expert ships with no default banners — add them from the Banners tab.
+// Alamdar Auto ships with no default banners — add them from the Banners tab.
 var DEFAULT_BANNERS = [];
 
 async function loadBanners() {

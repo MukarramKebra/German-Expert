@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * Creates the FIRST admin account for the German Expert admin panel.
+ * Creates the FIRST admin account for the Alamdar Auto admin panel.
  *
  *   node scripts/bootstrap-admin.js
  *
@@ -56,7 +56,7 @@ const ask = (q, hidden) => new Promise(res => {
 });
 
 (async () => {
-  console.log('\nGerman Expert - create the first admin account');
+  console.log('\nAlamdar Auto - create the first admin account');
   console.log('Project: ' + url + '\n');
 
   const username = (await ask('Username (letters/numbers, e.g. owner): ')).trim().toLowerCase();

@@ -54,7 +54,7 @@ function _pushSkuMap() {
 // Returns the next sequential product number based on COUNT of existing custom products.
 // If you typed SKU 101 for product 62, the next auto-fill is still 63 — not 102.
 function getNextSkuNumber() {
-  // German Expert has no hardcoded base products (the Kuwait fork reserved ids 1-60)
+  // Alamdar Auto has no hardcoded base products (the Kuwait fork reserved ids 1-60)
   var customIds = new Set(
     _customProductRows.map(function(r){return r.id;})
     .concat(getDeletedProducts().map(function(d){return d.id;}))

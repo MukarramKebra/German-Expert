@@ -1,6 +1,6 @@
 /*
  * ============================================================
- *   German Expert — ADMIN PANEL  (admin/index.html)
+ *   Alamdar Auto — ADMIN PANEL  (admin/index.html)
  * ============================================================
  *
  *  HOW IT WORKS (plain English):
@@ -141,8 +141,8 @@ let _hiddenBaseIds     = new Set(); // IDs of base products that have been hidde
 // Supabase auto-increment starts at 1, which conflicts with base product IDs 1-60.
 // This function detects conflicts and re-inserts custom products with safe IDs (1001+).
 async function _fixCustomProductIds() {
-    // DISABLED for German Expert. This was a Kuwait-fork fix for products whose
-    // ids collided with 60 hardcoded base products; German Expert has no base
+    // DISABLED for Alamdar Auto. This was a Kuwait-fork fix for products whose
+    // ids collided with 60 hardcoded base products; Alamdar Auto has no base
     // products, so on a fresh table it would DELETE and re-insert every product
     // with id <= 60. Kept (inert) only so the call site stays harmless.
     return;
@@ -372,7 +372,7 @@ function checkAssetVersion() {
     });
 }
 
-// Common spellings -> German Expert category slugs (mirrors normalizeCategory()
+// Common spellings -> Alamdar Auto category slugs (mirrors normalizeCategory()
 // in code/js/01-config-data.js for the most frequent ones)
 var _OLD_CAT_MAP = {
     'brake':'brakes', 'filter':'filters', 'engine-parts':'engine', 'clutch':'transmission',

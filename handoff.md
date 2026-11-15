@@ -1,5 +1,7 @@
 # Handoff — German Expert (as of 2026-11-10)
 
+> **2026-11-15 — REBRAND: German Expert → Alamdar Auto** (site, admin, emails, invoices, Arabic copy, new crest logo/favicon/share card, live `seo_settings`). See CLAUDE.md top note for what was intentionally left (repo path, `german-expert.internal`, `GE_*`).
+
 ## 1) Goal
 
 Turn this copy of the Expert Hardware Kuwait site into **German Expert**, a German car-parts store in **Sharjah, UAE**, with its own design, its own database, its own admin and its own link:

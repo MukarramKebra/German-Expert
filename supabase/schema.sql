@@ -1,5 +1,5 @@
 -- ============================================================================
--- German Expert (Sharjah) — full database schema, single source of truth.
+-- Alamdar Auto (Sharjah) — full database schema, single source of truth.
 --
 -- Rebuilt on 2026-11-08 from the LIVE schema of the Expert Hardware Kuwait
 -- project this store was forked from (not from its old SQL files, which had
@@ -370,5 +370,5 @@ grant insert on public.offer_subscribers to anon;
 insert into public.expert_settings (key, value) values
   ('asset_version', (extract(epoch from now()) * 1000)::bigint::text),
   ('featured_offers', '[]'),
-  ('seo_settings', '{"title":"German Expert | Genuine German Car Parts in Sharjah, UAE","description":"German Expert supplies genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI in Sharjah, with fast delivery across the UAE.","keywords":"german car parts sharjah, mercedes parts sharjah, bmw parts uae, audi parts uae, volkswagen parts, porsche parts, oem car parts uae, auto spare parts sharjah"}')
+  ('seo_settings', '{"title":"Alamdar Auto | Genuine German Car Parts in Sharjah, UAE","description":"Alamdar Auto supplies genuine and OEM-quality parts for Mercedes-Benz, BMW, Audi, Volkswagen, Porsche and MINI in Sharjah, with fast delivery across the UAE.","keywords":"german car parts sharjah, mercedes parts sharjah, bmw parts uae, audi parts uae, volkswagen parts, porsche parts, oem car parts uae, auto spare parts sharjah"}')
 on conflict (key) do nothing;
