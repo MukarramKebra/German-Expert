@@ -273,3 +273,25 @@
 .active-make-chip:hover { background: var(--orange); border-color: var(--orange); }
 .active-make-chip:active { transform: scale(.97); }
 .active-make-chip:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+
+/* ── CATEGORY TILE PHOTOS (2026-11-15) ────────────────────────────────────
+   One part photo per visible category, composed on the graphite tile
+   (img/categories/<slug>.jpg, 800x520). Path is relative to THIS css file.
+   An admin-uploaded expert_cat_bgs / jain_cat_bgs image still wins because
+   applyCatBgs() sets an inline background-image. The photo already says what
+   the category is, so the icon goes and the label drops to the bottom edge
+   so it doesn't sit on the part. */
+.cat-card[data-cat="engine"]       { background-image: url('../../img/categories/engine.jpg'); }
+.cat-card[data-cat="brakes"]       { background-image: url('../../img/categories/brakes.jpg'); }
+.cat-card[data-cat="suspension"]   { background-image: url('../../img/categories/suspension.jpg'); }
+.cat-card[data-cat="filters"]      { background-image: url('../../img/categories/filters.jpg'); }
+.cat-card[data-cat="electrical"]   { background-image: url('../../img/categories/electrical.jpg'); }
+.cat-card[data-cat="cooling"]      { background-image: url('../../img/categories/cooling.jpg'); }
+.cat-card[data-cat="transmission"] { background-image: url('../../img/categories/transmission.jpg'); }
+.cat-card[data-cat="body-lights"]  { background-image: url('../../img/categories/body-lights.jpg'); }
+.cat-card[data-cat="engine"], .cat-card[data-cat="brakes"], .cat-card[data-cat="suspension"], .cat-card[data-cat="filters"],
+.cat-card[data-cat="electrical"], .cat-card[data-cat="cooling"], .cat-card[data-cat="transmission"], .cat-card[data-cat="body-lights"] {
+  justify-content: flex-end; padding-bottom: 14px; background-size: cover; background-position: center top;
+}
+.cat-card[data-cat="engine"] .cat-icon, .cat-card[data-cat="brakes"] .cat-icon, .cat-card[data-cat="suspension"] .cat-icon, .cat-card[data-cat="filters"] .cat-icon,
+.cat-card[data-cat="electrical"] .cat-icon, .cat-card[data-cat="cooling"] .cat-icon, .cat-card[data-cat="transmission"] .cat-icon, .cat-card[data-cat="body-lights"] .cat-icon { display: none; }
