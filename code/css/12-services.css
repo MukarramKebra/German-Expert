@@ -420,3 +420,20 @@
 @media (max-width: 420px) {
   .services-grid { grid-template-columns: 1fr; }
 }
+
+/* ── PHONE COLLAGE (<= 700px) ─────────────────────────────────────────────
+   Phones get the owner's separate portrait collage (1122x1402, an EVEN 2x2
+   grid — unlike the 16:9 pinwheel on larger screens). renderServiceCollage()
+   swaps the picture with <picture><source media="(max-width: 700px)">; this
+   block must use the same 700px. The per-quad boxes are inline styles measured
+   for the pinwheel, so they're overridden here with !important. */
+@media (max-width: 700px) {
+  .svc-collage { aspect-ratio: 1122 / 1402; }
+  .svc-collage-labels > .svc-quad:nth-child(1) { left: 0 !important;   top: 0 !important;   width: 50% !important; height: 50% !important; }
+  .svc-collage-labels > .svc-quad:nth-child(2) { left: 50% !important; top: 0 !important;   width: 50% !important; height: 50% !important; }
+  .svc-collage-labels > .svc-quad:nth-child(3) { left: 0 !important;   top: 50% !important; width: 50% !important; height: 50% !important; }
+  .svc-collage-labels > .svc-quad:nth-child(4) { left: 50% !important; top: 50% !important; width: 50% !important; height: 50% !important; }
+  .svc-collage-labels > .svc-quad { padding: 8px 10px; }
+  .svc-collage-labels > .svc-quad:last-child { padding-right: 56px; }
+  .svc-quad-name { font-size: 12px; }
+}

@@ -171,6 +171,17 @@ function renderServiceCollage(collage, labels) {
         'sizes="100vw" ' +
         'alt="' + encodeHtmlSvc(ALT) + '" loading="lazy" decoding="async" />';
 
+  // PHONE VERSION: the owner supplied a separate portrait 2x2 collage for
+  // narrow screens (img/services/collage-phone*.jpg). Same breakpoint as the
+  // 700px rules in 12-services.css, which also re-place the labels on an even
+  // grid. Only for the built-in local collage path — a remote/custom picture
+  // has no phone twin, and a missing <source> file would not fall back.
+  if (!isRemote && collage === DEFAULT_COLLAGE) {
+    img = '<picture>' +
+      '<source media="(max-width: 700px)" srcset="' + encodeHtmlSvc(collage) + '-phone-sm.jpg 640w, ' + encodeHtmlSvc(collage) + '-phone.jpg 1122w" sizes="100vw" />' +
+      img + '</picture>';
+  }
+
   var quads = labels.map(function (b, i) {
     // Positioned, not gridded — see the box note on DEFAULT_BANDS.
     var pos = 'left:' + b.box[0] + '%;top:' + b.box[1] + '%;width:' + b.box[2] + '%;height:' + b.box[3] + '%';
