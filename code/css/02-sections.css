@@ -295,3 +295,7 @@
 }
 .cat-card[data-cat="engine"] .cat-icon, .cat-card[data-cat="brakes"] .cat-icon, .cat-card[data-cat="suspension"] .cat-icon, .cat-card[data-cat="filters"] .cat-icon,
 .cat-card[data-cat="electrical"] .cat-icon, .cat-card[data-cat="cooling"] .cat-icon, .cat-card[data-cat="transmission"] .cat-icon, .cat-card[data-cat="body-lights"] .cat-icon { display: none; }
+
+/* "All Parts" tile — a car, same graphite treatment as the part tiles above. */
+.cat-card[data-cat="all"] { background-image: url('../../img/categories/all.jpg'); justify-content: flex-end; padding-bottom: 14px; background-size: cover; background-position: center top; }
+.cat-card[data-cat="all"] .cat-icon { display: none; }

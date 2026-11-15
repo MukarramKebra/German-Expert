@@ -266,7 +266,7 @@ function renderPage(p) {
 
   const priceHtml = priceShown
     ? `<p class="p-price">${p.price.toFixed(3)} <span>KD</span></p>`
-    : `<p class="p-price p-ask">Price on request</p>`;
+    : '';
   const availHtml = priceShown
     ? `<p class="p-avail ${inStock ? 'in' : 'out'}">${inStock ? '✔ In stock' : '✖ Out of stock'}</p>`
     : '';
@@ -351,7 +351,6 @@ function renderPage(p) {
       <div class="p-info">
         ${brandTxt ? `<p class="p-brand">${esc(brandTxt)}</p>` : ''}
         <h1>${esc(p.name)}</h1>
-        <p class="p-sku">${esc(p.sku)}</p>
         ${priceHtml}
         ${availHtml}
         ${variantsHtml}

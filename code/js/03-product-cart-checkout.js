@@ -113,11 +113,11 @@ function openProduct(id, _fromHistory) {
     // stock line above the button still states availability.
     if (!ONLINE_ORDERING_ENABLED) {
       return '<button type="button" class="pm-add-btn pm-wa-btn' + extraCls + '" id="' + btnId + '" onclick="enquireOnWhatsApp(' + id + ', _pmVariantIdx)">' +
-        '<i class="fab fa-whatsapp" aria-hidden="true"></i> <span>' + (hasPrice ? 'Enquire on WhatsApp' : 'Ask Price on WhatsApp') + '</span></button>';
+        '<i class="fab fa-whatsapp" aria-hidden="true"></i> <span>Enquire on WhatsApp</span></button>';
     }
     if (!hasPrice) {
       return '<button type="button" class="pm-add-btn pm-wa-btn' + extraCls + '" id="' + btnId + '" onclick="askPriceOnWhatsApp(' + id + ', _pmVariantIdx)">' +
-        '<i class="fab fa-whatsapp" aria-hidden="true"></i> <span>Ask Price on WhatsApp</span></button>';
+        '<i class="fab fa-whatsapp" aria-hidden="true"></i> <span>Enquire on WhatsApp</span></button>';
     }
     return '<button type="button" class="pm-add-btn' + extraCls + '" id="' + btnId + '" ' + (isOut ? 'disabled' : 'onclick="pmAddToCart()"') + '>' +
       '<i class="fa ' + (isOut ? 'fa-ban' : 'fa-shopping-cart') + '" aria-hidden="true"></i> <span>' + (isOut ? 'Out of Stock' : 'Add to Cart') + '</span></button>';
@@ -136,12 +136,11 @@ function openProduct(id, _fromHistory) {
       '</div>' +
       '<h2 class="pm-name">' + p.name + '</h2>' +
       '<div class="pm-meta">' +
-        '<span class="prod-modal-sku"><i class="fa fa-barcode" aria-hidden="true"></i><span id="prodModalSku">' + getProductSku(id) + '</span></span>' +
         (hasPrice ? '<span class="pm-stock-line ' + stockCls + '" role="status"><i class="fa ' + stockIcon + '" aria-hidden="true"></i> ' + stockTxt + '</span>' : '') +
       '</div>' +
       (hasPrice
         ? '<div class="pm-price" id="pmPriceDisplay">' + _pmPriceHtml(_pmCurrentPrice(p), p.id) + '</div>'
-        : '<div class="pm-price pm-price-ask">Price on request</div>') +
+        : '') +
       '<p class="pm-desc" id="pmDescDisplay">' + p.desc + '</p>' +
       (variants.length ?
         '<div class="pm-variant-block" role="radiogroup" aria-label="Size / Pack">' +
@@ -185,16 +184,14 @@ function openProduct(id, _fromHistory) {
       '</div>' +
       '<ul class="pm-features">' +
         '<li class="pm-feat"><i class="fa fa-check-circle" aria-hidden="true"></i><span>100% genuine, quality-tested product</span></li>' +
-        '<li class="pm-feat"><i class="fa fa-shipping-fast" aria-hidden="true"></i><span>Delivery across Kuwait</span></li>' +
         '<li class="pm-feat"><i class="fa fa-shield-alt" aria-hidden="true"></i><span>Easy returns &amp; after-sales support</span></li>' +
-        '<li class="pm-feat"><i class="fa fa-tags" aria-hidden="true"></i><span>Bulk pricing available for contractors</span></li>' +
       '</ul>' +
     '</div>' +
     // Phone-only buy bar: appears once the inline button has scrolled out of view
     ((hasPrice && isOut) ? '' :
       '<div class="pm-sticky" id="pmSticky">' +
         '<div class="pm-sticky-info">' +
-          '<span class="pm-sticky-lbl">' + (hasPrice ? 'Price' : 'Price on request') + '</span>' +
+          '<span class="pm-sticky-lbl">' + (hasPrice ? 'Price' : '') + '</span>' +
           (hasPrice ? '<span class="pm-sticky-price" id="pmStickyPrice">' + _pmPriceHtml(_pmCurrentPrice(p), p.id) + '</span>' : '') +
         '</div>' +
         buyBtn('pmAddBtn2', ' pm-sticky-btn') +

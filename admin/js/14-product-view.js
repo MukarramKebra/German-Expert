@@ -119,7 +119,6 @@ async function openProductView(id) {
       '<div class="pv-divider"></div>' +
       '<div class="pv-features">' +
         '<div class="pv-feat"><i class="fa fa-check-circle"></i> Genuine &amp; OEM-quality part</div>' +
-        '<div class="pv-feat"><i class="fa fa-shipping-fast"></i> Delivery across Kuwait</div>' +
         '<div class="pv-feat"><i class="fa fa-shield-alt"></i> Easy returns &amp; after-sales support</div>' +
         '<div class="pv-feat"><i class="fa fa-tags"></i> Trade pricing for garages &amp; workshops</div>' +
       '</div>' +

@@ -1308,7 +1308,6 @@ function _productCardHTML(p) {
         </div>
         <div class="product-info">
           <div class="product-cat">${pCat}</div>
-          <div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:0.5px;margin-bottom:3px" id="cardSku${p.id}">${_variantSku(getVariants(p.id)[0], p.id)}</div>
           <h3>${pName}</h3>
           <p>${pDesc}</p>
           <!-- Kept in the DOM (visually hidden, not removed) so Google can still
@@ -1334,10 +1333,7 @@ function _productCardHTML(p) {
               ? `<button class="btn-add btn-disabled" disabled onclick="event.stopPropagation()">${unavail}</button>`
               : `<button class="btn-add" onclick="event.stopPropagation();addToCart(${p.id}, this)"><i class="fa fa-plus"></i> ${addBtn}</button>`}
             ` : `
-            <div>
-              <div class="product-price" style="font-size:12px;color:var(--gray-600)">${isAr ? 'السعر عند الطلب' : 'Price on request'}</div>
-            </div>
-            <button class="btn-add" style="background:#25D366" onclick="event.stopPropagation();askPriceOnWhatsApp(${p.id}, (document.getElementById('cardVarSel${p.id}')||{}).value)"><i class="fab fa-whatsapp"></i> ${isAr ? 'اسأل عن السعر' : 'Ask Price'}</button>
+            <button class="btn-add" style="background:#25D366;width:100%" onclick="event.stopPropagation();askPriceOnWhatsApp(${p.id}, (document.getElementById('cardVarSel${p.id}')||{}).value)"><i class="fab fa-whatsapp"></i> ${isAr ? 'استفسر' : 'Enquire'}</button>
             `}
           </div>
         </div>
@@ -1466,7 +1462,7 @@ function updateSearchOverlay(query) {
       const photo = productPhoto(p);
       const priceHtml = hasVisiblePrice(p)
         ? fmtPrice(applySale(p.price, p.id))
-        : (isAr ? 'السعر عند الطلب' : 'Price on request');
+        : '';
       const pCat = isAr ? (_AR_CATS[p.category] || catLabel(p.category)) : catLabel(p.category);
       return '<div class="search-overlay-card" onclick="selectSearchOverlayResult(' + p.id + ')">' +
         '<div class="so-img-wrap">' +

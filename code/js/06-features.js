@@ -154,7 +154,7 @@ function askPriceOnWhatsApp(id, variantIdx) {
   // getProductSku()/_variantSku() already return a "SKU-xxxx" / "SKU: xxxx"
   // formatted string, so it's inserted directly rather than wrapped in
   // another "(SKU: ...)" label, which used to print "SKU: SKU: ..." twice.
-  var msg = 'Hi, I want this ' + p.name + (v ? ' — ' + v.label : '') + ' (' + (v ? _variantSku(v, id) : getProductSku(id)) + ') price';
+  var msg = 'Hi, I am interested in the ' + p.name + (v ? ' — ' + v.label : '') + '. Is it available, and what is the price?';
   window.open('https://wa.me/' + SHOP_WA + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
@@ -180,7 +180,6 @@ function enquireOnWhatsApp(id, variantIdx) {
   if (sale > 0 && base > 0) base = base * (1 - sale / 100);
   var msg = 'Hi, I would like to order this from Alamdar Auto:\n\n'
     + '*' + p.name + (v ? ' — ' + v.label : '') + '*\n'
-    + 'Part No: ' + (v ? _variantSku(v, id) : getProductSku(id)) + '\n'
     + 'Price: ' + fmtPrice(roundMoney(base)) + '\n\n'
     + 'Is it available?';
   window.open('https://wa.me/' + SHOP_WA + '?text=' + encodeURIComponent(msg), '_blank');
