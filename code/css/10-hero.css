@@ -302,7 +302,10 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
      stage ABOVE --reserve, and an arrow 75px lower met the ellipse at a shallow
      angle where its x is smaller, so a part brushed it at ~1085px. The phone rule
      below sets its own top, so this only applies where the ring is shown. */
-  position: absolute; top: calc((100% - var(--reserve, 0px)) / 2); transform: translateY(-50%); z-index: 3;
+  /* 2026-11-16 (owner): the arrows live BELOW the car, as a centred pair in the
+     empty --reserve strip under the orbit (above the slide dots), not beside it.
+     Beside the car they sat on the ring's centre line and fought the parts. */
+  position: absolute; top: auto; bottom: 30px; z-index: 3;
   width: 46px; height: 46px; padding: 0; border-radius: 50%;
   display: grid; place-items: center;
   background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .18);
@@ -320,8 +323,8 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
    catches them at 1280, any further in and they touch the widest car
    (the Touareg, `scale: 1.15`). Reset to the edges below 1025px, where the
    ring is hidden and the full width is free again. */
-.ge-car-nav.prev { left: 16%; }
-.ge-car-nav.next { right: 16%; }
+.ge-car-nav.prev { left: calc(50% - 62px); }
+.ge-car-nav.next { right: calc(50% - 62px); }
 
 /* The narrow-desktop band, where the ring still has to pass outside the
    arrows but with much less room to do it in. Three things are squeezed at
@@ -334,8 +337,6 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
   .ge-car-tilt { width: calc(min(50%, 540px) * var(--scale, 1)); }
   .ge-ring-face { width: clamp(100px, 9.6vw, 118px); }
   .ge-ring-img, .ge-ring-icon { height: clamp(78px, 7.6vw, 94px); }
-  .ge-car-nav.prev { left: 13%; }
-  .ge-car-nav.next { right: 13%; }
 }
 
 /* Caption, bottom corner of the stage */
@@ -409,11 +410,11 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
      E-Class, Touareg and Range Rover cuts, and an arrow there reads as
      landing on the bodywork. At 24% the arrows sit beside the glasshouse,
      which is clear on all six cars. */
-  .ge-car-nav { width: 38px; height: 38px; font-size: 14px; top: 24%; }
+  .ge-car-nav { width: 38px; height: 38px; font-size: 14px; top: auto; bottom: 108px; }
   /* The ring is hidden from here down, so the arrows go back to the edges —
      inboard they would sit on the car itself at this width. */
-  .ge-car-nav.prev { left: 0; }
-  .ge-car-nav.next { right: 0; }
+  .ge-car-nav.prev { left: calc(50% - 52px); }
+  .ge-car-nav.next { right: calc(50% - 52px); }
   /* Phone performance. The sheen repaints a masked, screen-blended layer on
      every frame, and each nav button blurs the animating stage behind it —
      both cheap on a desktop GPU, both expensive on a phone, for an effect
