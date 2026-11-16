@@ -323,8 +323,8 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
    catches them at 1280, any further in and they touch the widest car
    (the Touareg, `scale: 1.15`). Reset to the edges below 1025px, where the
    ring is hidden and the full width is free again. */
-.ge-car-nav.prev { left: calc(50% - 62px); }
-.ge-car-nav.next { right: calc(50% - 62px); }
+.ge-car-nav.prev { left: calc(50% - 120px); }
+.ge-car-nav.next { right: calc(50% - 120px); }
 
 /* The narrow-desktop band, where the ring still has to pass outside the
    arrows but with much less room to do it in. Three things are squeezed at
@@ -413,8 +413,8 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
   .ge-car-nav { width: 38px; height: 38px; font-size: 14px; top: auto; bottom: 108px; }
   /* The ring is hidden from here down, so the arrows go back to the edges —
      inboard they would sit on the car itself at this width. */
-  .ge-car-nav.prev { left: calc(50% - 52px); }
-  .ge-car-nav.next { right: calc(50% - 52px); }
+  .ge-car-nav.prev { left: calc(50% - 90px); }
+  .ge-car-nav.next { right: calc(50% - 90px); }
   /* Phone performance. The sheen repaints a masked, screen-blended layer on
      every frame, and each nav button blurs the animating stage behind it —
      both cheap on a desktop GPU, both expensive on a phone, for an effect

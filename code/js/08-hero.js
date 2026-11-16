@@ -77,7 +77,7 @@ const HERO_PARTS = [
 // and the E-Class would otherwise hide its lower half behind the bodywork.
 // Makes that have a logo file at img/brands/logo-<make>.svg (white, from the
 // simple-icons set). A car whose `make` is not listed just shows no logo.
-const HERO_LOGO_MAKES = ['mercedes', 'bmw', 'audi', 'volkswagen', 'porsche', 'landrover'];
+const HERO_LOGO_MAKES = ['mercedes', 'bmw', 'audi', 'volkswagen', 'porsche', 'landrover', 'jaguar'];
 
 const HERO_CARS = [
   {
@@ -167,6 +167,20 @@ const HERO_CARS = [
       { x: '93%', y: '68%', dx: 150,  dy: -60, img: 'img/parts/remsa-brake-pads.webp',     brand: 'Remsa', part: 'Brake pads', cat: 'brakes' },
     ],
   },
+  {
+    // Added 2026-11-16 from the owner's own transparent cut-out (silver F-Type coupe,
+    // original kept in img/hero/src/jaguar-f-type-source.png). Cropped to the car's
+    // alpha box (1455x564), so 1400w is NOT an upscale. A low coupe: no logoLift needed.
+    make: 'jaguar',
+    src: 'img/hero/jaguar-f-type.webp', w: 1400,
+    srcSmall: 'img/hero/jaguar-f-type-sm.webp', wSmall: 760,
+    model: 'F-TYPE',
+    badge: 'JAGUAR',
+    logoScale: 1.5,
+    logoLift: -14,
+    scale: 1.1,
+    alt: 'Jaguar F-Type coupe',
+  },
 ];
 
 const HERO_ROTATE_MS = 6500;
@@ -241,7 +255,9 @@ const HERO_SHADER_PRESET = {
       // so a fixed 96 units rendered the VW / Range Rover logos at under half the
       // BMW one. Grow the logo with the box, halfway (full proportion would make
       // it tower over the small lettering): ~96 for short words, ~150 for the long.
-      const logoSz = Math.round(96 * (1 + (vbW / BADGE_MIN_W - 1) * 0.5));
+      // `logoScale` (default 1) enlarges a logo that is wide-and-short rather than
+      // round (Jaguar's leaper + word fills only half of its square box).
+      const logoSz = Math.round(96 * (1 + (vbW / BADGE_MIN_W - 1) * 0.5) * (Number(c.logoScale) || 1));
       const logoEl = logoSrc
         ? `<image class="ge-car-logo" href="${esc(logoSrc)}" x="${vbW / 2 - logoSz / 2}" y="${34 - logoSz - (Number(c.logoLift) || 0)}" width="${logoSz}" height="${logoSz}" preserveAspectRatio="xMidYMid meet" />`
         : '';
