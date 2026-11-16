@@ -324,10 +324,16 @@
 #brandBanners .bb-grid-brands { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
 #brandBanners .bb-brand { display: flex; align-items: center; justify-content: center; min-height: 64px; padding: 10px 12px; background: #fff; border: 1px solid var(--border); border-radius: 12px; font-family: var(--font-display); font-weight: 800; font-size: clamp(16px, 1.75vw, 24px); letter-spacing: 1px; white-space: nowrap; text-transform: uppercase; text-align: center; color: var(--bar); }
 
+/* Real brand logos (owner, 2026-11-16): coloured PNGs cropped to the artwork, shown
+   on the white tile. Height-capped, and width-capped so a wide wordmark (Lemförder,
+   Bilstein) never touches the tile edge. Denso is still a text tile. */
+#brandBanners .bb-brand { min-height: 84px; }
+#brandBanners .bb-brand img { display: block; width: auto; height: auto; max-height: 48px; max-width: 86%; object-fit: contain; }
 @media (max-width: 900px) { #brandBanners .bb-grid-cars { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 480px) {
   #brandBanners .bb-car { padding: 14px 2px 10px; gap: 8px; font-size: 11px; letter-spacing: .4px; }
   #brandBanners .bb-grid-brands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  #brandBanners .bb-brand { min-height: 54px; font-size: 16px; letter-spacing: .5px; }
+  #brandBanners .bb-brand { min-height: 68px; font-size: 16px; letter-spacing: .5px; }
+  #brandBanners .bb-brand img { max-height: 36px; }
   #brandBanners .bb-brand:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 5px); }
 }
