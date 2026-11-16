@@ -72,6 +72,13 @@ const HERO_PARTS = [
   { part: 'Body parts',        cat: 'body-lights', img: 'img/parts/front-bumper.webp' }
 ];
 
+// A car entry may carry `logoLift` (SVG units, default 0) to raise its logo above a
+// tall roofline: the logo is anchored to the make word, not to the car, so the SUVs
+// and the E-Class would otherwise hide its lower half behind the bodywork.
+// Makes that have a logo file at img/brands/logo-<make>.svg (white, from the
+// simple-icons set). A car whose `make` is not listed just shows no logo.
+const HERO_LOGO_MAKES = ['mercedes', 'bmw', 'audi', 'volkswagen', 'porsche', 'landrover'];
+
 const HERO_CARS = [
   {
     src: 'img/hero/mercedes-e-class.webp', w: 1400,
@@ -79,6 +86,7 @@ const HERO_CARS = [
     model: 'E-CLASS',
     make: 'mercedes',
     badge: 'MERCEDES',
+    logoLift: 70,
     scale: 1,
     alt: 'Mercedes-Benz E-Class sedan',
     callouts: [
@@ -134,6 +142,7 @@ const HERO_CARS = [
     model: 'TOUAREG',
     make: 'volkswagen',
     badge: 'VOLKSWAGEN',
+    logoLift: 170,
     scale: 0.84,
     alt: 'Volkswagen Touareg SUV',
     callouts: [
@@ -150,6 +159,7 @@ const HERO_CARS = [
     model: 'SPORT',
     label: 'Range Rover',
     badge: 'RANGE ROVER',
+    logoLift: 150,
     scale: 0.9,
     alt: 'Range Rover Sport SUV',
     callouts: [
@@ -221,8 +231,23 @@ const HERO_SHADER_PRESET = {
       // are drawn at a nominal 280px and the viewBox scales them to the stage,
       // so the stroke thins out proportionally instead of staying chunky.
       const vbW = Math.max(BADGE_MIN_W, badgeText.length * 190 + 60);
+      // 2026-11-16, owner: the brand's own logo sits ABOVE the big make word. It
+      // lives inside the same SVG (the box has overflow: visible) so it scales and
+      // lifts with the word at every width, with no second positioning rule to
+      // keep in step. Letters span roughly y 48-252 of the 300-unit box, so the
+      // logo is a 96-unit square ending at y 34 — a small gap above the caps.
+      const logoSrc = HERO_LOGO_MAKES.includes(c.make) ? `img/brands/logo-${c.make}.svg` : '';
+      // A long word gets a WIDER viewBox, which shrinks everything in it on screen,
+      // so a fixed 96 units rendered the VW / Range Rover logos at under half the
+      // BMW one. Grow the logo with the box, halfway (full proportion would make
+      // it tower over the small lettering): ~96 for short words, ~150 for the long.
+      const logoSz = Math.round(96 * (1 + (vbW / BADGE_MIN_W - 1) * 0.5));
+      const logoEl = logoSrc
+        ? `<image class="ge-car-logo" href="${esc(logoSrc)}" x="${vbW / 2 - logoSz / 2}" y="${34 - logoSz - (Number(c.logoLift) || 0)}" width="${logoSz}" height="${logoSz}" preserveAspectRatio="xMidYMid meet" />`
+        : '';
       const badge = !badgeText ? '' : `
           <svg class="ge-car-model" viewBox="0 0 ${vbW} 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+            ${logoEl}
             <defs>
               <linearGradient id="geModelGrad${i}" x1="0%" y1="100%" x2="100%" y2="0%">
                 <stop offset="0%" stop-color="#c1121f" />
@@ -235,20 +260,10 @@ const HERO_SHADER_PRESET = {
                   font-weight="800" letter-spacing="8">${esc(badgeText)}</text>
           </svg>`;
 
+      // Used for the car's alt text only. The "Audi A6" / "BMW M4" caption in the
+      // stage's bottom corner was REMOVED on 2026-11-16 (owner: "it should say
+      // nothing there"), and with it the "Shop <Make> parts" button.
       const name = c.name || [label, model].filter(Boolean).join(' ');
-      const arw = '<i class="fa fa-arrow-right" aria-hidden="true"></i>';
-      // A car filters by make; a part slide filters by category instead.
-      const cta = c.make
-        ? `<button type="button" class="ge-car-caption" data-make="${esc(c.make)}">${esc(c.ctaText || ('Shop ' + label + ' parts'))} ${arw}</button>`
-        : c.cat
-        ? `<button type="button" class="ge-car-caption" data-cat="${esc(c.cat)}">${esc(c.ctaText || ('Shop ' + name))} ${arw}</button>`
-        : '';
-      const caption = !name ? '' : `
-          <figcaption class="ge-car-cap">
-            <span class="ge-car-cap-lead">${esc(c.lead || 'Genuine parts for the')}</span>
-            <strong class="ge-car-cap-name">${esc(name)}</strong>
-            ${cta}
-          </figcaption>`;
 
       // ONLY the first slide loads with the page. The other five are stacked
       // in the same place at opacity:0 — inside the viewport, so loading=lazy
@@ -365,7 +380,6 @@ const HERO_SHADER_PRESET = {
           </div>
         </div>
         ${chipList}
-        ${caption}
       </figure>`;
     }).join('') + (cars.length > 1
       ? `<button type="button" class="ge-car-nav prev" data-nav="-1" aria-label="Previous car">
