@@ -277,13 +277,19 @@ revoke execute on function public.is_admin(uuid), public.has_admin_perm(text, bo
   public.decrement_stock(bigint, integer), public.get_order_by_code(text),
   public.cancel_order(uuid), public.items_json_ok(text)
   from public;
+-- anon may only call the storefront RPCs. Everything admin/auth-check is signed-in only
+-- (2026-11-16 lockdown: anon used to be able to execute is_admin / has_admin_perm / admin_*).
 grant execute on function public.increment_expert_analytics(bigint, integer, integer),
-  public.decrement_stock(bigint, integer), public.get_order_by_code(text),
-  public.cancel_order(uuid), public.items_json_ok(text), public.is_admin(uuid)
+  public.get_order_by_code(text), public.cancel_order(uuid), public.items_json_ok(text)
   to anon, authenticated;
-grant execute on function public.has_admin_perm(text, boolean), public.admin_list_orders(),
-  public.admin_update_order_status(uuid, text), public.admin_delete_order(uuid)
-  to authenticated;
+grant execute on function public.is_admin(uuid), public.has_admin_perm(text, boolean),
+  public.admin_list_orders(), public.admin_update_order_status(uuid, text),
+  public.admin_delete_order(uuid)
+  to authenticated, service_role;
+-- decrement_stock is NOT granted to anon/authenticated while ONLINE_ORDERING_ENABLED=false:
+-- an anonymous caller could otherwise zero every product's stock. To restore ordering:
+--   grant execute on function public.decrement_stock(bigint, integer) to anon, authenticated;
+grant execute on function public.decrement_stock(bigint, integer) to service_role;
 
 -- ── Row level security ─────────────────────────────────────────────────────
 alter table public.expert_products        enable row level security;
@@ -359,12 +365,31 @@ create policy offer_sub_insert_anon on public.offer_subscribers for insert to an
 -- expert_service_secrets, offer_campaigns: no policies → service role only.
 
 -- ── Table privileges (defense in depth on top of RLS) ──────────────────────
-revoke all on public.expert_orders, public.expert_admin_profiles, public.expert_service_secrets,
-  public.offer_campaigns, public.offer_subscribers from anon, authenticated;
-grant insert on public.expert_orders to anon;
-grant insert, select on public.expert_orders to authenticated;
-grant select on public.expert_admin_profiles to authenticated;
+-- Supabase hands anon/authenticated ALL privileges (incl. TRUNCATE, which RLS does not
+-- cover) on every new table, so reset everything and grant back only what is used.
+revoke all on all tables in schema public from anon, authenticated;
+alter default privileges for role postgres in schema public revoke all on tables from anon, authenticated;
+alter default privileges for role postgres in schema public revoke all on sequences from anon, authenticated;
+alter default privileges for role postgres revoke execute on functions from public;
+
+-- anon: read the public catalog, post reviews, subscribe. Nothing else.
+grant select on public.expert_products, public.expert_stock, public.expert_photos,
+  public.expert_hidden, public.expert_cat_bgs, public.expert_banners,
+  public.expert_settings, public.expert_analytics, public.expert_reviews to anon;
+grant insert on public.expert_reviews to anon;
 grant insert on public.offer_subscribers to anon;
+-- No anon insert on expert_orders while ONLINE_ORDERING_ENABLED=false (anon inserts +
+-- notify-order = an email relay / spam path). To restore ordering:
+--   grant insert on public.expert_orders to anon;
+
+-- authenticated: RLS narrows these to admins (is_admin) or the customer's own rows.
+grant select, insert, update, delete on public.expert_products, public.expert_stock,
+  public.expert_photos, public.expert_hidden, public.expert_cat_bgs, public.expert_banners,
+  public.expert_settings, public.expert_analytics, public.expert_reviews,
+  public.expert_customers to authenticated;
+grant select, insert on public.expert_orders to authenticated;
+grant select on public.expert_admin_profiles to authenticated;
+-- expert_service_secrets, offer_campaigns: no client grants at all (service role only).
 
 -- ── Seed settings ──────────────────────────────────────────────────────────
 insert into public.expert_settings (key, value) values
