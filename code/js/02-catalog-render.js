@@ -589,6 +589,15 @@ function filterProducts(category) {
 // Shop-by-Make row (index.html #makeRow). Clicking the active make again
 // clears it. Works together with the category filter (e.g. BMW + Brakes),
 // using expert_settings.fitment_map via p.makes (see getAllProducts()).
+// Car tiles in the #brandBanners band: filter to that make (never toggles it OFF —
+// tapping the same tile twice would otherwise clear the filter the visitor asked for)
+// and bring the product grid into view. The "Showing parts for <Make> ✕" chip clears it.
+function shopMake(make) {
+  if (activeMake !== make) setMakeFilter(make);
+  var grid = document.getElementById('products');
+  if (grid && grid.scrollIntoView) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function setMakeFilter(make) {
   activeMake = (activeMake === make || !make) ? 'all' : make;
   document.querySelectorAll('.make-chip').forEach(function(b) {

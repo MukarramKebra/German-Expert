@@ -299,3 +299,35 @@
 /* "All Parts" tile — a car, same graphite treatment as the part tiles above. */
 .cat-card[data-cat="all"] { background-image: url('../../img/categories/all.jpg'); justify-content: flex-end; padding-bottom: 14px; background-size: cover; background-position: center top; }
 .cat-card[data-cat="all"] .cat-icon { display: none; }
+
+/* ── BRAND BANNERS (2026-11-16) ──────────────────────────────────────────────
+   #brandBanners = two full-width bands under the workshop collage: the cars we
+   cover (white logo files from img/brands/ on graphite) and the parts brands we
+   carry (plain wordmarks on light grey — no third-party logo files hosted).
+   STATIC on purpose: the owner had the moving red brand strip removed, so
+   nothing here animates or scrolls. Tokens only, no new colour. */
+#brandBanners .bb { padding: clamp(28px, 4vw, 48px) 0; }
+#brandBanners .bb-head { text-align: center; margin-bottom: clamp(18px, 2.6vw, 28px); }
+#brandBanners .bb-tag { display: inline-block; font-family: var(--font-display); font-weight: 700; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; }
+#brandBanners .bb h2 { margin: 6px 0 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(22px, 2.8vw, 34px); line-height: 1.1; letter-spacing: .5px; text-transform: uppercase; }
+#brandBanners .bb-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(10px, 1.6vw, 18px); }
+
+#brandBanners .bb-cars { background: var(--charcoal); color: #fff; }
+#brandBanners .bb-cars .bb-tag { color: var(--orange-light); }
+#brandBanners .bb-grid-cars { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+#brandBanners .bb-car { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 18px 6px 14px; color: #fff; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.10); border-radius: 12px; cursor: pointer; font-family: var(--font-display); font-weight: 700; font-size: clamp(12px, 1.2vw, 15px); letter-spacing: 1px; text-transform: uppercase; text-align: center; transition: background-color var(--t-base, .2s), border-color var(--t-base, .2s), transform var(--t-base, .2s); }
+#brandBanners .bb-car img { width: clamp(34px, 4vw, 52px); height: clamp(34px, 4vw, 52px); object-fit: contain; }
+#brandBanners .bb-car:hover { background: rgba(255,255,255,.09); border-color: var(--orange-light); transform: translateY(-2px); }
+
+#brandBanners .bb-brands { background: var(--light); color: var(--bar); border-bottom: 1px solid var(--border); }
+#brandBanners .bb-brands .bb-tag { color: var(--orange); }
+#brandBanners .bb-grid-brands { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+#brandBanners .bb-brand { display: flex; align-items: center; justify-content: center; min-height: 64px; padding: 10px 12px; background: #fff; border: 1px solid var(--border); border-radius: 12px; font-family: var(--font-display); font-weight: 800; font-size: clamp(16px, 1.75vw, 24px); letter-spacing: 1px; white-space: nowrap; text-transform: uppercase; text-align: center; color: var(--bar); }
+
+@media (max-width: 900px) { #brandBanners .bb-grid-cars { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 480px) {
+  #brandBanners .bb-car { padding: 14px 2px 10px; gap: 8px; font-size: 11px; letter-spacing: .4px; }
+  #brandBanners .bb-grid-brands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #brandBanners .bb-brand { min-height: 54px; font-size: 16px; letter-spacing: .5px; }
+  #brandBanners .bb-brand:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 5px); }
+}

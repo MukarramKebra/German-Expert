@@ -435,6 +435,43 @@
     </div>
   </section>
 
+  <!-- TWO BANNERS (owner, 2026-11-16): the cars we cover + the parts brands we carry.
+       Static HTML on purpose (crawlable, no JS, and the owner had the moving red
+       brand strip removed, so nothing here scrolls). Car tiles call shopMake()
+       (js/02-catalog-render.js); brand tiles are plain wordmarks. The brand list is
+       edited right here. Styles: "BRAND BANNERS" at the end of css/02-sections.css. -->
+  <section id="brandBanners" aria-label="Cars and brands we supply">
+    <div class="bb bb-cars">
+      <div class="container">
+        <div class="bb-head"><span class="bb-tag">Cars we cover</span><h2>Genuine &amp; OEM-quality parts for</h2></div>
+        <ul class="bb-grid bb-grid-cars">
+          <li><button type="button" class="bb-car" onclick="shopMake('mercedes')"><img src="img/brands/logo-mercedes.svg" alt="" width="48" height="48" loading="lazy"><span>Mercedes-Benz</span></button></li>
+          <li><button type="button" class="bb-car" onclick="shopMake('bmw')"><img src="img/brands/logo-bmw.svg" alt="" width="48" height="48" loading="lazy"><span>BMW</span></button></li>
+          <li><button type="button" class="bb-car" onclick="shopMake('audi')"><img src="img/brands/logo-audi.svg" alt="" width="48" height="48" loading="lazy"><span>Audi</span></button></li>
+          <li><button type="button" class="bb-car" onclick="shopMake('volkswagen')"><img src="img/brands/logo-volkswagen.svg" alt="" width="48" height="48" loading="lazy"><span>Volkswagen</span></button></li>
+          <li><button type="button" class="bb-car" onclick="shopMake('porsche')"><img src="img/brands/logo-porsche.svg" alt="" width="48" height="48" loading="lazy"><span>Porsche</span></button></li>
+          <li><button type="button" class="bb-car" onclick="shopMake('landrover')"><img src="img/brands/logo-landrover.svg" alt="" width="48" height="48" loading="lazy"><span>Range Rover</span></button></li>
+          <li><button type="button" class="bb-car" onclick="shopMake('jaguar')"><img src="img/brands/logo-jaguar.svg" alt="" width="48" height="48" loading="lazy"><span>Jaguar</span></button></li>
+          <li><button type="button" class="bb-car" onclick="shopMake('toyota')"><img src="img/brands/logo-toyota.svg" alt="" width="48" height="48" loading="lazy"><span>Toyota</span></button></li>
+        </ul>
+      </div>
+    </div>
+    <div class="bb bb-brands">
+      <div class="container">
+        <div class="bb-head"><span class="bb-tag">Parts brands</span><h2>Trusted names we fit and supply</h2></div>
+        <ul class="bb-grid bb-grid-brands">
+          <li class="bb-brand">Remsa</li>
+          <li class="bb-brand">Febi</li>
+          <li class="bb-brand">Lemf&ouml;rder</li>
+          <li class="bb-brand">Bilstein</li>
+          <li class="bb-brand">Mann-Filter</li>
+          <li class="bb-brand">Denso</li>
+          <li class="bb-brand">Wahler</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
   <!-- Two vertical banners, each auto-rotating through category slides in sync (see initSideBanners() in js/02-catalog-render.js) -->
   <section id="categories">
     <div class="container">
