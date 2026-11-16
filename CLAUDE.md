@@ -44,7 +44,7 @@ Forked on 2026-11-08 from the Expert Hardware Kuwait store (repo `MukarramKebra/
 
 `ONLINE_ORDERING_ENABLED = false` (`code/js/01-config-data.js`) is the single switch. Every "Add to Cart" is an **Enquire on WhatsApp** button (`enquireOnWhatsApp()` in `code/js/06-features.js`); nothing writes to `expert_orders`, no stock is deducted, no order email is sent. `addToCart()`/`pmAddToCart()` redirect to the enquiry and `openCart()`/`openCheckout()`/`handleCheckoutSubmit()` return immediately, so stale cached scripts can't create an order. The cart, checkout, Track Order, Cancel Order and My Orders surfaces are hidden by the "CATALOG-ONLY MODE" block at the end of `code/css/03-cart-features-contact.css`.
 
-**Restore = two steps, don't half-restore** (same rule as the sort dropdown and Arabic toggle below): flip the flag to `true` AND delete that CSS block. The flag alone re-enables checkout with no way to reach the cart.
+**Restore = three steps, don't half-restore** (same rule as the sort dropdown and Arabic toggle below): flip the flag to `true`, delete that CSS block, AND re-grant the two DB permissions the 2026-11-16 security lockdown removed: `grant insert on public.expert_orders to anon;` and `grant execute on function public.decrement_stock(bigint, integer) to anon, authenticated;` (both are written out in `supabase/schema.sql`). The flag alone re-enables checkout with no way to reach the cart; skipping the grants makes every checkout fail with a 401/403.
 
 ## Email offers are OFF — no subscriber collection
 
