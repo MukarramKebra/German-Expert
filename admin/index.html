@@ -8,7 +8,7 @@
   <link rel="icon" href="favicon.png" sizes="any" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha384-/o6I2CkkWC//PSjvWC/eYN7l3xM3tJm8ZzVkCOfp//W05QcE3mlGskpoHB6XqI+B" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script>
   // See index.html for why this is dynamic — same shared localStorage key
@@ -1186,8 +1186,11 @@
 
 <div class="toast" id="toast"><i class="fa fa-check-circle"></i> <span id="toastMsg">Saved!</span></div>
 
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<!-- SRI: this page holds the admin session, so a tampered CDN file must not run. Both are
+     version-pinned URLs; if you ever bump a version, regenerate the hash:
+     curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
 <script>
 // async=false keeps in-order execution; DOM appends dodge the extensions/
 // interventions that block document.write (see the CSS loader in <head>)

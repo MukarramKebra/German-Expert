@@ -44,7 +44,7 @@ Forked on 2026-11-08 from the Expert Hardware Kuwait store (repo `MukarramKebra/
 
 `ONLINE_ORDERING_ENABLED = false` (`code/js/01-config-data.js`) is the single switch. Every "Add to Cart" is an **Enquire on WhatsApp** button (`enquireOnWhatsApp()` in `code/js/06-features.js`); nothing writes to `expert_orders`, no stock is deducted, no order email is sent. `addToCart()`/`pmAddToCart()` redirect to the enquiry and `openCart()`/`openCheckout()`/`handleCheckoutSubmit()` return immediately, so stale cached scripts can't create an order. The cart, checkout, Track Order, Cancel Order and My Orders surfaces are hidden by the "CATALOG-ONLY MODE" block at the end of `code/css/03-cart-features-contact.css`.
 
-**Restore = three steps, don't half-restore** (same rule as the sort dropdown and Arabic toggle below): flip the flag to `true`, delete that CSS block, AND re-grant the two DB permissions the 2026-11-16 security lockdown removed: `grant insert on public.expert_orders to anon;` and `grant execute on function public.decrement_stock(bigint, integer) to anon, authenticated;` (both are written out in `supabase/schema.sql`). The flag alone re-enables checkout with no way to reach the cart; skipping the grants makes every checkout fail with a 401/403.
+**Restore = three steps, don't half-restore** (same rule as the sort dropdown and Arabic toggle below): flip the flag to `true`, delete that CSS block, AND re-grant the two DB permissions the 2026-11-16 security lockdown removed: `grant insert on public.expert_orders to anon, authenticated;` and `grant execute on function public.decrement_stock(bigint, integer) to anon, authenticated;` (both are written out in `supabase/schema.sql`). The flag alone re-enables checkout with no way to reach the cart; skipping the grants makes every checkout fail with a 401/403.
 
 ## Email offers are OFF — no subscriber collection
 
@@ -65,6 +65,14 @@ Everything behind it is intact: `offer_subscribers`, `offer_campaigns`, the `sen
 ## "Shop by Make" is hidden, but make filtering still works
 
 The `#makes` section is hidden by a block at the end of `code/css/02-sections.css` (2026-11-11). The markup and `setMakeFilter()` deliberately stay, because the hero captions ("Shop BMW parts") still call it. ⚠️ **`activeMake` is reset by nothing else in the app**, so `renderActiveMake()` in `code/js/02-catalog-render.js` paints a "Showing parts for <Make> ✕" chip (`#activeMake`, under the category pills) whenever a filter is on — that chip is now the ONLY way out of one. Don't delete it without also removing the hero captions.
+
+## Security posture (audited 2026-11-16 — two passes, `/ecc:security-scan` + `/ecc:security-review`)
+
+- **Privileges are least-privilege, not Supabase's defaults.** `anon` reads the public catalog + posts reviews, nothing else; `authenticated` is RLS-limited (admin tables via `is_admin()`, customers own rows). Defaults for FUTURE tables/functions are also locked (`alter default privileges`), so a new table starts with NO client access — grant explicitly in `schema.sql`. Everything is written out in `supabase/schema.sql`; the live DB matches it.
+- **Features that are OFF have their DB write paths CLOSED too** — flipping a flag is not enough: ordering needs `grant insert on expert_orders to anon, authenticated` + `grant execute on decrement_stock to anon, authenticated`; email offers need `grant insert on offer_subscribers to anon`. (A self-signed-up auth user could otherwise create orders and make `notify-order` email an arbitrary address.)
+- **Verified from outside with only the public key** (curl, `/rest/v1` + `/functions/v1`): every read/write/RPC outside the public catalog returns 401/403, `bootstrap` returns `already_bootstrapped`, `send-offers`/`admin-manage-accounts` refuse unauthenticated calls. Re-run this after any grant/RLS change.
+- **SRI**: Font Awesome (storefront + admin), SheetJS and JSZip (admin) carry `integrity` hashes. The storefront's FA link is the non-blocking `media="print"` one near line 201 — the second copy in `<noscript>` is only the fallback. Bumping a version means regenerating the hash.
+- **Open items that cannot be fixed from the repo**: Supabase Auth **sign-ups are still enabled** (Authentication → Sign In / Providers → "Allow new users to sign up"; admins are created server-side, so turn it off), no leaked-password protection / minimum length 10 (Auth settings), no CSP (GitHub Pages cannot send headers and the inline loaders would need `unsafe-inline`), `notify-order`/`order-invoice` echo `e.message` on a 500, and **this repo is PUBLIC while `CLAUDE.md`/`handoff.md` contain the owner's personal email and the other Supabase projects' ids**.
 
 ## Cars + brands banners (2026-11-16)
 

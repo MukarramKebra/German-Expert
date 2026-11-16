@@ -377,7 +377,8 @@ grant select on public.expert_products, public.expert_stock, public.expert_photo
   public.expert_hidden, public.expert_cat_bgs, public.expert_banners,
   public.expert_settings, public.expert_analytics, public.expert_reviews to anon;
 grant insert on public.expert_reviews to anon;
-grant insert on public.offer_subscribers to anon;
+-- offer_subscribers: NO anon insert while EMAIL_OFFERS_ENABLED=false (nothing writes it).
+-- To restore offers:  grant insert on public.offer_subscribers to anon;
 -- No anon insert on expert_orders while ONLINE_ORDERING_ENABLED=false (anon inserts +
 -- notify-order = an email relay / spam path). To restore ordering:
 --   grant insert on public.expert_orders to anon;
@@ -387,7 +388,11 @@ grant select, insert, update, delete on public.expert_products, public.expert_st
   public.expert_photos, public.expert_hidden, public.expert_cat_bgs, public.expert_banners,
   public.expert_settings, public.expert_analytics, public.expert_reviews,
   public.expert_customers to authenticated;
-grant select, insert on public.expert_orders to authenticated;
+-- authenticated may READ orders (own rows, via RLS) but not insert while ordering is off:
+-- a self-signed-up user could otherwise create orders whose customer_email notify-order
+-- would email (spam relay). To restore ordering:
+--   grant insert on public.expert_orders to anon, authenticated;
+grant select on public.expert_orders to authenticated;
 grant select on public.expert_admin_profiles to authenticated;
 -- expert_service_secrets, offer_campaigns: no client grants at all (service role only).
 
