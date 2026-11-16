@@ -327,7 +327,14 @@
 /* Real brand logos (owner, 2026-11-16): coloured PNGs cropped to the artwork, shown
    on the white tile. Height-capped, and width-capped so a wide wordmark (Lemförder,
    Bilstein) never touches the tile edge. Denso is still a text tile. */
-#brandBanners .bb-brand { min-height: 84px; }
+/* 2026-11-16 (owner: "remove that white box outside each brand"): NO tile — the logos
+   sit straight on the band. The band itself is pure white so the white background of
+   the supplied logo files (febi is a JPEG) disappears into it; a grey band would
+   show every JPEG as a white rectangle again. */
+#brandBanners .bb-brands { background: #fff; }
+/* febi is a SQUARE mark, so at the same height as the wide wordmarks it reads small. */
+#brandBanners .bb-brand img[alt^="Febi"] { max-height: 68px; }
+#brandBanners .bb-brand { min-height: 84px; background: transparent; border: 0; border-radius: 0; }
 #brandBanners .bb-brand img { display: block; width: auto; height: auto; max-height: 48px; max-width: 86%; object-fit: contain; }
 @media (max-width: 900px) { #brandBanners .bb-grid-cars { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 480px) {
@@ -335,5 +342,6 @@
   #brandBanners .bb-grid-brands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #brandBanners .bb-brand { min-height: 68px; font-size: 16px; letter-spacing: .5px; }
   #brandBanners .bb-brand img { max-height: 36px; }
+  #brandBanners .bb-brand img[alt^="Febi"] { max-height: 52px; }
   #brandBanners .bb-brand:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 5px); }
 }
