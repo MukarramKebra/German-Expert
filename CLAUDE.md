@@ -42,7 +42,7 @@ Forked on 2026-11-08 from the Expert Hardware Kuwait store (repo `MukarramKebra/
 
 ## Redesign preview — `v2.html` (2026-11-17, awaiting owner approval)
 
-A full visual redesign lives at `/v2.html` (noindex) while `index.html` stays live and unchanged. Files: `v2.html`, `code/css/20-redesign.css` (all rules under `body.rd`, loaded LAST after 11-ui-polish), `code/js/10-redesign.js` (vehicle finder from `scripts/data/vehicle-tree.json`, makes band `rdPickMake()`, phone bottom action bar). Same JS, same DOM ids, same data as the live page. The parts ring is hidden there, not deleted. `v2.html` is a hand-maintained copy now and does NOT follow edits to `index.html`. Details + the swap-over checklist: handoff.md §4 "Redesign preview" and §6 step 0.
+A full visual redesign lives at `/v2.html` (noindex) while `index.html` stays live and unchanged. Files: `v2.html`, `code/css/20-redesign.css` (all rules under `body.rd`, loaded LAST after 11-ui-polish), `code/js/10-redesign.js` (vehicle finder from `scripts/data/vehicle-tree.json`, makes band `rdPickMake()`, phone bottom action bar). Same JS, same DOM ids, same data as the live page. The parts ring is hidden there, not deleted. **Hero v2.1 (2026-11-17, owner: "change all of this too")**: the giant outlined make word is hidden too (`.ge-car-model`), the stage moved into a two-column `.rd-hero-grid` (copy + finder left, car on a red spotlight right), and `rdCaptions()` in `10-redesign.js` lifts the logo + make name out of that hidden SVG into a small `.rd-carcap` label. `08-hero.js` is untouched. `v2.html` is a hand-maintained copy now and does NOT follow edits to `index.html`. Details + the swap-over checklist: handoff.md §4 "Redesign preview" and §6 step 0.
 
 ## Online ordering is OFF — catalog-only mode
 
