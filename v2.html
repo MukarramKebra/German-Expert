@@ -125,10 +125,10 @@
     }
     /* Redesign stage sizes (code/css/20-redesign.css) — keep in sync. */
     .rd .ge-hero { min-height: 0; padding-top: 72px; }
-    .rd .ge-hero-stage { height: clamp(320px, 34vw, 480px); }
-    @media (max-width: 1024px) { .rd .ge-hero-stage { height: clamp(250px, calc(52vw + 40px), 470px); } }
+    .rd .ge-hero-stage { height: clamp(400px, 42vw, 600px); }
+    @media (max-width: 1024px) { .rd .ge-hero-stage { height: clamp(280px, 62vw, 470px); } }
     @media (max-width: 768px) { .rd .ge-hero { padding-top: 62px; } }
-    @media (max-width: 600px) { .rd .ge-hero-stage { height: calc(56vw + 70px); } }
+    @media (max-width: 600px) { .rd .ge-hero-stage { height: calc(70vw + 70px); } }
   </style>
   <script>
   // Version comes from localStorage (kept in sync with Supabase's
@@ -377,8 +377,7 @@
   <section id="showcase" class="ge-hero" aria-labelledby="heroTitle">
     <div class="ge-hero-bg" aria-hidden="true"></div>
     <div class="ge-hero-inner">
-      <div class="ge-hero-stage" id="heroStage"></div>
-      <div class="rd-hero-row">
+      <div class="rd-hero-grid">
         <div class="ge-hero-copy">
           <p class="rd-kicker"><span class="rd-dot" aria-hidden="true"></span>Shuwaikh Industrial Area · Kuwait</p>
           <h2 class="ge-hero-title" id="heroTitle">Genuine parts for <span>German &amp; European</span> cars</h2>
@@ -390,6 +389,7 @@
             <li><i class="fa fa-circle-check" aria-hidden="true"></i>Arabic &amp; English</li>
           </ul>
         </div>
+        <div class="ge-hero-stage" id="heroStage"></div>
         <form class="rd-finder" id="rdFinder" onsubmit="rdFinderShow(event)" aria-labelledby="rdFinderTitle">
           <div class="rd-finder-head"><h3 id="rdFinderTitle">What do you drive?</h3><span class="rd-finder-step">Find your part</span></div>
           <label class="rd-field"><span>Make</span>
