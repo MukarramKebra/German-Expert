@@ -19,7 +19,7 @@
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const SITE_BASE = "https://mukarramkebra.github.io/German-Expert/";
+const SITE_BASE = "https://alamdarauto.com/";
 
 function redirect(status: string) {
   return Response.redirect(`${SITE_BASE}unsubscribed.html?status=${status}`, 302);

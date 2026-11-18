@@ -69,8 +69,8 @@ var DEFAULT_SERVICES = [
 
 // A service photo is either hosted somewhere (https://…) or kept in the repo
 // under img/services/. Repo photos MUST stay relative with no leading slash:
-// the site is served from /German-Expert/ on GitHub Pages, so '/img/…' would
-// resolve to the domain root and 404. Everything else is dropped — a URL here
+// relative paths also keep working when the page is opened from a sub-folder
+// or a preview path. Everything else is dropped — a URL here
 // comes from the admin panel and ends up in an <img src>, so 'javascript:',
 // 'data:' and protocol-relative '//host' have no business being honoured.
 function _svcSafeImg(v) {

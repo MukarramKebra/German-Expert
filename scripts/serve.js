@@ -1,5 +1,5 @@
-// Local preview server: serves the repo at http://localhost:8123/German-Expert/
-// (same path as GitHub Pages, so root-relative links like those in 404.html work).
+// Local preview server: serves the repo at http://localhost:8123/
+// (the site is served from the domain root on alamdarauto.com, so root-relative links work).
 // Run from anywhere:  node scripts/serve.js        Stop: Ctrl+C
 const http = require('http'), fs = require('fs'), path = require('path');
 const ROOT = path.resolve(__dirname, '..');
@@ -8,8 +8,6 @@ const T = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'tex
   '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.xml': 'application/xml' };
 http.createServer((req, res) => {
   let p = decodeURIComponent(req.url.split('?')[0]);
-  if (!p.startsWith('/German-Expert/')) { res.writeHead(302, { Location: '/German-Expert/' }); return res.end(); }
-  p = p.slice('/German-Expert'.length);
   if (p.endsWith('/')) p += 'index.html';
   const f = path.join(ROOT, p);
   if (!f.startsWith(ROOT)) { res.writeHead(403); return res.end(); }
@@ -18,4 +16,4 @@ http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': T[path.extname(f).toLowerCase()] || 'application/octet-stream', 'Cache-Control': 'no-store' });
     res.end(buf);
   });
-}).listen(PORT, () => console.log(`Live site:  http://localhost:${PORT}/German-Expert/\nRedesign:   http://localhost:${PORT}/German-Expert/v2.html`));
+}).listen(PORT, () => console.log(`Live site:  http://localhost:${PORT}/\nRedesign:   http://localhost:${PORT}/v2.html`));

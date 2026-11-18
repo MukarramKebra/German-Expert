@@ -37,7 +37,7 @@ const ROOT = path.resolve(__dirname, '..');
 const OUT_BASE = process.env.SEO_OUT ? path.resolve(process.env.SEO_OUT) : ROOT;
 const OUT_DIR = path.join(OUT_BASE, 'product');
 const MANIFEST_PATH = path.join(OUT_BASE, 'sitemap-manifest.json');
-const SITE_BASE = 'https://mukarramkebra.github.io/German-Expert/';
+const SITE_BASE = 'https://alamdarauto.com/';
 const TODAY = new Date().toISOString().slice(0, 10);
 // Floor for the empty-data guard. If the generator ever ends up with fewer
 // products than this (RLS flip, Supabase outage returning [], bad fixture),

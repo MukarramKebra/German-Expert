@@ -26,7 +26,7 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
 // Both can be overridden with the OWNER_EMAIL / FROM_EMAIL function secrets.
 const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "info@alamdar-auto.com";
 const FROM = Deno.env.get("FROM_EMAIL") ?? "Alamdar Auto <orders@alamdar-auto.com>";
-const SITE_BASE = "https://mukarramkebra.github.io/German-Expert/";
+const SITE_BASE = "https://alamdarauto.com/";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",

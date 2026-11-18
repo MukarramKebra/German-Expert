@@ -40,6 +40,14 @@ const existingCount = out.length;
 const raw = fs.readFileSync(rawFile, 'utf8').split('\n').filter(l => l && !l.startsWith('###'));
 raw.forEach(line => line.split(/[#|،]/).forEach(add));
 
+// Extra, hand-written long-tail keywords (one phrase per line, # = comment).
+const extraFile = path.join(__dirname, 'data', 'seo-keywords-extra.txt');
+if (fs.existsSync(extraFile)) {
+  fs.readFileSync(extraFile, 'utf8').split('\n')
+    .filter(l => l.trim() && !l.trim().startsWith('#'))
+    .forEach(add);
+}
+
 console.log('existing keywords:', existingCount);
 console.log('after merge:      ', out.length, '(+' + (out.length - existingCount) + ')');
 const joined = out.join(', ');
