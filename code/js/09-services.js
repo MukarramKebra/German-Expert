@@ -115,6 +115,43 @@ var DEFAULT_BANDS = [
     sub: 'Mercedes · BMW · Audi · VW · Porsche' }
 ];
 
+// The REAL outline of each photo in the built-in collage (2026-11-18). The
+// photos are not rectangles: the seams between the bottom photos and the top-
+// right one are slanted (x = 1170 - 0.26*(y-550) px, from (1170,550) down to
+// (1032,1080)), and the top-right photo reaches y=646 on its right-hand side.
+// Hover darkening and the click area follow these polygons, so a photo only
+// reacts inside its own shape. Measured on the 1920x1080 source
+// (img/services/src/collage.png) by fitting straight lines to the luminance
+// jump along each seam — redo that if the picture is ever replaced.
+// `p` = corners in source pixels; `cap` = the y where the caption should rest
+// (only differs from the bottom edge for the top-right photo, whose lowest part
+// is a strip beside the bottom-left photo).
+var COLLAGE_W = 1920, COLLAGE_H = 1080;
+var COLLAGE_SHAPES = [
+  { p: [[0, 0], [847, 0], [847, 550], [0, 550]] },
+  { p: [[847, 0], [1920, 0], [1920, 646], [1149, 630], [1170, 550], [847, 550]], cap: 550 },
+  { p: [[0, 550], [1170, 550], [1032, 1080], [0, 1080]] },
+  { p: [[1149, 630], [1920, 646], [1920, 1080], [1032, 1080]] }
+];
+
+function _svcShape(i) {
+  var s = COLLAGE_SHAPES[i];
+  if (!s) return null;
+  var xs = s.p.map(function (q) { return q[0]; }), ys = s.p.map(function (q) { return q[1]; });
+  var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
+  var y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+  var r = function (n) { return Math.round(n * 100) / 100; };
+  var w = x1 - x0, h = y1 - y0;
+  return {
+    box: [r(x0 / COLLAGE_W * 100), r(y0 / COLLAGE_H * 100), r(w / COLLAGE_W * 100), r(h / COLLAGE_H * 100)],
+    clip: 'polygon(' + s.p.map(function (q) {
+      return r((q[0] - x0) / w * 100) + '% ' + r((q[1] - y0) / h * 100) + '%';
+    }).join(',') + ')',
+    // Padding % is of the picture's width, so this is a width fraction too.
+    lift: s.cap ? r(Math.max(0, y1 - s.cap) / COLLAGE_W * 100) : 0
+  };
+}
+
 // Fallback if a stored row has no boxes: an even quartering. Wrong for THIS
 // picture, but it is the only sane guess for one we have not measured.
 var EVEN_BOXES = [[0, 0, 50, 50], [50, 0, 50, 50], [0, 50, 50, 50], [50, 50, 50, 50]];
@@ -182,13 +219,22 @@ function renderServiceCollage(collage, labels) {
       img + '</picture>';
   }
 
+  var builtIn = !isRemote && collage === DEFAULT_COLLAGE;
   var quads = labels.map(function (b, i) {
+    // The built-in collage uses the measured photo outlines (COLLAGE_SHAPES),
+    // not the stored boxes, so each button is exactly its photo's shape.
+    var shape = builtIn ? _svcShape(i) : null;
+    var box = shape ? shape.box : b.box;
     // Positioned, not gridded — see the box note on DEFAULT_BANDS.
-    var pos = 'left:' + b.box[0] + '%;top:' + b.box[1] + '%;width:' + b.box[2] + '%;height:' + b.box[3] + '%';
+    var pos = 'left:' + box[0] + '%;top:' + box[1] + '%;width:' + box[2] + '%;height:' + box[3] + '%';
+    if (shape) {
+      pos += ';clip-path:' + shape.clip + ';-webkit-clip-path:' + shape.clip;
+      if (shape.lift) pos += ';--lift:' + shape.lift + '%';
+    }
     // A box that stops short of the bottom of the picture ends in the MIDDLE
     // of its photo, so its scrim has to fade back out or it draws a visible
     // horizontal step across the shot.
-    var mid = (b.box[1] + b.box[3]) < 99 ? ' is-mid' : '';
+    var mid = (box[1] + box[3]) < 99 ? ' is-mid' : '';
     return '<button type="button" class="svc-quad' + mid + '" style="' + pos + '" onclick="bookBand(' + i + ')" ' +
         'aria-label="' + encodeHtmlSvc(BOOK + ' — ' + b.name) + '">' +
         '<span class="svc-quad-name">' + encodeHtmlSvc(b.name) + '</span>' +

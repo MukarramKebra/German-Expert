@@ -137,7 +137,9 @@
 /* A box that ends inside its own photo rather than at the foot of the
    picture: fade the scrim out instead of cutting it off, and sit the text
    higher so it stays on the dark part. */
-.svc-quad.is-mid { padding-bottom: clamp(22px, 3.4vw, 70px); }
+/* --lift (set inline, top-right photo only) raises the caption above the
+   strip of that photo which runs down beside the bottom-left one. */
+.svc-quad.is-mid { padding-bottom: calc(clamp(22px, 3.4vw, 70px) + var(--lift, 0%)); }
 .svc-quad.is-mid::before {
   background: radial-gradient(ellipse 80% 42% at 0% 88%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.30) 55%, rgba(0,0,0,0) 100%);
 }
@@ -194,7 +196,7 @@
 @media (max-width: 860px) {
   .svc-collage { margin-bottom: 26px; }
   .svc-quad { padding: 10px 12px; }
-  .svc-quad.is-mid { padding-bottom: 20px; }
+  .svc-quad.is-mid { padding-bottom: calc(20px + var(--lift, 0%)); }
   /* A quarter of a phone-width 16:9 picture is about 190x105 — the name is
      all that fits, and it is the part that says what we do. */
   .svc-quad-sub { display: none; }
@@ -435,7 +437,8 @@
   .svc-collage-labels > .svc-quad:nth-child(2) { left: 50% !important; top: 0 !important;   width: 50% !important; height: 50% !important; }
   .svc-collage-labels > .svc-quad:nth-child(3) { left: 0 !important;   top: 50% !important; width: 50% !important; height: 50% !important; }
   .svc-collage-labels > .svc-quad:nth-child(4) { left: 50% !important; top: 50% !important; width: 50% !important; height: 50% !important; }
-  .svc-collage-labels > .svc-quad { padding: 8px 10px; }
+  /* The phone picture is an even 2x2, so no slanted outlines there. */
+  .svc-collage-labels > .svc-quad { padding: 8px 10px; clip-path: none !important; -webkit-clip-path: none !important; }
   .svc-collage-labels > .svc-quad:last-child { padding-right: 56px; }
   .svc-quad-name { font-size: 12px; }
 }
