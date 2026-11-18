@@ -46,18 +46,6 @@
 .ge-hero:not(.no-car) .ge-hero-btns { justify-content: center; margin-bottom: 26px; }
 .ge-hero:not(.no-car) .ge-hero-trust { justify-content: center; }
 
-/* "Spare parts shop — we sell car parts, not cars" pill at the top of the hero
-   (2026-11-18). Reuses .ge-hero-tag; static on purpose, no animation. */
-.ge-hero-notice { justify-self: center; margin: 0 0 6px; font-size: 12px; letter-spacing: 1.5px; padding: 8px 18px; background: rgba(239,59,66,.14); border-color: rgba(239,59,66,.5); color: #fff; }
-.ge-hero-notice i { color: var(--gold); font-size: 14px; }
-.ge-hero-notice b { color: var(--gold); font-weight: 800; }
-.ge-hero-notice em { font-style: normal; font-weight: 700; opacity: .9; margin-left: 6px; padding-left: 10px; border-left: 1px solid rgba(255,255,255,.35); }
-@media (max-width: 600px) {
-  .ge-hero-notice { font-size: 10.5px; letter-spacing: 1px; padding: 7px 12px; max-width: 100%; text-align: center; }
-  .ge-hero-notice span { display: flex; flex-direction: column; gap: 1px; }
-  .ge-hero-notice em { margin: 0; padding: 0; border: 0; }
-}
-
 /* ── Copy ── */
 .ge-hero-tag { display: inline-flex; align-items: center; gap: 8px; color: var(--gold); background: rgba(239,59,66,.08); border: 1px solid rgba(239,59,66,.28); font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; padding: 6px 14px; border-radius: 999px; margin-bottom: 22px; backdrop-filter: blur(6px); }
 .ge-hero-title { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: clamp(40px, 4.6vw, 64px); line-height: 1; letter-spacing: .5px; margin-bottom: 20px; text-shadow: 0 4px 30px rgba(0,0,0,.45); }
