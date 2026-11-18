@@ -17,7 +17,7 @@
   var CAR_KEY = 'rd_my_car';
   var tree = null;
 
-  function waNumber() { return (typeof SHOP_WA !== 'undefined' && SHOP_WA) ? SHOP_WA : '96599115215'; }
+  function waNumber() { return (typeof SHOP_WA !== 'undefined' && SHOP_WA) ? SHOP_WA : '96590010345'; }
   function catalogSlug(m) { return m ? (m.fitSlug || m.slug) : ''; }
   function knownMake(slug) {
     return typeof CAR_MAKES !== 'undefined' && Array.isArray(CAR_MAKES) && CAR_MAKES.some(function(x) { return x.slug === slug; });

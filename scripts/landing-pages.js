@@ -78,7 +78,7 @@ module.exports = function buildLandingPages(ctx) {
     };
     const coll = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: o.h1, description: o.desc, url: o.url, inLanguage: 'en',
       isPartOf: { '@type': 'WebSite', name: 'Alamdar Auto Spare Parts Co. Kuwait', url: SITE_BASE },
-      about: { '@type': 'AutoPartsStore', name: 'Alamdar Auto Spare Parts Co. Kuwait', telephone: '+965 9911 5215',
+      about: { '@type': 'AutoPartsStore', name: 'Alamdar Auto Spare Parts Co. Kuwait', telephone: '+965 9001 0345',
         address: { '@type': 'PostalAddress', streetAddress: 'Shuwaikh Industrial Area', addressLocality: 'Kuwait', postalCode: '42415', addressCountry: 'KW' } } };
     const bc = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs };
     return `<!DOCTYPE html>
@@ -141,14 +141,14 @@ module.exports = function buildLandingPages(ctx) {
     <h1>${esc(o.h1)}</h1>
     <p class="ar" lang="ar" dir="rtl">${esc(o.ar)}</p>
     <div class="blk"><p class="lead">${o.lead}</p>
-      <a class="btn" href="${esc(waLink(o.waText))}">Ask on WhatsApp</a><a class="btn alt" href="tel:+${wa}">Call +965 9911 5215</a></div>
+      <a class="btn" href="${esc(waLink(o.waText))}">Ask on WhatsApp</a><a class="btn alt" href="tel:+${wa}">Call +965 9001 0345</a></div>
 ${o.body}
     <section class="blk"><h2>Common questions</h2>
 ${o.faq.map((f) => `      <details><summary>${esc(f[0])}</summary><p>${esc(f[1])}</p></details>`).join('\n')}
     </section>
   </main>
   <footer><strong>Alamdar Auto Spare Parts Co. Kuwait</strong> — authorized auto spare parts distributor, Shuwaikh Industrial Area, Kuwait 42415.
-    Tel +965 2482 7072 · WhatsApp +965 9911 5215 · info@alamdar-auto.com</footer>
+    Tel +965 2482 7072 · WhatsApp +965 9001 0345 · info@alamdar-auto.com</footer>
 </body>
 </html>
 `;
@@ -158,7 +158,7 @@ ${o.faq.map((f) => `      <details><summary>${esc(f[0])}</summary><p>${esc(f[1])
   const catLinks = (rel) => CATEGORIES.map((c) => `<li><a href="${rel}category/${c.slug}.html">${esc(c.label)}</a></li>`).join('');
   const faqCommon = (what) => [
     ['How do I make sure I get the right part for my ' + what + '?',
-      'Send us your chassis (VIN) number or a photo of the old part on WhatsApp at +965 9911 5215 and we will match the exact part number for your ' + what + ' before you buy.'],
+      'Send us your chassis (VIN) number or a photo of the old part on WhatsApp at +965 9001 0345 and we will match the exact part number for your ' + what + ' before you buy.'],
     ['Where can I buy ' + what + ' spare parts in Kuwait?',
       'Alamdar Auto Spare Parts Co. is in Shuwaikh Industrial Area, Kuwait. You can visit us, call +965 2482 7072, or message us on WhatsApp.'],
     ['Do you deliver across Kuwait?', 'Yes — message us on WhatsApp with your area and we will confirm the delivery time.'],

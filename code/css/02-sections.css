@@ -354,3 +354,4 @@
   #brandBanners .bb-brand img[alt="iTrust"] { max-height: 52px; }
   #brandBanners .bb-brand:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 5px); }
 }
+#brandBanners .bb-crest { width: clamp(56px, 6vw, 76px); height: clamp(56px, 6vw, 76px); border-radius: 50%; object-fit: contain; margin-bottom: 8px; }

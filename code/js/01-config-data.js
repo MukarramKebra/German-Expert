@@ -9,7 +9,7 @@ const GE_SB_KEY_B64 = 'c2JfcHVibGlzaGFibGVfV244b1BpZW5TWHlMR0NhR2JZSVk5Z185RWhLd
 const GE_SB_KEY = (function() { try { return atob(GE_SB_KEY_B64); } catch (e) { return ''; } })();
 
 // ── SHOP CONTACT / SITE ──────────────────────────────────────────────────
-const SHOP_WA  = '96599115215';   // international format, digits only, used for wa.me links
+const SHOP_WA  = '96590010345';   // international format, digits only, used for wa.me links
 const SITE_URL = 'https://mukarramkebra.github.io/German-Expert/';
 
 // ── PRICE FORMAT (KD, 3 decimals) ────────────────────────────────────────
