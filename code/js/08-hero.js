@@ -78,6 +78,12 @@ const HERO_PARTS = [
 // Makes that have a logo file at img/brands/logo-<make>.svg (white, from the
 // simple-icons set). A car whose `make` is not listed just shows no logo.
 const HERO_LOGO_MAKES = ['mercedes', 'bmw', 'audi', 'volkswagen', 'porsche', 'landrover', 'jaguar'];
+// 2026-11-18 (owner): REAL, coloured logos, much larger. Files are img/brands/color/<make>.webp
+// (cropped to the artwork, 480px max side); this is each one's width/height so the plate
+// behind it can be sized without loading the image. The plate is white because Audi's black
+// rings, VW's navy and Porsche's black wordmark vanish on the dark stage.
+const HERO_LOGO_SIZE = 150;   // was 96 as a bare white glyph
+const HERO_LOGO_ASPECT = { mercedes: 1, bmw: 1, audi: 2.824, volkswagen: 1, porsche: 0.777, landrover: 1.912, jaguar: 2.222 };
 
 const HERO_CARS = [
   {
@@ -86,7 +92,7 @@ const HERO_CARS = [
     model: 'E-CLASS',
     make: 'mercedes',
     badge: 'MERCEDES',
-    logoLift: 70,
+    logoLift: 50,
     scale: 1,
     alt: 'Mercedes-Benz E-Class sedan',
     callouts: [
@@ -100,6 +106,7 @@ const HERO_CARS = [
     model: 'M4',
     make: 'bmw',
     badge: 'BMW',
+    logoLift: -14,   // the big roundel plate would otherwise touch the header
     scale: 1.09,
     alt: 'BMW M4 coupe',
     callouts: [
@@ -176,8 +183,7 @@ const HERO_CARS = [
     srcSmall: 'img/hero/jaguar-f-type-sm.webp', wSmall: 760,
     model: 'F-TYPE',
     badge: 'JAGUAR',
-    logoScale: 1.5,
-    logoLift: -14,
+    logoLift: 0,
     scale: 1.1,
     alt: 'Jaguar F-Type coupe',
   },
@@ -250,16 +256,27 @@ const HERO_SHADER_PRESET = {
       // lifts with the word at every width, with no second positioning rule to
       // keep in step. Letters span roughly y 48-252 of the 300-unit box, so the
       // logo is a 96-unit square ending at y 34 — a small gap above the caps.
-      const logoSrc = HERO_LOGO_MAKES.includes(c.make) ? `img/brands/logo-${c.make}.svg` : '';
+      const logoSrc = HERO_LOGO_MAKES.includes(c.make) ? `img/brands/color/${c.make}.webp` : '';
       // A long word gets a WIDER viewBox, which shrinks everything in it on screen,
       // so a fixed 96 units rendered the VW / Range Rover logos at under half the
       // BMW one. Grow the logo with the box, halfway (full proportion would make
       // it tower over the small lettering): ~96 for short words, ~150 for the long.
       // `logoScale` (default 1) enlarges a logo that is wide-and-short rather than
       // round (Jaguar's leaper + word fills only half of its square box).
-      const logoSz = Math.round(96 * (1 + (vbW / BADGE_MIN_W - 1) * 0.5) * (Number(c.logoScale) || 1));
+      // 2026-11-18: base 96 -> HERO_LOGO_SIZE (owner: "way larger"), real coloured logo on a
+      // white plate. A wide logo (Audi, Jaguar, Land Rover) is limited to 1.8x the size in
+      // width so it doesn't become a banner; a tall one (Porsche) keeps the full height.
+      const logoSz = Math.round(HERO_LOGO_SIZE * (1 + (vbW / BADGE_MIN_W - 1) * 0.5) * (Number(c.logoScale) || 1));
+      const asp = HERO_LOGO_ASPECT[c.make] || 1;
+      const lw = asp >= 1 ? Math.round(logoSz * Math.min(asp, 1.8)) : Math.round(logoSz * asp);
+      const lh = Math.round(lw / asp);
+      const pad = Math.round(logoSz * 0.11);
+      const lbottom = 34 - (Number(c.logoLift) || 0);
       const logoEl = logoSrc
-        ? `<image class="ge-car-logo" href="${esc(logoSrc)}" x="${vbW / 2 - logoSz / 2}" y="${34 - logoSz - (Number(c.logoLift) || 0)}" width="${logoSz}" height="${logoSz}" preserveAspectRatio="xMidYMid meet" />`
+        ? `<g class="ge-car-logo-g">` +
+            `<rect class="ge-car-logo-plate" x="${vbW / 2 - lw / 2 - pad}" y="${lbottom - lh - 2 * pad}" width="${lw + 2 * pad}" height="${lh + 2 * pad}" rx="${Math.round(pad * 1.3)}" fill="#fff" />` +
+            `<image class="ge-car-logo" href="${esc(logoSrc)}" x="${vbW / 2 - lw / 2}" y="${lbottom - lh - pad}" width="${lw}" height="${lh}" preserveAspectRatio="xMidYMid meet" />` +
+          `</g>`
         : '';
       const badge = !badgeText ? '' : `
           <svg class="ge-car-model" viewBox="0 0 ${vbW} 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
