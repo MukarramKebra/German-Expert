@@ -468,3 +468,75 @@ button.ge-car-chip:focus-visible { outline: 2px solid var(--orange-light); outli
   .ge-hero-btns .btn { justify-content: center; }
   .ge-hero-trust { gap: 8px 16px; }
 }
+
+/* ── LIGHT THEME (2026-11-19, owner: "make the starting website white instead of black") ──
+   The hero, its copy, the parts orbit and the header are white / graphite-on-white. This is
+   a block of overrides at the END of the file, so it beats the dark rules above by source
+   order (same specificity) and the phone media blocks too. To go back to dark: delete it
+   (and set the make-badge gradient's last stop in 08-hero.js back to #ffffff). */
+.ge-hero { background: #fff; color: #14171c; }
+.ge-hero-bg {
+  background:
+    radial-gradient(55% 45% at 68% 80%, rgba(193,18,31,.07), transparent 70%),
+    radial-gradient(40% 55% at 95% 5%, rgba(193,18,31,.06), transparent 70%),
+    linear-gradient(180deg, #ffffff 0%, #f3f5f8 100%);
+}
+.ge-hero::after { background: linear-gradient(to bottom, transparent, rgba(243,245,248,.9)); }
+.ge-hero-tag { color: var(--orange); background: rgba(193,18,31,.07); border-color: rgba(193,18,31,.28); }
+.ge-hero-title { color: #14171c; text-shadow: none; }
+.ge-hero-title span { color: var(--orange); }
+.ge-hero-text { color: #4a5160; }
+.ge-btn-ghost { background: #fff; color: #14171c; border-color: #14171c; backdrop-filter: none; }
+.ge-btn-ghost:hover { border-color: var(--orange); color: var(--orange); background: #fff; }
+.ge-hero-trust li { color: #4a5160; }
+.ge-car-img { filter: drop-shadow(0 22px 20px rgba(20,23,28,.28)); }
+.ge-car-sheen { mix-blend-mode: soft-light; }
+.ge-car-shadow { background: radial-gradient(closest-side, rgba(20,23,28,.32), transparent); }
+.ge-car-model { filter: none; }
+.ge-ring-icon, .ge-ring-img { filter: drop-shadow(0 8px 12px rgba(20,23,28,.30)); }
+.ge-ring-brand { color: var(--orange); text-shadow: 0 0 6px #fff, 0 0 10px #fff; }
+.ge-ring-part { color: #14171c; text-shadow: 0 0 6px #fff, 0 0 10px #fff; }
+.ge-car-chip { background: #fff; border-color: #d9dde4; color: #14171c; }
+.ge-car-chip-img { filter: drop-shadow(0 4px 6px rgba(20,23,28,.25)); }
+button.ge-car-chip:active { background: #eef0f4; }
+.ge-car-nav { background: #fff; border-color: #14171c; color: #14171c; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.ge-car-nav:hover { background: var(--orange); border-color: var(--orange); color: #fff; }
+.ge-car-dots button::before { background: rgba(20,23,28,.22); }
+.ge-car-dots button[aria-current="true"]::before { background: var(--orange); }
+.ge-car-cap-lead { color: #4a5160; }
+.ge-car-cap-name, .ge-car-caption { color: #14171c; }
+
+/* Header: white bar, dark text, red rule kept. */
+#header { background: #fff; border-bottom-color: var(--orange); }
+#nav a { color: #14171c; }
+#nav a::after { background: var(--orange); }
+#nav a:hover, #nav a:focus-visible { color: var(--orange); }
+.logo-dhow { color: #14171c; }
+.hamburger, .header-search-btn { color: #14171c; border-color: rgba(20,23,28,.35); }
+.header-search-btn:hover { background: rgba(20,23,28,.06); border-color: #14171c; }
+.header-search-wrap.open .header-search-btn { background: rgba(20,23,28,.08); border-color: #14171c; }
+@media (max-width: 1150px) {
+  #nav { background: #fff; border-bottom: 1px solid #d9dde4; }
+  #nav a { color: #14171c; }
+}
+
+/* Logo banner above the parts orbit: every car brand, in a row, no boxes. */
+.ge-logo-band {
+  list-style: none; margin: 0 auto; padding: 6px 0 2px; max-width: 1100px;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: clamp(14px, 3vw, 44px);
+}
+.ge-logo-band li { display: flex; }
+.ge-logo-band button {
+  display: flex; align-items: center; justify-content: center; padding: 6px; border: 0; background: none; cursor: pointer;
+  border-radius: 10px; transition: transform var(--t-base, .2s) var(--ease, ease);
+}
+.ge-logo-band button:hover { transform: translateY(-3px); }
+.ge-logo-band button:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+.ge-logo-band img { display: block; height: clamp(34px, 4.4vw, 58px); width: auto; max-width: 140px; object-fit: contain; }
+@media (max-width: 560px) {
+  .ge-logo-band { gap: 10px 18px; padding-top: 2px; }
+  .ge-logo-band img { height: 30px; max-width: 84px; }
+}
+/* The white plate behind each hero logo is only needed on a dark stage. */
+.ge-car-logo-plate { fill: transparent; }

@@ -189,7 +189,7 @@ const HERO_CARS = [
   },
 ];
 
-const HERO_ROTATE_MS = 6500;
+const HERO_ROTATE_MS = 3500;   // was 6500 — owner (2026-11-19): "go to the next car faster"
 const HERO_SHADERS_URL = 'https://cdn.jsdelivr.net/npm/shaders@4.0.5/dist/js/bundle.js';
 
 // German palette: graphite studio, neutral silver key light, red back wash.
@@ -285,7 +285,7 @@ const HERO_SHADER_PRESET = {
               <linearGradient id="geModelGrad${i}" x1="0%" y1="100%" x2="100%" y2="0%">
                 <stop offset="0%" stop-color="#c1121f" />
                 <stop offset="52%" stop-color="#ef3b42" />
-                <stop offset="100%" stop-color="#ffffff" />
+                <stop offset="100%" stop-color="#1b1f27" />
               </linearGradient>
             </defs>
             <text x="${vbW / 2}" y="252" text-anchor="middle" fill="none" stroke="url(#geModelGrad${i})"
