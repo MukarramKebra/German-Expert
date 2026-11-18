@@ -1,0 +1,450 @@
+/* ════════════════════════════════════════════════════════════════════════
+   ALAMDAR AUTO — REDESIGN LAYER ("workshop editorial"), 2026-11-17
+   Loaded LAST, and only by v2.html for now (the preview of the redesign).
+   Every rule is scoped under body.rd, so this file changes nothing on a page
+   whose <body> does not carry that class, even if it gets loaded there.
+
+   What it does: puts one visual system over the existing components. The
+   markup that JS renders (product cards, category tiles, pills, service
+   cards, hero stage) keeps its classes and is restyled here; the sections
+   that are static HTML in v2.html use new rd-* classes.
+
+   Rules: colours come from the tokens below and nowhere else. Display type
+   is Barlow Condensed, uppercase. Body type is Inter. One accent: red.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.rd {
+  --rd-ink: #0e1014;      /* darkest surface: hero, footer */
+  --rd-ink-2: #16191f;    /* header, makes band */
+  --rd-ink-3: #20252d;    /* raised tile on dark */
+  --rd-paper: #f4f3f0;    /* light section background (slightly warm) */
+  --rd-card: #ffffff;
+  --rd-line: #e2e0db;     /* hairlines on paper */
+  --rd-line-dk: rgba(255, 255, 255, .10);
+  --rd-text: #16191f;
+  --rd-mute: #5b626d;     /* 5.6:1 on paper */
+  --rd-mute-dk: rgba(255, 255, 255, .66);
+  --rd-red: #c1121f;      /* accent on light, white text on it */
+  --rd-red-dk: #8f0d17;
+  --rd-red-2: #ef3b42;    /* accent on dark */
+  --rd-wa: #25d366;       /* WhatsApp: icons only, never a surface */
+  --rd-r: 14px;
+  --rd-r-sm: 10px;
+  --rd-display: 'Barlow Condensed', 'Inter', system-ui, sans-serif;
+  --rd-gutter: clamp(16px, 4vw, 32px);
+  --rd-sec: clamp(64px, 8vw, 112px);   /* vertical section padding */
+  --rd-header-h: 72px;
+  background: var(--rd-paper);
+  color: var(--rd-text);
+}
+
+.rd .container { max-width: 1280px; padding-left: var(--rd-gutter); padding-right: var(--rd-gutter); }
+
+/* ── Shared pieces ───────────────────────────────────────────────────── */
+.rd .rd-sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: clamp(28px, 4vw, 44px); }
+.rd .rd-sec-head-main { display: flex; align-items: flex-start; gap: clamp(14px, 2vw, 24px); }
+.rd .rd-idx { font-family: var(--rd-display); font-weight: 700; font-size: 15px; letter-spacing: 1px; color: var(--rd-red); padding-top: 6px; border-top: 2px solid var(--rd-red); min-width: 34px; }
+.rd .rd-eyebrow { display: block; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--rd-mute); margin-bottom: 6px; }
+.rd .rd-h2 { font-family: var(--rd-display); font-weight: 800; text-transform: uppercase; font-size: clamp(32px, 4.6vw, 58px); line-height: .95; letter-spacing: .3px; color: var(--rd-text); }
+.rd .rd-h2 em { font-style: normal; color: var(--rd-red); }
+.rd .rd-sec-sub { max-width: 440px; font-size: 15px; line-height: 1.65; color: var(--rd-mute); }
+@media (max-width: 768px) {
+  .rd .rd-sec-head { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .rd .rd-sec-head-main { gap: 14px; }
+  .rd .rd-sec-sub { max-width: none; font-size: 14.5px; }
+}
+.rd .rd-on-dark .rd-h2 { color: #fff; }
+.rd .rd-on-dark .rd-h2 em, .rd .rd-on-dark .rd-idx { color: var(--rd-red-2); border-color: var(--rd-red-2); }
+.rd .rd-on-dark .rd-eyebrow, .rd .rd-on-dark .rd-sec-sub { color: var(--rd-mute-dk); }
+
+.rd .rd-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  height: 50px; padding: 0 24px; border-radius: 999px; border: 1.5px solid transparent;
+  font: 700 14px/1 'Inter', sans-serif; letter-spacing: .2px; text-decoration: none; cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .15s ease;
+}
+.rd .rd-btn:active { transform: scale(.98); }
+.rd .rd-btn-red { background: var(--rd-red); color: #fff; }
+.rd .rd-btn-red:hover { background: var(--rd-red-dk); }
+.rd .rd-btn-ink { background: var(--rd-ink-2); color: #fff; }
+.rd .rd-btn-ink:hover { background: var(--rd-red); }
+.rd .rd-btn-line { background: transparent; color: var(--rd-text); border-color: #c9c6bf; }
+.rd .rd-btn-line:hover { border-color: var(--rd-text); }
+.rd .rd-btn-ghost { background: rgba(255, 255, 255, .06); color: #fff; border-color: rgba(255, 255, 255, .22); }
+.rd .rd-btn-ghost:hover { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .5); }
+.rd .rd-btn .fa-whatsapp { color: var(--rd-wa); font-size: 18px; }
+.rd .rd-btn-red .fa-whatsapp { color: #fff; }
+
+/* The old section tags/headers that JS-owned sections still carry. */
+.rd .section-tag { background: none; border: 0; padding: 0; border-radius: 0; color: var(--rd-mute); letter-spacing: 2px; font-size: 12px; }
+
+/* ── HEADER ──────────────────────────────────────────────────────────── */
+.rd #header { background: rgba(14, 16, 20, .0); border-bottom: 1px solid transparent; transition: background-color .25s ease, border-color .25s ease, box-shadow .25s ease; }
+.rd #header.scrolled, .rd #header:focus-within { background: rgba(14, 16, 20, .96); border-bottom-color: var(--rd-line-dk); box-shadow: 0 10px 30px -12px rgba(0, 0, 0, .5); }
+.rd #header .container { max-width: 1440px; }
+.rd .header-inner { height: var(--rd-header-h); gap: 20px; }
+.rd .logo-img { height: 46px; }
+.rd .rd-wordmark { display: flex; flex-direction: column; line-height: 1; color: #fff; }
+.rd .rd-wordmark b { font-family: var(--rd-display); font-weight: 800; font-size: 24px; letter-spacing: 3px; }
+.rd .rd-wordmark small { font-size: 9.5px; font-weight: 600; letter-spacing: 2.2px; color: var(--rd-mute-dk); margin-top: 4px; text-transform: uppercase; }
+.rd #nav { gap: clamp(16px, 2vw, 32px); }
+.rd #nav a { font-size: 13px; font-weight: 600; letter-spacing: 1px; color: rgba(255, 255, 255, .82); }
+.rd #nav a::after { background: var(--rd-red-2); height: 2px; bottom: -6px; }
+.rd .header-actions { gap: 10px; }
+.rd .rd-hbtn { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 999px; font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: background-color .2s ease, border-color .2s ease; }
+.rd .rd-hcall { color: #fff; border: 1px solid rgba(255, 255, 255, .22); }
+.rd .rd-hcall:hover { border-color: #fff; }
+.rd .rd-hwa { background: var(--rd-red); color: #fff; }
+.rd .rd-hwa:hover { background: var(--rd-red-dk); }
+.rd .rd-hwa i { font-size: 17px; }
+.rd .header-search-btn { width: 40px; height: 40px; border-radius: 50%; border-color: rgba(255, 255, 255, .22); }
+.rd .header-search-input { border-radius: 12px; }
+.rd .hamburger { border-radius: 10px; height: 40px; }
+/* Desktop: the search box is always open in the header — finding a part by
+   name or number is the main job of the site, so it is not hidden behind an icon. */
+@media (min-width: 1200px) {
+  .rd .header-search-wrap { width: 270px; }
+  .rd .header-search-btn { position: absolute; left: 4px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border: 0; background: none !important; color: rgba(255, 255, 255, .6); z-index: 2; pointer-events: none; }
+  .rd .header-search-input,
+  .rd .header-search-wrap.open .header-search-input {
+    position: static; width: 100%; opacity: 1; pointer-events: auto;
+    height: 40px; padding: 0 16px 0 38px; border-radius: 999px;
+    background: rgba(255, 255, 255, .07); color: #fff; border: 1px solid rgba(255, 255, 255, .16); box-shadow: none;
+  }
+  .rd .header-search-input::placeholder { color: rgba(255, 255, 255, .5); }
+  .rd .header-search-input:focus { background: #fff; color: var(--rd-text); border-color: #fff; }
+}
+@media (max-width: 1199px) { .rd .rd-hcall span { display: none; } .rd .rd-hcall { width: 40px; padding: 0; justify-content: center; } }
+@media (max-width: 1150px) {
+  .rd #nav { top: var(--rd-header-h); background: var(--rd-ink); padding: 20px var(--rd-gutter) 26px; border-bottom: 1px solid var(--rd-line-dk); }
+  .rd #nav a { font-size: 17px; font-family: var(--rd-display); letter-spacing: 1.5px; padding: 6px 0; }
+}
+@media (max-width: 768px) {
+  .rd { --rd-header-h: 62px; }
+  .rd .header-inner { height: var(--rd-header-h); }
+  .rd .logo-img { height: 38px; }
+  .rd .rd-wordmark b { font-size: 20px; letter-spacing: 2px; }
+  .rd .rd-wordmark small { display: none; }
+  .rd .rd-hwa, .rd .rd-hcall { display: none; }  /* the bottom action bar carries them */
+  .rd .header-search-input { top: var(--rd-header-h); }
+}
+
+/* ── HERO (v2.1) ─────────────────────────────────────────────────────── */
+/* Same car stage and rotation (code/js/08-hero.js), new composition: pitch and
+   the vehicle finder on the left, the car on a lit spotlight on the right.
+   The giant outlined make word and the orbiting parts ring are hidden — the
+   make now shows as a small logo label (rdCaptions() in 10-redesign.js) and
+   the category grid below shows the parts as real photos. */
+.rd .ge-hero { padding-top: var(--rd-header-h); background: var(--rd-ink); min-height: 0; }
+.rd .ge-hero::after { display: none; }
+.rd .ge-ring, .rd .ge-car-chips, .rd .ge-car-model { display: none !important; }
+.rd .ge-hero-inner { display: block; max-width: 1280px; padding: clamp(18px, 3vw, 44px) var(--rd-gutter) clamp(44px, 5vw, 76px); }
+.rd .rd-hero-grid {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
+  grid-template-areas: "copy stage" "finder stage"; grid-template-rows: auto auto;
+  column-gap: clamp(24px, 4vw, 64px); row-gap: 28px; align-content: center;
+}
+.rd .rd-hero-grid > .ge-hero-copy { grid-area: copy; align-self: end; }
+.rd .rd-hero-grid > .rd-finder { grid-area: finder; align-self: start; }
+.rd .rd-hero-grid > .ge-hero-stage { grid-area: stage; align-self: center; }
+.rd .ge-hero-stage { --reserve: 72px; --sh: clamp(400px, 42vw, 600px); height: var(--sh); }
+/* The spotlight: a red glow and a hairline ring behind the car. */
+.rd .ge-hero-stage::before, .rd .ge-hero-stage::after {
+  content: ''; position: absolute; left: 50%; top: calc((100% - var(--reserve)) / 2 + 4%);
+  aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 0;
+}
+/* Sized from the stage HEIGHT (not width) so it stays a circle that fits on wide tablets. */
+.rd .ge-hero-stage::before { width: calc(var(--sh) - var(--reserve) + 56px); background: radial-gradient(closest-side, rgba(239, 59, 66, .34), rgba(193, 18, 31, .10) 58%, transparent 74%); }
+.rd .ge-hero-stage::after { width: calc((var(--sh) - var(--reserve)) * .86); border: 1px solid rgba(255, 255, 255, .09); }
+.rd .ge-car { align-items: center; padding-bottom: var(--reserve); } /* beats the base phone padding that pushed the car up */
+.rd .ge-car-tilt { width: calc(min(80%, 620px) * var(--scale, 1)); }
+/* Make label, top-left of the stage: brand logo + name (no model). */
+.rd .rd-carcap { position: absolute; left: 0; top: 4px; z-index: 3; display: flex; align-items: center; gap: 12px; pointer-events: none; }
+.rd .rd-carcap-logo { width: 46px; height: 46px; padding: 9px; border-radius: 50%; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .16); backdrop-filter: blur(6px); }
+.rd .rd-carcap-name { font-family: var(--rd-display); font-weight: 700; font-size: 15px; letter-spacing: 2.4px; text-transform: uppercase; color: rgba(255, 255, 255, .92); }
+/* Arrow pair under the car (owner's rule), slide dots beneath. */
+.rd .ge-car-nav { bottom: 26px; width: 44px; height: 44px; }
+.rd .ge-car-nav.prev { left: calc(50% - 62px); }
+.rd .ge-car-nav.next { right: calc(50% - 62px); }
+.rd .ge-car-dots { bottom: 0; }
+
+.rd .ge-hero:not(.no-car) .ge-hero-copy { text-align: left; max-width: none; margin: 0; }
+.rd .rd-kicker { display: inline-flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--rd-mute-dk); margin-bottom: 18px; }
+.rd .rd-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rd-red-2); box-shadow: 0 0 0 4px rgba(239, 59, 66, .18); }
+.rd .ge-hero:not(.no-car) .ge-hero-title { font-size: clamp(40px, 4.6vw, 68px); line-height: .94; margin-bottom: 20px; text-shadow: none; }
+.rd .ge-hero-title span { color: var(--rd-red-2); white-space: normal; }
+.rd .ge-hero:not(.no-car) .ge-hero-text { margin: 0 0 26px; max-width: 520px; font-size: 16px; color: var(--rd-mute-dk); }
+.rd .rd-trust { list-style: none; display: flex; flex-wrap: wrap; gap: 10px 22px; }
+.rd .rd-trust li { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, .86); }
+.rd .rd-trust i { color: var(--rd-red-2); font-size: 13px; }
+
+/* The vehicle finder — the main action on the page. */
+.rd .rd-finder { background: var(--rd-card); color: var(--rd-text); border-radius: 20px; padding: 24px; box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .7); }
+.rd .rd-finder-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.rd .rd-finder-head h3 { font-family: var(--rd-display); font-weight: 800; font-size: 28px; text-transform: uppercase; line-height: 1; }
+.rd .rd-finder-step { font-size: 11px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: var(--rd-red); }
+.rd .rd-field { display: block; margin-bottom: 10px; }
+.rd .rd-field > span { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--rd-mute); margin: 0 0 6px 2px; }
+.rd .rd-select {
+  width: 100%; height: 50px; padding: 0 44px 0 16px; border-radius: 12px; border: 1.5px solid var(--rd-line);
+  background: #faf9f7 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%2316191f' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 16px center;
+  font: 600 15px 'Inter', sans-serif; color: var(--rd-text); appearance: none; -webkit-appearance: none; cursor: pointer;
+  transition: border-color .2s ease, background-color .2s ease;
+}
+.rd .rd-select:hover:not(:disabled) { border-color: #bdb9b1; }
+.rd .rd-select:focus { outline: none; border-color: var(--rd-red); background-color: #fff; }
+.rd .rd-select:disabled { opacity: .5; cursor: not-allowed; }
+.rd .rd-finder-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.rd .rd-finder-btns { display: grid; gap: 10px; margin-top: 16px; }
+.rd .rd-finder-btns .rd-btn { width: 100%; }
+.rd .rd-finder-note { margin-top: 14px; font-size: 12.5px; line-height: 1.5; color: var(--rd-mute); }
+.rd .rd-finder-note a { color: var(--rd-red); font-weight: 700; }
+
+/* Desktop: keep the whole left column inside one screen. Make / Model / Year in
+   one row, the two buttons side by side, the checklist left to the workshop
+   section further down. */
+@media (min-width: 1025px) {
+  .rd .rd-trust { display: none; }
+  .rd .ge-hero:not(.no-car) .ge-hero-title { font-size: clamp(40px, 4vw, 60px); margin-bottom: 16px; }
+  .rd .ge-hero:not(.no-car) .ge-hero-text { margin-bottom: 0; }
+  .rd .rd-hero-grid { row-gap: 24px; }
+  .rd .rd-hero-grid > .rd-finder { display: grid; grid-template-columns: 1.25fr 2fr; column-gap: 10px; padding: 20px 22px; }
+  .rd .rd-finder > .rd-finder-head, .rd .rd-finder > .rd-finder-btns, .rd .rd-finder > .rd-finder-note { grid-column: 1 / -1; }
+  .rd .rd-finder > .rd-field, .rd .rd-finder > .rd-finder-row { margin-bottom: 0; }
+  .rd .rd-finder .rd-select { height: 46px; font-size: 14px; padding: 0 34px 0 12px; }
+  .rd .rd-finder > .rd-finder-btns { grid-template-columns: 1fr 1fr; margin-top: 14px; }
+  .rd .rd-finder > .rd-finder-note { margin-top: 10px; }
+}
+@media (max-width: 1024px) {
+  .rd .rd-trust { display: none; }
+  .rd .ge-hero-inner { padding: 8px var(--rd-gutter) 40px; }
+  .rd .rd-hero-grid { grid-template-columns: 1fr; grid-template-areas: "copy" "stage" "finder"; gap: 18px; }
+  .rd .ge-hero-stage { --reserve: 62px; --sh: clamp(280px, 62vw, 470px); }
+  .rd .ge-car-nav { bottom: 20px; width: 40px; height: 40px; }
+  .rd .ge-car-nav.prev { left: calc(50% - 58px); }
+  .rd .ge-car-nav.next { right: calc(50% - 58px); }
+}
+@media (max-width: 600px) {
+  .rd .ge-hero-stage { --sh: calc(70vw + 70px); }
+  .rd .ge-car-tilt { width: calc(min(94%, 520px) * var(--scale, 1)); }
+  .rd .rd-carcap-logo { width: 34px; height: 34px; padding: 7px; }
+  .rd .rd-carcap-name { font-size: 11px; letter-spacing: 1.6px; }
+  .rd .ge-hero:not(.no-car) .ge-hero-title { font-size: clamp(38px, 11vw, 52px); }
+  .rd .rd-finder { padding: 20px 18px; border-radius: 18px; }
+  /* Phone: headline, then the car, then the finder. The trust points repeat in
+     the workshop section further down. */
+  .rd .rd-trust { display: none; }
+  .rd .rd-kicker { font-size: 11px; letter-spacing: 1.5px; margin-bottom: 12px; }
+  .rd .ge-hero:not(.no-car) .ge-hero-text { font-size: 15px; margin-bottom: 0; }
+  .rd .rd-finder-head h3 { font-size: 24px; }
+  .rd .rd-finder-step { display: none; }
+}
+
+/* ── WORKSHOP COLLAGE (directly under the hero, owner's rule) ────────── */
+.rd .svc-band { background: var(--rd-ink); border-top: 1px solid var(--rd-line-dk); }
+
+/* ── MAKES BAND ──────────────────────────────────────────────────────── */
+.rd .rd-makes { background: var(--rd-ink-2); color: #fff; padding: clamp(56px, 7vw, 96px) 0; }
+.rd .rd-make-grid { list-style: none; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; }
+.rd .rd-make {
+  width: 100%; aspect-ratio: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  background: var(--rd-ink-3); border: 1px solid var(--rd-line-dk); border-radius: var(--rd-r); color: #fff; cursor: pointer;
+  font: 700 13px 'Inter', sans-serif; letter-spacing: .3px; transition: background-color .2s ease, border-color .2s ease, transform .2s ease;
+}
+.rd .rd-make img { width: 44%; max-width: 64px; height: auto; aspect-ratio: 1; object-fit: contain; opacity: .92; transition: opacity .2s ease, transform .25s ease; }
+.rd .rd-make:hover { background: #2a3039; border-color: rgba(255, 255, 255, .25); transform: translateY(-3px); }
+.rd .rd-make:hover img { opacity: 1; transform: scale(1.06); }
+.rd .rd-make[aria-pressed="true"] { border-color: var(--rd-red-2); box-shadow: inset 0 0 0 1px var(--rd-red-2); }
+@media (max-width: 1024px) { .rd .rd-make-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 600px) {
+  .rd .rd-make-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--rd-gutter); gap: 10px; margin: 0 calc(var(--rd-gutter) * -1); padding: 0 var(--rd-gutter) 4px; scrollbar-width: none; }
+  .rd .rd-make-grid::-webkit-scrollbar { display: none; }
+  .rd .rd-make-grid li { flex: 0 0 112px; scroll-snap-align: start; }
+}
+
+/* ── CATEGORIES ──────────────────────────────────────────────────────── */
+.rd #categories { background: var(--rd-paper); padding: var(--rd-sec) 0 calc(var(--rd-sec) * .6); }
+.rd .categories-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: clamp(150px, 15vw, 210px); grid-auto-flow: dense; gap: 12px; }
+.rd .cat-card { min-height: 0; border-radius: var(--rd-r); border: 0; align-items: flex-start; justify-content: flex-end !important; text-align: left; padding: 18px 20px !important; box-shadow: none; background-position: center 30% !important; }
+.rd .categories-grid > .cat-card:first-child { grid-column: span 2; grid-row: span 2; }
+.rd .cat-card::before { background: linear-gradient(180deg, rgba(14, 16, 20, 0) 35%, rgba(14, 16, 20, .82) 100%); }
+.rd .cat-card:hover::before { background: linear-gradient(180deg, rgba(193, 18, 31, .15) 0%, rgba(14, 16, 20, .88) 100%); }
+.rd .cat-card::after { top: auto; bottom: 18px; right: 18px; background: var(--rd-red); color: #fff; border-radius: 50%; }
+.rd .cat-card:hover { transform: translateY(-3px); box-shadow: 0 24px 40px -24px rgba(14, 16, 20, .6); border-bottom-color: transparent; }
+.rd .cat-card h3 { font-family: var(--rd-display); font-size: clamp(19px, 1.7vw, 24px); font-weight: 800; text-transform: uppercase; letter-spacing: .5px; line-height: 1; margin-bottom: 6px; padding-right: 40px; text-shadow: none; }
+.rd .categories-grid > .cat-card:first-child h3 { font-size: clamp(28px, 3vw, 42px); }
+.rd .cat-card p { padding: 0; font-size: 12.5px; color: rgba(255, 255, 255, .78); text-shadow: none; padding-right: 40px; }
+.rd .cat-card .cat-icon { position: absolute; top: 18px; left: 20px; margin: 0; font-size: 30px; color: var(--rd-red-2); text-shadow: none; }
+@media (max-width: 768px) {
+  .rd .categories-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 150px; gap: 10px; }
+  .rd .categories-grid > .cat-card:first-child { grid-row: span 1; }
+  .rd .cat-card { padding: 14px !important; }
+  .rd .cat-card h3 { font-size: 18px; padding-right: 0; }
+  .rd .cat-card p { display: none; }
+  .rd .cat-card::after { display: none; }
+}
+
+/* ── PRODUCTS ────────────────────────────────────────────────────────── */
+.rd #products { background: var(--rd-paper); padding: calc(var(--rd-sec) * .4) 0 var(--rd-sec); }
+.rd .products-controls { gap: 14px; margin-bottom: 28px; }
+.rd .search-wrap { height: 56px; padding: 0 20px; border-radius: 999px; border: 1.5px solid var(--rd-line); background: var(--rd-card); flex: 1 1 100%; width: 100%; max-width: 640px; }
+.rd .search-wrap:focus-within { border-color: var(--rd-text); }
+.rd .search-wrap input { font-size: 15px; }
+.rd .filter-pills { gap: 8px; }
+.rd .pill { height: 38px; padding: 0 16px; border-radius: 999px; border: 1.5px solid var(--rd-line); background: transparent; color: var(--rd-text); font-size: 13px; font-weight: 600; white-space: nowrap; }
+.rd .pill:hover { border-color: var(--rd-text); color: var(--rd-text); }
+.rd .pill.active { background: var(--rd-text); border-color: var(--rd-text); color: #fff; }
+.rd .active-make-chip { border-radius: 999px; }
+@media (max-width: 768px) {
+  .rd .filter-pills { flex-wrap: nowrap; overflow-x: auto; margin: 0 calc(var(--rd-gutter) * -1); padding: 0 var(--rd-gutter) 4px; scrollbar-width: none; width: calc(100% + var(--rd-gutter) * 2); }
+  .rd .filter-pills::-webkit-scrollbar { display: none; }
+}
+
+.rd .products-grid { grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 16px; }
+.rd .product-card { border: 1px solid var(--rd-line); border-radius: var(--rd-r); background: var(--rd-card); box-shadow: none; transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+.rd .product-card:hover { transform: translateY(-4px); border-color: #d3cfc7; box-shadow: 0 26px 44px -26px rgba(14, 16, 20, .45); }
+.rd .product-img-wrap { margin: 8px 8px 0; border-radius: var(--rd-r-sm); background: #f6f5f2; }
+/* The catalogue photos are white-padded JPEGs; multiply drops the white so
+   each part sits on the card's own tone instead of in a white square. */
+.rd .product-img-wrap img { object-fit: contain; padding: 8%; mix-blend-mode: multiply; }
+.rd .product-card:hover .product-img-wrap img { transform: scale(1.04); }
+.rd .product-img-fallback { background: #f6f5f2; color: #cfcbc3; }
+.rd .product-badge { border-radius: 999px; font-size: 10px; padding: 5px 10px; }
+.rd .product-info { padding: 16px 16px 16px; }
+.rd .product-cat { font-family: var(--rd-display); font-size: 12px; font-weight: 700; letter-spacing: 1.6px; color: var(--rd-red); margin-bottom: 6px; }
+.rd .product-info h3 { font-size: 15px; font-weight: 700; line-height: 1.35; margin-bottom: 6px; }
+.rd .product-info p { font-size: 12.5px; color: var(--rd-mute); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 14px; }
+.rd .product-footer { gap: 10px; }
+.rd .product-price { font-size: 18px; }
+/* The enquiry button: the inline WhatsApp-green background the card template
+   sets is overridden on purpose — one dark button per card reads calmer than a
+   grid of green blocks, and the green stays on the icon so it still says WhatsApp. */
+.rd .btn-add { height: 44px; padding: 0 16px; border-radius: 999px; background: var(--rd-ink-2) !important; color: #fff; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.rd .btn-add:hover { background: var(--rd-red) !important; }
+.rd .btn-add .fa-whatsapp { color: var(--rd-wa); font-size: 17px; }
+.rd .btn-add:hover .fa-whatsapp { color: #fff; }
+.rd .product-footer > .btn-add:only-child { width: 100%; }
+@media (max-width: 600px) {
+  .rd .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .rd .product-info { padding: 12px; }
+  .rd .product-info h3 { font-size: 13.5px; }
+  .rd .product-info p { display: none; }
+  .rd .btn-add { height: 40px; font-size: 12px; padding: 0 10px; }
+}
+.rd .grid-more-btn { border-radius: 999px; }
+.rd #recentlyViewedSection { background: var(--rd-paper) !important; }
+
+/* ── PARTS BRANDS (white band, no boxes — owner's rule) ──────────────── */
+.rd .rd-brands { background: #fff; padding: clamp(48px, 6vw, 80px) 0; border-top: 1px solid var(--rd-line); border-bottom: 1px solid var(--rd-line); }
+.rd .rd-brands-inner { display: grid; grid-template-columns: minmax(220px, 340px) 1fr; gap: clamp(24px, 5vw, 80px); align-items: center; }
+.rd .rd-brands .rd-h2 { font-size: clamp(28px, 3.4vw, 44px); }
+.rd .rd-brand-row { list-style: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 28px 40px; }
+.rd .rd-brand-row img { display: block; height: auto; max-height: 46px; width: auto; max-width: 170px; }
+.rd .rd-brand-row .is-square img { max-height: 76px; }
+@media (max-width: 768px) {
+  .rd .rd-brands-inner { grid-template-columns: 1fr; }
+  .rd .rd-brand-row { display: grid; grid-template-columns: 1fr 1fr; justify-items: center; gap: 28px 20px; }
+  .rd .rd-brand-row img { max-height: 36px; max-width: 86%; }
+  .rd .rd-brand-row .is-square img { max-height: 60px; }
+}
+
+/* ── WORKSHOP SERVICES (cards rendered by 09-services.js) ────────────── */
+/* 12-services.css already styles this section dark (it was built that way),
+   which is what the page needs here: white brands band above, light Visit
+   section below. Only the heading is brought into the redesign's type. */
+.rd #services { padding: var(--rd-sec) 0; background: var(--rd-ink); border: 0; }
+.rd #services .section-header { text-align: left; margin-bottom: 28px; }
+.rd #services .section-tag { color: var(--rd-red-2); background: none; border: 0; padding: 0; border-radius: 0; box-shadow: none; }
+.rd #services .section-header h2 .orange { white-space: nowrap; }
+.rd #services .svc-list-head { text-align: left; }
+.rd #services .svc-list-head h3 { font-family: var(--rd-display); font-size: 24px; }
+.rd #services .section-header h2 { font-family: var(--rd-display); font-weight: 800; text-transform: uppercase; font-size: clamp(32px, 4.6vw, 58px); line-height: .95; max-width: 1000px; }
+.rd #services .svc-intro { margin-left: 0; text-align: left; max-width: 620px; }
+.rd #services .svc-trust { justify-content: flex-start; }
+
+/* ── VISIT US (contact + about + FAQ) — light ────────────────────────── */
+/* Ids beat classes, and #contact / #about / #faq all carry old section
+   padding and backgrounds from 02-sections.css + 03-cart-features-contact.css,
+   so these selectors name the ids on purpose. */
+.rd #contact.rd-visit { background: var(--rd-paper); color: var(--rd-text); padding: var(--rd-sec) 0; }
+.rd #contact #about { padding: 0; background: none; }
+.rd .rd-visit-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+.rd .rd-visit .rd-h2 { color: var(--rd-text); }
+.rd .rd-visit .rd-h2 em, .rd .rd-visit .rd-idx { color: var(--rd-red); border-color: var(--rd-red); }
+.rd .rd-visit .rd-eyebrow { color: var(--rd-mute); }
+.rd .rd-visit-lead { font-size: 16px; line-height: 1.7; color: var(--rd-mute); margin: 20px 0 28px; max-width: 540px; }
+.rd .rd-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rd-line); border: 1px solid var(--rd-line); border-radius: var(--rd-r); overflow: hidden; margin-bottom: 24px; }
+.rd .rd-fact { background: var(--rd-card); padding: 18px 20px; }
+.rd .rd-fact dt { font-size: 11px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--rd-red); margin-bottom: 8px; }
+.rd .rd-fact dd { font-size: 15px; font-weight: 700; line-height: 1.5; }
+.rd .rd-fact dd a { color: var(--rd-text); text-decoration: none; }
+.rd .rd-fact dd a:hover { text-decoration: underline; }
+.rd .rd-fact small { display: block; font-size: 13px; font-weight: 500; color: var(--rd-mute); }
+.rd .rd-visit-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.rd .rd-visit .rd-btn-ghost { background: transparent; color: var(--rd-text); border-color: #c9c6bf; }
+.rd .rd-visit .rd-btn-ghost:hover { border-color: var(--rd-text); }
+.rd #contact #faq.rd-faq { background: var(--rd-card); border: 1px solid var(--rd-line); border-radius: 20px; padding: 28px 30px 10px; }
+.rd .rd-faq h3 { font-family: var(--rd-display); font-weight: 800; font-size: 28px; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.rd .rd-faq details + details { border-top: 1px solid var(--rd-line); }
+.rd .rd-faq summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 0; font-size: 15.5px; font-weight: 700; }
+.rd .rd-faq summary::-webkit-details-marker { display: none; }
+.rd .rd-faq summary::after { content: '+'; flex: 0 0 30px; height: 30px; border-radius: 50%; background: var(--rd-paper); display: grid; place-items: center; font-size: 18px; font-weight: 500; color: var(--rd-red); transition: transform .2s ease, background-color .2s ease; }
+.rd .rd-faq details[open] summary::after { transform: rotate(45deg); background: var(--rd-red); color: #fff; }
+.rd .rd-faq details p { padding: 0 44px 18px 0; font-size: 14.5px; line-height: 1.7; color: var(--rd-mute); }
+@media (max-width: 900px) {
+  .rd .rd-visit-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .rd #contact #faq.rd-faq { padding: 22px 18px 6px; }
+  .rd .rd-facts { grid-template-columns: 1fr; }
+  .rd .rd-visit-btns .rd-btn { flex: 1 1 100%; }
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────────────── */
+.rd footer { background: #0a0b0e; color: rgba(255, 255, 255, .7); border-top: 1px solid var(--rd-line-dk); padding: 0; }
+.rd .rd-foot-top { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 40px; padding: 64px var(--rd-gutter) 40px; }
+.rd .rd-foot-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.rd .rd-foot-brand img { width: 56px; height: 56px; border-radius: 50%; }
+.rd .rd-foot-brand .rd-wordmark small { display: block; }
+.rd .rd-foot-about { font-size: 14px; line-height: 1.7; max-width: 360px; }
+.rd .rd-foot-col h3 { font-family: var(--rd-display); font-size: 15px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: #fff; margin-bottom: 14px; }
+.rd .rd-foot-col a { display: block; color: rgba(255, 255, 255, .66); text-decoration: none; font-size: 14px; padding: 5px 0; }
+.rd .rd-foot-col a:hover { color: #fff; }
+.rd .footer-seo { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 40px; padding: 28px var(--rd-gutter); border-top: 1px solid var(--rd-line-dk); }
+.rd .footer-seo h3 { font-size: 11px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: rgba(255, 255, 255, .5); margin-bottom: 10px; }
+.rd .footer-seo div { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; }
+.rd .footer-seo h3 { flex-basis: 100%; }
+.rd .footer-seo a { font-size: 12.5px; color: rgba(255, 255, 255, .55); text-decoration: none; }
+.rd .footer-seo a:hover { color: #fff; }
+.rd .rd-foot-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; padding: 20px var(--rd-gutter) 28px; border-top: 1px solid var(--rd-line-dk); font-size: 12.5px; color: rgba(255, 255, 255, .45); }
+.rd .rd-foot-bottom a { color: inherit; }
+@media (max-width: 900px) { .rd .rd-foot-top { grid-template-columns: 1fr 1fr; } .rd .rd-foot-top > :first-child { grid-column: 1 / -1; } }
+@media (max-width: 600px) { .rd .footer-seo { grid-template-columns: 1fr; } }
+
+/* ── MOBILE ACTION BAR (replaces the floating WhatsApp bubble) ───────── */
+.rd .wa-chat-fab { display: none !important; }
+.rd .rd-actionbar { display: none; }
+@media (max-width: 768px) {
+  .rd .rd-actionbar {
+    position: fixed; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 8500;
+    display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 6px; padding: 6px;
+    background: rgba(14, 16, 20, .96); border: 1px solid var(--rd-line-dk); border-radius: 999px;
+    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, .55);
+    transition: transform .25s ease, opacity .25s ease;
+  }
+  .rd .rd-actionbar > * {
+    height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 999px;
+    background: transparent; color: #fff; font: 700 13px 'Inter', sans-serif; text-decoration: none; cursor: pointer;
+  }
+  .rd .rd-actionbar i { font-size: 16px; }
+  .rd .rd-actionbar .is-wa { background: var(--rd-red); }
+  .rd .rd-actionbar .is-wa i { font-size: 19px; }
+  body.rd.product-open .rd-actionbar { opacity: 0; pointer-events: none; transform: translateY(20px); }
+  .rd footer { padding-bottom: 84px; }
+  .rd .toast-msg { bottom: 92px; }
+}
+
+/* ── Focus ───────────────────────────────────────────────────────────── */
+.rd .rd-btn:focus-visible, .rd .rd-make:focus-visible, .rd .rd-select:focus-visible, .rd .rd-actionbar > *:focus-visible, .rd .rd-faq summary:focus-visible {
+  outline: 3px solid var(--rd-red-2); outline-offset: 3px;
+}

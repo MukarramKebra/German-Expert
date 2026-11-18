@@ -82,6 +82,14 @@ The hero now carries a **rotating ring of eight spare parts around each car**, e
 
 ## 4) Changes made
 
+### Redesign preview — `v2.html` (2026-11-17)
+
+Owner asked for a full redesign. It is built as a **separate preview page**, so the live `index.html` is untouched: `v2.html` (noindex) + `code/css/20-redesign.css` (every rule scoped under `body.rd`, loaded last) + `code/js/10-redesign.js` (finder, makes band, phone action bar). Neither new file is loaded by `index.html`. `v2.html` was assembled once from `index.html` (same `<head>`, preloader, every modal and the script loader), so **it does not pick up later edits to `index.html`**; edit it directly.
+- **Order**: hero (car stage kept, parts ring + phone chip strip hidden) with a **vehicle finder** card (make → model → year from `scripts/data/vehicle-tree.json`; "Show parts" calls `shopMake()` at make level, "Ask us about my car" opens WhatsApp with the car in the message, the choice is remembered in `localStorage.rd_my_car`) → workshop collage (still directly under the hero) → makes band (`rdPickMake()` → finder + `shopMake`) → category photo grid (first visible tile 2×2) → catalogue → parts-brands white band (no boxes) → services (dark, from 12-services.css) → "Visit us" = about + contact facts + FAQ (light) → footer (SEO nav kept).
+- **Removed from this page**: the contact form (stub `#contactForm` kept because `03-product-cart-checkout.js` binds it unguarded), the features row, the intro section, the floating WhatsApp bubble (replaced by a Call / Search / WhatsApp **bottom bar** ≤768px). The search box sits always-open in the header ≥1200px.
+- **Desktop hero**: car stands on the stage floor and the make word is anchored to it from the bottom (`top: calc(100% - var(--reserve) - min(10vw, 140px))`), because centring it in a shorter stage pushed the BMW/AUDI logo into the header.
+- **Gotchas found**: `#contact`, `#about`, `#faq`, `#services` carry id-level styles from the old CSS, so redesign rules that restyle them must name the id (`.rd #contact.rd-visit`, `.rd #contact #faq.rd-faq`). `index.html` has a `<body>` inside a `<head>` comment, so any script splitting the file must match `\n<body>`.
+
 ### Repo and brand
 - Fresh history on an orphan `main`; old remote renamed `kuwait`, `origin` now German-Expert. ~40 MB of the old catalog removed.
 - "German Expert" everywhere; AED with 2 decimals through `fmtPrice()`; 7-emirates checkout with Area/Street/Building/Flat; cash/card on delivery and bank transfer (no KNET); UAE wording throughout; Arabic strings updated (toggle still disabled).
