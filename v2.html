@@ -49,6 +49,7 @@
   <meta name="twitter:image:alt" content="Alamdar Auto Spare Parts Co. Kuwait" />
   <meta name="geo.region" content="KW-KU" />
   <meta name="geo.placename" content="Shuwaikh Industrial Area, Kuwait" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" />
   <link rel="icon" href="favicon.png" sizes="any" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <!-- Second discovery path for the sitemap. GitHub Pages serves this project
@@ -146,7 +147,7 @@
     // 12-services sits BEFORE 11-ui-polish deliberately: the polish layer has
     // to load last (see code/css/11-ui-polish.css), so load order here is not
     // file-number order.
-    ['01-base','02-sections','03-cart-features-contact','04-footer','05-responsive','06-lang-rtl','07-modals','08-account-auth','09-widgets','10-hero','12-services','11-ui-polish','20-redesign'].forEach(function(f) {
+    ['01-base','02-sections','03-cart-features-contact','04-footer','05-responsive','06-lang-rtl','07-modals','08-account-auth','09-widgets','10-hero','12-services','11-ui-polish','20-redesign','30-v3'].forEach(function(f) {
       var l = document.createElement('link');
       l.rel = 'stylesheet';
       l.href = 'code/css/' + f + '.css?v=' + v;
@@ -168,6 +169,7 @@
     <link rel="stylesheet" href="code/css/12-services.css" />
     <link rel="stylesheet" href="code/css/11-ui-polish.css" />
     <link rel="stylesheet" href="code/css/20-redesign.css" />
+    <link rel="stylesheet" href="code/css/30-v3.css" />
   </noscript>
   <!-- Opens the connection to these origins early (DNS + TLS), in parallel
        with everything else, instead of waiting until the stylesheet
@@ -283,16 +285,16 @@
     .ge-hero-bg { background: linear-gradient(115deg, #222831, #0f1115 60%, #211317) !important; }
   </style>
 </head>
-<body class="rd">
+<body class="rd v3">
 
   <!-- Full-page splash shown until the page finishes loading, then fades out.
        Styled inline (not in the css/*.css files) on purpose: those are
        injected async by the cache-busting loader above, so an external
        stylesheet wouldn't be ready in time and this would flash unstyled. -->
   <style>
-    #pagePreloader { position: fixed; inset: 0; z-index: 99999; background: #0f1115; display: flex; align-items: center; justify-content: center; transition: opacity .35s ease, visibility .35s ease; }
+    #pagePreloader { position: fixed; inset: 0; z-index: 99999; background: #0b0c0e; display: flex; align-items: center; justify-content: center; transition: opacity .35s ease, visibility .35s ease; }
     #pagePreloader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
-    #pagePreloader .preloader-gear { width: 72px; height: 72px; border-radius: 50%; border: 6px solid rgba(255,255,255,.12); border-top-color: #ef3b42; border-right-color: #c1121f; animation: preloader-spin .9s linear infinite; }
+    #pagePreloader .preloader-gear { width: 72px; height: 72px; border-radius: 50%; border: 6px solid rgba(255,255,255,.14); border-top-color: #e0121f; border-right-color: #ffffff; animation: preloader-spin .9s linear infinite; }
     @keyframes preloader-spin { to { transform: rotate(360deg); } }
     @media (prefers-reduced-motion: reduce) { #pagePreloader .preloader-gear { animation: none; } }
     #pagePreloader .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
@@ -339,7 +341,7 @@
     <div class="container header-inner">
       <a href="#header" class="logo-wrap" onclick="goHome(event)">
         <img src="logo.jpg" width="234" height="234" alt="" class="logo-img" onerror="this.style.display='none'" />
-        <span class="rd-wordmark"><b>ALAMDAR</b><small>Auto Spare Parts · Kuwait</small></span>
+        <span class="rd-wordmark"><b>Alamdar</b><small>Auto Spare Parts · Kuwait</small></span>
       </a>
       <nav id="nav">
         <a href="#products" onclick="document.getElementById('nav').classList.remove('open')">Parts</a>
@@ -374,23 +376,41 @@
 
   <!-- 1. HERO — the car stage is code/js/08-hero.js (unchanged); the parts ring is
        hidden by 20-redesign.css. Under it: the pitch + the vehicle finder. -->
-  <section id="showcase" class="ge-hero" aria-labelledby="heroTitle">
-    <div class="ge-hero-bg" aria-hidden="true"></div>
-    <div class="ge-hero-inner">
-      <div class="rd-hero-grid">
-        <div class="ge-hero-copy">
-          <p class="rd-kicker"><span class="rd-dot" aria-hidden="true"></span>Shuwaikh Industrial Area · Kuwait</p>
-          <h2 class="ge-hero-title" id="heroTitle">Genuine parts for <span>German &amp; European</span> cars</h2>
-          <p class="ge-hero-text">Mercedes-Benz, BMW, Audi, Volkswagen, Porsche, Range Rover and Jaguar. In stock in Shuwaikh, fitted by our own mechanics, delivered across Kuwait.</p>
-          <ul class="rd-trust">
-            <li><i class="fa fa-circle-check" aria-hidden="true"></i>Genuine &amp; OEM only</li>
-            <li><i class="fa fa-circle-check" aria-hidden="true"></i>Fitment checked by VIN</li>
-            <li><i class="fa fa-circle-check" aria-hidden="true"></i>Mechanics on site</li>
-            <li><i class="fa fa-circle-check" aria-hidden="true"></i>Arabic &amp; English</li>
-          </ul>
+  <!-- 1. HERO — scroll-driven parts board (code/js/30-v3.js). The parts fly in from
+       off-screen as you scroll the first screens and settle into a labelled board.
+       Tied to scroll position, so it plays once, in either direction, and never loops.
+       The old car stage (08-hero.js) is not on this page. -->
+  <section id="v3Scene" class="v3-scene" aria-labelledby="heroTitle">
+    <noscript><style>.v3-scene { --p: 1; height: auto; } .v3-stick { position: static; height: auto; }</style></noscript>
+    <div class="v3-stick">
+      <div class="v3-in">
+        <h2 class="v3-title" id="heroTitle">Spare parts for <em>German</em> &amp; European cars</h2>
+        <p class="v3-sub">Brakes, filters, suspension, lights and more. In stock in Shuwaikh and delivered across Kuwait.</p>
+        <div class="v3-cta">
+          <a class="v3-btn v3-btn-solid" href="#products">Browse the parts</a>
+          <a class="v3-btn v3-btn-line" href="https://wa.me/96599115215" target="_blank" rel="noopener"><i class="fab fa-whatsapp" aria-hidden="true"></i> Ask on WhatsApp</a>
         </div>
-        <div class="ge-hero-stage" id="heroStage"></div>
-        <form class="rd-finder" id="rdFinder" onsubmit="rdFinderShow(event)" aria-labelledby="rdFinderTitle">
+      </div>
+      <ul class="v3-board" id="v3Board">
+        <li class="v3-slot" style="--s:0.000;--sx:-120vw;--sy:-40vh;--sr:-70deg"><button type="button" class="v3-part t1" onclick="filterProducts('engine')"><img src="img/parts/engine.webp" alt="" width="320" height="170" loading="eager" decoding="async"><span class="v3-pn">Engine parts</span><span class="v3-pc">Engine</span></button></li>
+        <li class="v3-slot" style="--s:0.045;--sx:0vw;--sy:-120vh;--sr:55deg"><button type="button" class="v3-part t2" onclick="filterProducts('brakes')"><img src="img/parts/brake-disc.webp" alt="" width="320" height="170" loading="eager" decoding="async"><span class="v3-pn">Brake discs</span><span class="v3-pc">Brakes</span></button></li>
+        <li class="v3-slot" style="--s:0.090;--sx:120vw;--sy:-50vh;--sr:80deg"><button type="button" class="v3-part t3" onclick="filterProducts('brakes')"><img src="img/parts/remsa-brake-pads.webp" alt="" width="320" height="170" loading="eager" decoding="async"><span class="v3-pn">Brake pads</span><span class="v3-pc">Brakes</span></button></li>
+        <li class="v3-slot" style="--s:0.135;--sx:-120vw;--sy:30vh;--sr:40deg"><button type="button" class="v3-part t2" onclick="filterProducts('filters')"><img src="img/parts/air-filter.webp" alt="" width="320" height="170" loading="eager" decoding="async"><span class="v3-pn">Air filters</span><span class="v3-pc">Filters</span></button></li>
+        <li class="v3-slot" style="--s:0.180;--sx:-20vw;--sy:120vh;--sr:-90deg"><button type="button" class="v3-part t3" onclick="filterProducts('electrical')"><img src="img/parts/bosch-spark-plug.webp" alt="" width="320" height="170" loading="eager" decoding="async"><span class="v3-pn">Spark plugs</span><span class="v3-pc">Electrical</span></button></li>
+        <li class="v3-slot" style="--s:0.225;--sx:120vw;--sy:20vh;--sr:-45deg"><button type="button" class="v3-part t1" onclick="filterProducts('cooling')"><img src="img/parts/behr-radiator.webp" alt="" width="320" height="170" loading="eager" decoding="async"><span class="v3-pn">Radiators</span><span class="v3-pc">Cooling</span></button></li>
+        <li class="v3-slot" style="--s:0.270;--sx:-120vw;--sy:70vh;--sr:65deg"><button type="button" class="v3-part t3" onclick="filterProducts('body-lights')"><img src="img/parts/audi-headlight.webp" alt="" width="320" height="170" loading="eager" decoding="async"><span class="v3-pn">Headlights</span><span class="v3-pc">Body &amp; lights</span></button></li>
+        <li class="v3-slot" style="--s:0.315;--sx:40vw;--sy:120vh;--sr:-60deg"><button type="button" class="v3-part t1" onclick="filterProducts('suspension')"><img src="img/parts/suspension-assembly.webp" alt="" width="320" height="170" loading="eager" decoding="async"><span class="v3-pn">Suspension</span><span class="v3-pc">Suspension</span></button></li>
+        <li class="v3-slot" style="--s:0.360;--sx:120vw;--sy:80vh;--sr:75deg"><button type="button" class="v3-part t2" onclick="filterProducts('suspension')"><img src="img/parts/lemforder-control-arm.webp" alt="" width="320" height="170" loading="eager" decoding="async"><span class="v3-pn">Control arms</span><span class="v3-pc">Suspension</span></button></li>
+        <li class="v3-slot" style="--s:0.405;--sx:0vw;--sy:-120vh;--sr:-55deg"><button type="button" class="v3-part t3" onclick="filterProducts('body-lights')"><img src="img/parts/front-bumper.webp" alt="" width="320" height="170" loading="eager" decoding="async"><span class="v3-pn">Bumpers</span><span class="v3-pc">Body &amp; lights</span></button></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 1b. FINDER — pick the car, see its parts. Same ids as before (10-redesign.js). -->
+  <section class="v3-finder-sec" aria-label="Find parts for your car">
+    <div class="container v3-finder-in">
+      <div class="v3-finder-copy"><span class="v3-kicker">Find the right fit</span><h2 class="v3-h2">Tell us your car, we&rsquo;ll show the <em>parts</em></h2></div>
+      <form class="rd-finder" id="rdFinder" onsubmit="rdFinderShow(event)" aria-labelledby="rdFinderTitle">
           <div class="rd-finder-head"><h3 id="rdFinderTitle">What do you drive?</h3><span class="rd-finder-step">Find your part</span></div>
           <label class="rd-field"><span>Make</span>
             <select class="rd-select" id="rdMake">
@@ -410,7 +430,6 @@
           </div>
           <p class="rd-finder-note">Not sure which part? Send your VIN on WhatsApp and we'll confirm it before you pay.</p>
         </form>
-      </div>
     </div>
   </section>
 
@@ -420,24 +439,22 @@
     <div id="servicesBands"></div>
   </section>
 
-  <!-- 3. CARS WE COVER — tiles call rdPickMake() (code/js/10-redesign.js), which
-       sets the finder and calls shopMake(). Static, nothing moves. -->
-  <section id="brandBanners" class="rd-makes rd-on-dark" aria-labelledby="makesTitle">
+  <!-- 3. CARS WE FIT — swipe row of car cards (img/hero/<car>-sm.webp cut-outs). Each
+       card calls rdPickMake() (10-redesign.js). To change a car's photo, replace the file
+       or change its src below. Static: nothing moves. -->
+  <section id="brandBanners" class="rd-makes v3-cars" aria-labelledby="makesTitle">
     <div class="container">
-      <div class="rd-sec-head">
-        <div class="rd-sec-head-main"><span class="rd-idx">01</span><div><span class="rd-eyebrow">Cars we cover</span><h2 class="rd-h2" id="makesTitle">Pick your <em>make</em></h2></div></div>
-        <p class="rd-sec-sub">Tap your car to see the parts we carry for it. Every part is checked against your car before it leaves the shop.</p>
-      </div>
-      <ul class="rd-make-grid">
-        <li><button type="button" class="rd-make" data-make="mercedes" aria-pressed="false" onclick="rdPickMake('mercedes')"><img src="img/brands/logo-mercedes.svg" alt="" width="64" height="64" loading="lazy">Mercedes-Benz</button></li>
-        <li><button type="button" class="rd-make" data-make="bmw" aria-pressed="false" onclick="rdPickMake('bmw')"><img src="img/brands/logo-bmw.svg" alt="" width="64" height="64" loading="lazy">BMW</button></li>
-        <li><button type="button" class="rd-make" data-make="audi" aria-pressed="false" onclick="rdPickMake('audi')"><img src="img/brands/logo-audi.svg" alt="" width="64" height="64" loading="lazy">Audi</button></li>
-        <li><button type="button" class="rd-make" data-make="volkswagen" aria-pressed="false" onclick="rdPickMake('volkswagen')"><img src="img/brands/logo-volkswagen.svg" alt="" width="64" height="64" loading="lazy">Volkswagen</button></li>
-        <li><button type="button" class="rd-make" data-make="porsche" aria-pressed="false" onclick="rdPickMake('porsche')"><img src="img/brands/logo-porsche.svg" alt="" width="64" height="64" loading="lazy">Porsche</button></li>
-        <li><button type="button" class="rd-make" data-make="landrover" aria-pressed="false" onclick="rdPickMake('landrover')"><img src="img/brands/logo-landrover.svg" alt="" width="64" height="64" loading="lazy">Range Rover</button></li>
-        <li><button type="button" class="rd-make" data-make="jaguar" aria-pressed="false" onclick="rdPickMake('jaguar')"><img src="img/brands/logo-jaguar.svg" alt="" width="64" height="64" loading="lazy">Jaguar</button></li>
-      </ul>
+      <div class="v3-cars-head"><span class="v3-kicker v3-kicker-lt">Cars we fit</span><h2 class="v3-h2 v3-h2-lt" id="makesTitle">Whatever you drive, <em>we have the part</em></h2></div>
     </div>
+    <ul class="v3-car-row" aria-label="Car makes">
+        <li class="v3-car-li"><button type="button" class="rd-make v3-car" data-make="mercedes" aria-pressed="false" onclick="rdPickMake('mercedes')"><img class="v3-car-logo" src="img/brands/logo-mercedes.svg" alt="" width="36" height="36" loading="lazy"><span class="v3-car-name">Mercedes-Benz</span><span class="v3-car-model">E-Class</span><img class="v3-car-img" src="img/hero/mercedes-e-class-sm.webp" alt="" width="380" height="170" loading="lazy"></button></li>
+        <li class="v3-car-li"><button type="button" class="rd-make v3-car" data-make="bmw" aria-pressed="false" onclick="rdPickMake('bmw')"><img class="v3-car-logo" src="img/brands/logo-bmw.svg" alt="" width="36" height="36" loading="lazy"><span class="v3-car-name">BMW</span><span class="v3-car-model">M4</span><img class="v3-car-img" src="img/hero/bmw-m4-sm.webp" alt="" width="380" height="170" loading="lazy"></button></li>
+        <li class="v3-car-li"><button type="button" class="rd-make v3-car" data-make="audi" aria-pressed="false" onclick="rdPickMake('audi')"><img class="v3-car-logo" src="img/brands/logo-audi.svg" alt="" width="36" height="36" loading="lazy"><span class="v3-car-name">Audi</span><span class="v3-car-model">A6</span><img class="v3-car-img" src="img/hero/audi-a6-sm.webp" alt="" width="380" height="170" loading="lazy"></button></li>
+        <li class="v3-car-li"><button type="button" class="rd-make v3-car" data-make="volkswagen" aria-pressed="false" onclick="rdPickMake('volkswagen')"><img class="v3-car-logo" src="img/brands/logo-volkswagen.svg" alt="" width="36" height="36" loading="lazy"><span class="v3-car-name">Volkswagen</span><span class="v3-car-model">Touareg</span><img class="v3-car-img" src="img/hero/vw-touareg-sm.webp" alt="" width="380" height="170" loading="lazy"></button></li>
+        <li class="v3-car-li"><button type="button" class="rd-make v3-car" data-make="porsche" aria-pressed="false" onclick="rdPickMake('porsche')"><img class="v3-car-logo" src="img/brands/logo-porsche.svg" alt="" width="36" height="36" loading="lazy"><span class="v3-car-name">Porsche</span><span class="v3-car-model">911</span><img class="v3-car-img" src="img/hero/porsche-911-sm.webp" alt="" width="380" height="170" loading="lazy"></button></li>
+        <li class="v3-car-li"><button type="button" class="rd-make v3-car" data-make="landrover" aria-pressed="false" onclick="rdPickMake('landrover')"><img class="v3-car-logo" src="img/brands/logo-landrover.svg" alt="" width="36" height="36" loading="lazy"><span class="v3-car-name">Range Rover</span><span class="v3-car-model">Sport</span><img class="v3-car-img" src="img/hero/range-rover-sport-sm.webp" alt="" width="380" height="170" loading="lazy"></button></li>
+        <li class="v3-car-li"><button type="button" class="rd-make v3-car" data-make="jaguar" aria-pressed="false" onclick="rdPickMake('jaguar')"><img class="v3-car-logo" src="img/brands/logo-jaguar.svg" alt="" width="36" height="36" loading="lazy"><span class="v3-car-name">Jaguar</span><span class="v3-car-model">F-Type</span><img class="v3-car-img" src="img/hero/jaguar-f-type-sm.webp" alt="" width="380" height="170" loading="lazy"></button></li>
+    </ul>
   </section>
 
   <!-- 4. CATEGORIES — same tiles/data-cat/onclick as before (JS reorders and
@@ -682,7 +699,7 @@
       <div>
         <div class="rd-foot-brand">
           <img src="logo.jpg" width="234" height="234" alt="" loading="lazy" onerror="this.style.display='none'" />
-          <span class="rd-wordmark"><b>ALAMDAR</b><small>Auto Spare Parts · Kuwait</small></span>
+          <span class="rd-wordmark"><b>Alamdar</b><small>Auto Spare Parts · Kuwait</small></span>
         </div>
         <p class="rd-foot-about">Authorized distributor of genuine auto spare parts in Kuwait, for German and European cars plus Toyota. Shuwaikh Industrial Area.</p>
       </div>
@@ -1182,7 +1199,7 @@
     var v = '';
     try { v = localStorage.getItem('expert_asset_v') || ''; } catch(e) {}
     v = /^[0-9]+$/.test(v) ? v : '202608170500';
-    ['01-config-data','02-catalog-render','03-product-cart-checkout','04-i18n-order','05-accounts','06-features','07-subscribe','08-hero','09-services','10-redesign'].forEach(function(f) {
+    ['01-config-data','02-catalog-render','03-product-cart-checkout','04-i18n-order','05-accounts','06-features','07-subscribe','08-hero','09-services','10-redesign','30-v3'].forEach(function(f) {
       var s = document.createElement('script');
       s.src = 'code/js/' + f + '.js?v=' + v + (f === '08-hero' ? '-float1' : '');
       s.async = false;
