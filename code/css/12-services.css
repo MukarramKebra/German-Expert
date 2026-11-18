@@ -142,6 +142,14 @@
   background: radial-gradient(ellipse 80% 42% at 0% 88%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.30) 55%, rgba(0,0,0,0) 100%);
 }
 
+/* Hover: darken ONLY the hovered photo (the quadrant's own box, which follows
+   the pinwheel seams) with plain black, never red. Mouse-only so a tap on a
+   phone doesn't leave the photo stuck dark. */
+.svc-quad { transition: background-color .22s ease; }
+@media (hover: hover) {
+  .svc-quad:hover { background-color: rgba(0,0,0,0.38); }
+}
+
 /* The scrim is painted in ::before, which would otherwise sit over the shared
    focus ring from 11-ui-polish.css. */
 .svc-quad:focus-visible { z-index: 2; outline-offset: -4px; }
