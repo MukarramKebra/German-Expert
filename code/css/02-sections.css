@@ -333,7 +333,7 @@
    show every JPEG as a white rectangle again. */
 #brandBanners .bb-brands { background: #fff; }
 /* febi is a SQUARE mark, so at the same height as the wide wordmarks it reads small. */
-#brandBanners .bb-brand img[alt^="Febi"] { max-height: 68px; }
+#brandBanners .bb-brand img[alt^="Febi"], #brandBanners .bb-brand img[alt^="iTrust"] { max-height: 68px; }
 #brandBanners .bb-brand { min-height: 84px; background: transparent; border: 0; border-radius: 0; }
 #brandBanners .bb-brand img { display: block; width: auto; height: auto; max-height: 48px; max-width: 86%; object-fit: contain; }
 /* 7 car tiles: 4 + 3 on a phone, so the short last row is centred instead of left-hung. */
@@ -346,6 +346,6 @@
   #brandBanners .bb-grid-brands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #brandBanners .bb-brand { min-height: 68px; font-size: 16px; letter-spacing: .5px; }
   #brandBanners .bb-brand img { max-height: 36px; }
-  #brandBanners .bb-brand img[alt^="Febi"] { max-height: 52px; }
+  #brandBanners .bb-brand img[alt^="Febi"], #brandBanners .bb-brand img[alt^="iTrust"] { max-height: 52px; }
   #brandBanners .bb-brand:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 5px); }
 }
