@@ -120,6 +120,7 @@
   text-align: left;
   color: #fff;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 /* Per-quadrant scrim. Without it the caption sits on bare photo, and three of
    the four quarters have a pale concrete floor exactly there. */
@@ -127,27 +128,20 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 38%, rgba(0,0,0,0.84) 100%);
+  /* Light, bottom-only shade: the photos keep their natural brightness and the
+     text shadow does most of the work. No red / darker state on hover or tap
+     (owner, 2026-11-18). */
+  background: linear-gradient(180deg, rgba(0,0,0,0) 62%, rgba(0,0,0,0.38) 100%);
   pointer-events: none;
-  transition: background var(--t-base, .25s) var(--ease, ease);
-}
-.svc-quad:hover::before,
-.svc-quad:focus-visible::before {
-  background: linear-gradient(180deg, rgba(193,18,31,0.26) 0%, rgba(0,0,0,0.50) 42%, rgba(0,0,0,0.90) 100%);
 }
 /* A box that ends inside its own photo rather than at the foot of the
    picture: fade the scrim out instead of cutting it off, and sit the text
    higher so it stays on the dark part. */
 .svc-quad.is-mid { padding-bottom: clamp(22px, 3.4vw, 70px); }
 .svc-quad.is-mid::before {
-  background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.84) 84%, rgba(0,0,0,0.40) 96%, rgba(0,0,0,0) 100%);
-}
-.svc-quad.is-mid:hover::before,
-.svc-quad.is-mid:focus-visible::before {
-  background: linear-gradient(180deg, rgba(193,18,31,0.24) 0%, rgba(0,0,0,0.52) 40%, rgba(0,0,0,0.90) 84%, rgba(0,0,0,0.42) 96%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.38) 84%, rgba(0,0,0,0.18) 96%, rgba(0,0,0,0) 100%);
 }
 
-.svc-quad:active { transform: scale(.995); }
 /* The scrim is painted in ::before, which would otherwise sit over the shared
    focus ring from 11-ui-polish.css. */
 .svc-quad:focus-visible { z-index: 2; outline-offset: -4px; }
