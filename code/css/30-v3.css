@@ -195,3 +195,111 @@ body.v3 {
   .v3 .v3-car-li { flex-basis: min(72vw, 270px); }
 }
 .v3 .rd-btn:focus-visible, .v3 .v3-btn:focus-visible, .v3 .v3-part:focus-visible, .v3 .v3-car:focus-visible { outline: 3px solid var(--rd-red); outline-offset: 3px; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ROUND 3 — MECHANICAL (owner 2026-11-18: "make it feel like a car website
+   instead of a coffee website"). Judgement: round 2's 26px pills + a friendly
+   wide font read as an app. This block (later in source, same specificity, so
+   it wins) swaps the SHAPE and TYPE language only; the palette stays red /
+   white / black / silver.
+     - type: Chakra Petch (squared, cut-corner, instrument-cluster feel) for
+       headings, nav, labels and buttons, in capitals; Barlow (road-sign DIN
+       cousin) for reading text
+     - shapes: 3-6px corners, one chamfered corner on tiles and car cards,
+       red top edge on every plate
+     - surfaces: black hero with a fine diagonal knurl, brushed-silver part
+       plates, white header with a red rule
+   Nothing here moves or loops.
+   ═══════════════════════════════════════════════════════════════════════ */
+body.v3 {
+  --rd-display: 'Chakra Petch', 'Barlow', 'Segoe UI', sans-serif;
+  --font-display: 'Chakra Petch', 'Barlow', 'Segoe UI', sans-serif;
+  --rd-r: 6px; --rd-r-sm: 4px;
+  --rd-red: #e0121f; --rd-red-dk: #a80d17; --rd-red-2: #ff4650;
+  --v3-silver: linear-gradient(160deg, #fbfbfc 0%, #d4d8de 100%);
+  font-family: 'Barlow', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* type */
+.v3 .rd-h2, .v3 .v3-h2, .v3 #services .section-header h2, .v3 .rd-faq h3, .v3 .svc-list-head h3, .v3 .rd-finder-head h3 {
+  font-family: var(--rd-display); font-weight: 700; text-transform: uppercase; letter-spacing: .01em; line-height: 1.04;
+}
+.v3 .v3-h2 { font-size: clamp(27px, 4.2vw, 46px); }
+.v3 .rd-h2 em, .v3 .v3-h2 em, .v3 #services .section-header h2 .orange, .v3 .v3-title em { font-style: normal; font-weight: 700; color: var(--rd-red); }
+.v3 .rd-eyebrow, .v3 .v3-kicker, .v3 .section-tag { font: 600 12px 'Chakra Petch', sans-serif; letter-spacing: .22em; text-transform: uppercase; color: var(--rd-red); }
+.v3 .v3-kicker::before { content: ''; display: inline-block; width: 24px; height: 3px; margin-right: 10px; vertical-align: middle; background: var(--rd-red); }
+.v3 .v3-btn, .v3 .rd-btn { font: 600 14px 'Chakra Petch', sans-serif; letter-spacing: .08em; text-transform: uppercase; border-radius: 3px; }
+.v3 .v3-pn, .v3 .v3-car-model, .v3 .product-cat, .v3 .rd-foot-col h3, .v3 .footer-seo h3 { font-family: 'Chakra Petch', sans-serif; }
+.v3 .v3-pn { text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+.v3 .v3-pc { font-family: 'Barlow', sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+.v3 .cat-card h3, .v3 .v3-car-name { font-family: var(--rd-display); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
+.v3 .v3-car-name { font-size: 22px; }
+
+/* header: white, red rule, instrument-style nav */
+.v3 #header, .v3 #header.scrolled, .v3 #header:focus-within { background: #fff; -webkit-backdrop-filter: none; backdrop-filter: none; border-bottom: 3px solid var(--rd-red); }
+.v3 .rd-wordmark b { font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: .1em; text-transform: uppercase; }
+.v3 .rd-wordmark small { font-family: 'Barlow', sans-serif; letter-spacing: .14em; text-transform: uppercase; font-size: 10px; font-weight: 600; }
+.v3 #nav a { font: 600 13px 'Chakra Petch', sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+.v3 .rd-hwa, .v3 .rd-hcall, .v3 .header-search-btn, .v3 .hamburger { border-radius: 3px; }
+@media (max-width: 1150px) { .v3 #nav a { font: 600 18px 'Chakra Petch', sans-serif; letter-spacing: .08em; } }
+
+/* hero: black, fine diagonal knurl, red glow, silver part plates */
+.v3 .v3-scene {
+  background:
+    radial-gradient(80% 55% at 50% -8%, rgba(224, 18, 31, .38), rgba(224, 18, 31, 0) 70%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, .035) 0 1px, rgba(255, 255, 255, 0) 1px 7px),
+    #0b0c0e;
+}
+.v3 .v3-title { color: #fff; font-weight: 700; text-transform: uppercase; letter-spacing: .005em; line-height: 1.02; font-size: clamp(28px, min(6.2vw, 9vh), 66px); }
+.v3 .v3-sub { color: rgba(255, 255, 255, .74); }
+.v3 .v3-btn-solid { background: var(--rd-red); border-color: var(--rd-red); color: #fff; }
+.v3 .v3-btn-solid:hover { background: #fff; border-color: #fff; color: #0b0c0e; }
+.v3 .v3-btn-line { border-color: rgba(255, 255, 255, .7); color: #fff; }
+.v3 .v3-btn-line:hover { background: #fff; border-color: #fff; color: #0b0c0e; }
+.v3 .v3-btn-line:hover i { color: #1da851; }
+.v3 .v3-part { border-radius: 3px; border: 0; border-top: 4px solid var(--rd-red); color: #0e1013; clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%); transition: transform .2s ease, border-color .2s ease; }
+.v3 .v3-part.t1, .v3 .v3-part.t2, .v3 .v3-part.t3 { background: var(--v3-silver); }
+.v3 .v3-part.t2 { background: linear-gradient(160deg, #f1f3f5 0%, #bfc5cd 100%); }
+.v3 .v3-part:hover { transform: translateY(-4px); box-shadow: none; border-top-color: #0b0c0e; }
+.v3 .v3-part:focus-visible { outline: 3px solid #fff; outline-offset: -6px; }
+.v3 .v3-pc { color: #4d535c; }
+
+/* finder band: silver, white plate with a red top edge */
+.v3 .v3-finder-sec { background: #e6e8ec; color: #0e1013; }
+.v3 .v3-finder-sec .v3-h2 { color: #0e1013; }
+.v3 .v3-finder-sec .v3-h2 em, .v3 .v3-finder-sec .v3-kicker { color: var(--rd-red); }
+.v3 .rd-finder { border-radius: 4px; border-top: 5px solid var(--rd-red); box-shadow: 0 24px 40px -26px rgba(0, 0, 0, .45); }
+.v3 .rd-finder-head h3 { font-size: 22px; }
+.v3 .rd-select { border-radius: 3px; }
+
+/* cars: white band, black cards with a chamfered corner and red base line */
+.v3 .rd-makes.v3-cars { background: #fff; }
+.v3 .v3-car { border-radius: 4px; background: linear-gradient(165deg, #1b1d22, #08090a); clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 0 100%); border-bottom: 4px solid var(--rd-red); }
+.v3 .v3-car:hover { background: linear-gradient(165deg, #23262c, #0b0c0e); box-shadow: none; border: 0; border-bottom: 4px solid var(--rd-red); transform: translateY(-4px); }
+.v3 .v3-car[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--rd-red-2); border-bottom: 4px solid var(--rd-red); }
+.v3 .v3-car:focus-visible { outline: 3px solid var(--rd-red); outline-offset: -6px; }
+
+/* categories, products, FAQ: hard corners */
+.v3 .cat-card { border-radius: 4px; }
+.v3 .cat-card::after { border-radius: 3px; }
+.v3 .cat-card:hover { box-shadow: none; }
+.v3 .product-card { border-radius: 4px; border-top: 3px solid var(--rd-red); }
+.v3 .product-img-wrap { border-radius: 3px; }
+.v3 .search-wrap, .v3 .pill { border-radius: 3px; }
+.v3 .btn-add { border-radius: 3px; background: #0b0c0e !important; }
+.v3 .btn-add:hover { background: var(--rd-red) !important; }
+.v3 .rd-faq summary::after { border-radius: 3px; }
+.v3 #contact #faq.rd-faq, .v3 .rd-facts { border-radius: 4px; }
+
+/* phone: flat tab bar with a red top rule */
+@media (max-width: 768px) {
+  .v3 .rd-actionbar { background: #fff; border-radius: 0; border-top: 3px solid var(--rd-red); box-shadow: 0 -8px 24px -16px rgba(0, 0, 0, .5); }
+  .v3 .rd-actionbar > * { border-radius: 3px; font: 600 11px 'Chakra Petch', sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+  .v3 .rd-wordmark b { font-size: 20px; }
+  .v3 .v3-title { font-size: clamp(25px, min(7.2vw, 7.4vh), 60px); }
+  .v3 .v3-part { border-radius: 3px; clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); }
+  .v3 .v3-pn { font-size: 11px; letter-spacing: .02em; }
+  .v3 .v3-btn { font-size: 12.5px; letter-spacing: .05em; }
+}
+.v3 .header-search-input, .v3 .header-search-wrap.open .header-search-input { border-radius: 3px; }

@@ -1,4 +1,8 @@
-# Handoff — German Expert (as of 2026-11-10)
+# Handoff — Alamdar Auto / German Expert (updated 2026-11-18)
+
+> **2026-11-18 — DATABASE FREEZE (owner, verbatim: "I DON'T WANT U TO TOUCH THE DATABASE IF U MADE ANY CHANGES REMOVE THEM IN THE DATABASE AND RESTORE IT BACK IF U DIDN'T THEN FOR NOW KEEP THAT IN MIND").** Do NOT touch the Supabase project (`qljcyiwkwdfodmabnzol`): no SQL, no migrations, no edge-function deploys, and **no cache flush** — this overrides the "flush after every push" standing rule below until the owner says otherwise. Checked this session: no DB write ever reached Supabase (the one attempted flush failed with "No such tool available"), so nothing needed restoring.
+
+> **2026-11-18 — v3 PREVIEW**: `v2.html` is now a completely different look (red/white/black/silver, mechanical type, scroll-driven parts hero). Live `index.html` is the OLD look plus the iTrust logo. Details in §4 "v3 look, three rounds"; the swap-over checklist is §6 step 0.
 
 > **2026-11-15 — SEO landing pages**: 74 make/model + 11 category static pages generated from the old site's vehicle tree, in sitemap, linked from the footer. Product/category photos from the old site are unrecoverable — still need photos from the owner. See CLAUDE.md.
 
@@ -16,9 +20,31 @@ Turn this copy of the Expert Hardware Kuwait site into **German Expert**, a Germ
 
 The owner will send a link to their existing online product list later; importing it is a separate step.
 
+**Where that goal stands now (2026-11-18):** the shop is **Alamdar Auto Spare Parts Co., Kuwait** (rebranded 2026-11-15, KD, +965, Shuwaikh — the Sharjah/UAE/AED wording in older sections below is superseded; see CLAUDE.md's top notes). The active job is a **full visual redesign delivered as a separate preview page, `v2.html`**, while `index.html` stays live. The owner's requirements for it, in their own words over three rounds:
+- It must not look related to the old site "by just looking at the website design" — only the logo is shared.
+- Say "we sell car spare parts, not cars" **without writing it as a banner/pill**; show it with **moving parts, but not a loop**.
+- The phone layout must be fully different too.
+- Latest: **red / white / black / silver**, new fonts, and it must **"feel like a car website instead of a coffee website"** (mechanical, not soft).
+- The owner will send **new car images** later.
+- **Do not touch the database** (see the freeze at the top).
+
 ## 2) Current state
 
-Head of `main` is **`b59cb624`**. Site and admin are live; the DB is wired; the catalog is empty.
+### Snapshot 2026-11-18
+
+| Thing | State |
+|---|---|
+| Live storefront `index.html` | The **old look** (dark/red, car stage + parts ring). Only change this week: the parts-brands band now shows Remsa, Febi, **iTrust**, Lemförder (Bilstein removed). The "spare parts shop" pill added to its hero on 2026-11-18 was **removed again** (owner rejected written text). |
+| Preview `v2.html` (noindex) | The **v3 look, round 3 "mechanical"**: black hero with a fine diagonal knurl and a scroll-driven board of ten silver part plates, Chakra Petch capitals + Barlow text, 3–6px corners with one chamfered corner on plates and car cards, white header with a red rule, silver finder band, white cars band with black car cards, phone bottom tab bar. URL: https://mukarramkebra.github.io/German-Expert/v2.html (local: `http://localhost:8123/German-Expert/v2.html`). |
+| Verified | Round 3 checked in the browser at 1440px and an emulated 390px phone (hero, finder, cars, catalogue; `scrollWidth` = 390, fonts Chakra Petch + Barlow loaded). Footer, FAQ, services and the category grid below the catalogue were only checked for the earlier rounds' colours, **not re-checked after round 3**. |
+| Car photos | Still the six current `img/hero/<car>-sm.webp` cut-outs (+ Jaguar F-Type). **The owner's new car images have not arrived** (nothing new in the project folder). |
+| Database | **Frozen by the owner** (top of file). The post-push cache flush has NOT been run for any change since the iTrust push, so returning visitors may still get a cached `index.html`/`02-sections.css` for a while. |
+| Git | Work is on `main`; the round-3 commit and this file are pushed together (see `git log`). The working tree also shows `D .claude/.headroom_wrap_*.json` and untracked `For Iphonefcollage` / `German-Expert/` — not mine, left alone. |
+| Open owner decisions | Approve (or redirect) the v3 look; send car images; confirm whether `index.html` should be swapped to v3 (§6 step 0). |
+
+### Older snapshot (2026-11-10, still true for everything the live page does)
+
+Site and admin are live; the DB is wired; the catalog is empty. (Head of `main` was **`b59cb624`** then.)
 
 The hero now carries a **rotating ring of eight spare parts around each car**, every one a real cut-out photo shown in its own shape (no circles, since 2026-11-14) (the elbow callouts are gone), and `#services` (the owner's own full-bleed workshop collage + service cards) now closes the page, just above the footer. Scroll order: hero → categories → products → features → FAQ → contact → about → services → footer.
 
@@ -78,9 +104,38 @@ The hero now carries a **rotating ring of eight spare parts around each car**, e
 | `img/parts/*.webp` (+ `src/` originals) | the ring's part photos — all owner-supplied transparent cut-outs, cropped to the part and scaled to 320px max: remsa-brake-pads, lemforder-control-arm, suspension-assembly, audi-headlight, bosch-spark-plug, behr-radiator, engine, front-bumper (febi-control-arm is unused). Adding one = drop the cut-out in, append a `HERO_PARTS` entry with `img:` |
 | **`code/js/09-services.js`**, **`code/css/12-services.css`** | the `#services` workshop band: `DEFAULT_SERVICES`, `normalizeServices()`, `renderServices()`, `bookService()`, `askServiceAdvice()`. CSS loads **before** `11-ui-polish.css` despite its number |
 | **`admin/js/15-services.js`** | the admin Services tab: `ADMIN_DEFAULT_SERVICES`, `loadServicesTab()`, `renderServicesTab()`, `svcAdd/svcMove/svcDelete/svcSet/svcToggleMake`, `saveServices()`. Writes the single `expert_settings` row `services` |
-| `CLAUDE.md` | project notes |
+| **`v2.html`** | the redesign PREVIEW (noindex). A hand-maintained copy of `index.html` with the v3 hero/finder/cars markup; **does not follow edits to `index.html`**. `<body class="rd v3">`; loader entries `20-redesign`, `30-v3` (CSS) and `10-redesign`, `30-v3` (JS); Google Fonts link for Chakra Petch + Barlow in `<head>`; cream→black preloader colours |
+| **`code/css/30-v3.css`** | the v3 look, all under `body.v3`, loaded after `20-redesign.css`. Layout is round 1 (hero scene, finder band, car cards, phone tab bar); colours are round 2 (a find-and-replace of the palette); **the "ROUND 3 — MECHANICAL" block at the END of the file overrides shape/type/hero colours by source order**. Edit tokens at the top and that last block together, or they fight |
+| **`code/js/30-v3.js`** | `v3Scene()` writes ONLY `--p` (0..1) on `#v3Scene` from scroll position (reduced motion → `.v3-static`, `--p: 1`); `v3CarReveal()` slides the car cards in once via IntersectionObserver. No timers, no looping |
+| `code/css/20-redesign.css`, `code/js/10-redesign.js` | the earlier redesign layer v3 sits on (finder from `scripts/data/vehicle-tree.json`, makes band `rdPickMake()`, phone action bar) |
+| `img/brands/brand-itrust.png` | the owner's iTrust logo (252×259), cropped from `Logo I trust.png` (repo root, the owner's original; thin purple edge line, so crops ignore an 8px margin). `brand-bilstein.png` is deleted. iTrust shares Febi's taller `max-height` rule in `code/css/02-sections.css` |
+| `img/hero/<car>-sm.webp`, `img/brands/logo-<make>.svg` | what the v3 car cards use (`.v3-car` markup in `v2.html`). To use the owner's new photos: replace the files or change the `src` |
+| `img/parts/*.webp` | the ten part plates in the v3 hero board (engine, brake-disc, remsa-brake-pads, air-filter, bosch-spark-plug, behr-radiator, audi-headlight, suspension-assembly, lemforder-control-arm, front-bumper) |
+| `CLAUDE.md` | project notes (has a "v3 look" paragraph — **it still describes round 2's Sora/Manrope; see §6 step 0b to fix**) |
 
 ## 4) Changes made
+
+### v3 look, three rounds (2026-11-18) — preview only, `v2.html`
+**Owner's messages (in order):** (1) *"I want [you] to add this Iturst and remove bilstien also where in the start can you add spare parts and make people know we do about car parts not cars itself but don't create a loop or something give me something new"* → (2) *"no you shouldn't be physically saying that I want you to add moving parts somewhere but it shouldn't be a loop also the phone is very similar to before fully change it if someone looks at this and looks at the old one and don't see the logo they shouldn't know at all that they were related … I will give you new car images too"* → (3) *"not bad but … change the background themes and change the font too … red white, black, silver"* → (4) *"make it more mechanicy like make it feel like a car website instead of a coffee website for the fonts and do you think this is a good style for a car website if yes then for now keep it but if no then change it use /ui-ux-pro-max:ui-ux-pro-max for some parts"*.
+
+- **iTrust (live `index.html`):** Bilstein `<li>` replaced by iTrust (`<li class="bb-brand"><img src="img/brands/brand-itrust.png" …>`); iTrust added to Febi's `max-height` rules in `02-sections.css` (68px desktop, 52px ≤480px). Pushed to live. Another session had pushed the same change at the same time; the merge took theirs on the conflicting files.
+- **The written "spare parts, we sell parts not cars" pill** was added to the live hero (`.ge-hero-notice` in `10-hero.css`) and then **removed** after message 2 (sliced out of `index.html` and `10-hero.css`). Do not re-add written text for this.
+- **Round 1 — structure (cream / petrol green / burnt orange, Fraunces + DM Sans).** Built by a one-off transform script run once on `v2.html` (not kept in the repo; `v2.html` is now edited by hand):
+  - New hero `#v3Scene`: a 240vh section with a sticky 100vh stage. `30-v3.js` writes `--p` (0..1) from scroll position; CSS turns it into `--t` (clamped, per-part offset `--s`) and a smoothstep `--e`, and moves each `.v3-slot` from `(--sx, --sy)` rotated `--sr` to its grid place and fades it in. **Ten parts fly in from off-screen as you scroll and settle into a labelled board; scroll back and they leave; stop and everything stops. No timer, no loop.** Each plate is a button calling `filterProducts('<cat>')`. Headline: "Spare parts for German & European cars" — that plus the parts is how the page says "parts, not cars".
+  - `.v3-finder-sec` wraps the existing `#rdFinder` form (ids unchanged so `10-redesign.js` still works).
+  - `#brandBanners` became a swipe row of seven rounded car cards (`.v3-car`, `data-make`, `onclick="rdPickMake('<slug>')"`).
+  - Parts-brands list: Bilstein → iTrust (`<li class="is-square">`).
+  - Phone: a bottom tab bar (Call / Search / WhatsApp) replacing the floating dark pill; a `@media (max-width: 719px)` block (`gap:12px; padding-bottom:86px`, smaller title, nowrap CTAs, plate `aspect-ratio: 1/.86`, `.v3-pc` hidden) so three rows of plates fit above the bar.
+  - The page no longer loads the car stage (`08-hero.js` is not on `v2.html`).
+- **Round 2 — colours and fonts (red / white / black / silver, Sora + Manrope).** A find-and-replace over `30-v3.css` (cream→white/silver, petrol→black/graphite, orange→red `#d3141f`/`#ff4650`, serif→Sora, DM Sans→Manrope) plus the font link, preloader and a silver hero gradient. Verified 1440 + 390.
+- **Round 3 — mechanical (Chakra Petch + Barlow).** **My judgement, answering "is this a good style for a car website?": no.** The palette was fine; the **shape and type language** (26px rounded pills, a friendly wide geometric font, light cards) read as an app/café. Changed, as a block appended at the end of `30-v3.css` (same specificity, later source order wins) plus the font link and a black preloader in `v2.html`:
+  - Type: **Chakra Petch** (squared, cut-corner, instrument-cluster feel) in capitals for headings/nav/labels/buttons; **Barlow** (road-sign cousin) for reading text.
+  - Shapes: 3–6px radii; one **chamfered corner** (`clip-path` polygon) on part plates and car cards; a **red top edge** on plates, finder card and product cards and a **red base line** on car cards.
+  - Surfaces: **black hero** with a fine 135° knurl pattern and a red glow, **brushed-silver** part plates, **white header with a 3px red rule**, silver finder band, white cars band, flat phone tab bar with a red top rule, square header search box.
+  - Palette tokens now `--rd-red #e0121f / #a80d17 / #ff4650`; `body.v3` also redefines `--rd-display`/`--font-display` so JS-rendered components follow.
+  - The `/ui-ux-pro-max` skill was run: its `--design-system` output was generic ("Motion-Driven", Outfit/Rubik, slate + red) and its typography search surfaced Barlow Condensed / Syncopate, so the Chakra Petch choice is mine, not the tool's.
+- **Docs:** `CLAUDE.md` got a "v3 look" paragraph (round 2 wording — needs the round-3 update, §6 step 0b).
+- **Commits on `main` this session:** `c863ff2e`, merge `7fedbdb3`, `f5dbe05a`, `37988902` (v3 + removed live pill), then the re-theme commit ("red/white/black/silver theme, Sora + Manrope fonts") and the round-3 commit.
 
 ### Redesign preview — `v2.html` (2026-11-17)
 
@@ -261,6 +316,21 @@ Owner (with a screenshot of the "Every job we take on" cards): *"I want all of t
 
 ## 5) Failed attempts
 
+**v3 redesign rounds (2026-11-18)**
+- **Written "spare parts, we sell parts not cars" pill on the live hero — rejected** ("you shouldn't be physically saying that"). Reverted. The point has to land through the headline and moving parts.
+- **First v3 pass called "very similar to before" on the phone** — the first reading was that restyling would do; the owner wanted nothing recognisable but the logo, so the hero, header, nav, phone bar and cards were all replaced.
+- **Round 2 (Sora + Manrope, rounded pills) judged "a coffee website".** Soft 26px shapes and a friendly wide font are the wrong language for car parts. Palette was fine; shape/type was the fix (round 3).
+- **Hero's third plate row hidden behind the phone bottom bar** (first phone build) → phone block with `padding-bottom: 86px` and smaller plates. **Car card's make name was covered by the car photo** → name moved up, image shrunk (`max-height: 42%`).
+- **Browser window can't go below ~485px** (`resize_page`), which gave a false "horizontal overflow" reading → use `emulate` with `390x844x2,mobile,touch` and read `document.documentElement.scrollWidth` (390 = fine).
+- **`clip-path` (the chamfered corners) clips box-shadows and normal outlines.** Hover shadows were dropped on plates/cards and their `:focus-visible` outline is drawn **inside** (`outline-offset: -6px`). Remember this before adding a shadow to a chamfered element.
+- **`/ui-ux-pro-max` was only partly useful** — the design-system query returned a generic result (see §4). Don't expect it to pick automotive fonts; it gave font *candidates* only.
+- **A push was rejected** (remote already had the same iTrust change from another session, and an untracked `Logo I trust.png` would have been overwritten). Fix: `cmp` showed the files identical, moved the local copy aside, merged `origin/main` taking theirs on conflicts, re-applied my markup, pushed.
+- **Cache flush could not run:** `mcp__supabase-german__execute_sql` was not loaded ("No such tool available"). It then became moot — the owner froze all database work (top of file). A transcript search confirmed this was the only DB call attempted and it never reached Supabase.
+- **`CLAUDE.md` edit failed** while updating the v3 paragraph (the old string I typed didn't match the file's real wording) and a follow-up `grep` was interrupted by the owner. **The stale Sora/Manrope sentence is still in CLAUDE.md** — §6 step 0b.
+- **GateGuard** blocked the first Bash/Edit/Write on every new file this session; parallel calls partially failed. State the facts, retry each call separately, check each result.
+- **Heredocs with nested quotes** broke the shell once (`30-v3.css` creation) → create files with the Write tool, append with `cat file >> target`.
+- A leftover **background preview server on port 8123** was left running (`pkill` isn't available here).
+
 **The hero ring rendered frozen, and nothing said why (2026-11-13)**
 - The CSS was correct and loaded — the `.ge-ring` rule carried `60s linear infinite geOrbit`, `@keyframes geOrbit` parsed, `@property` registered — yet `getComputedStyle(ring).animationName` was `"none"`, `ring.getAnimations()` was `[]` and `document.getAnimations()` never listed `geOrbit`. No console error.
 - **Cause: the inline `<style id="ge-low-gpu-mode">` in `index.html`**, a profile inherited from earlier perf work, carries `.ge-hero *, .ge-hero *::before, .ge-hero *::after { animation: none !important }`. The tell was that the car float animation was named `geLowGpuCarFloat`, not `geCarFloat` — that block re-declares the one animation it wants to keep. The ring is now exempted by name: `.ge-hero *:not(.ge-ring)`.
@@ -297,6 +367,13 @@ Owner (with a screenshot of the "Every job we take on" cards): *"I want all of t
 
 ## 6) Next steps
 
+0. **The v3 redesign — owner review, then (maybe) swap into the live site.** Nothing below happens until the owner approves the look and says to go live.
+   - **0a. Wait for / use the new car images.** Put them in `img/hero/` (or point the `.v3-car` `src` values in `v2.html` at them). Pipeline without tooling: browser-canvas or PowerShell `System.Drawing` — crop to the alpha bounding box, WebP in two sizes, never upscale (see CLAUDE.md "Image work without tooling").
+   - **0b. Fix the docs:** update CLAUDE.md's "v3 look" paragraph from round 2 (Sora/Manrope) to round 3 (Chakra Petch + Barlow, chamfered corners, black hero, the ROUND 3 block at the end of `30-v3.css`). Find the line with `Grep "v3 look" CLAUDE.md` first — an earlier edit failed on a wording mismatch.
+   - **0c. Check the parts of `v2.html` not re-checked after round 3:** category grid, services band, FAQ/visit-us, footer, the brands band — at 1440 and 390 (`emulate`, not `resize_page`). They inherit the new palette/fonts but I only looked at hero, finder, cars and catalogue.
+   - **0d. Swap-over checklist (proposed; verify each against the two files before doing it).** Copy `v2.html` over `index.html`, then: remove the `noindex` meta; restore the `index.html` `<title>`, meta description, canonical, `og:*`, `hreflang` and JSON-LD; **drop the hero-car preload and the hero skeleton `<style>`** (the v3 hero has no car stage); keep the footer SEO `<nav class="footer-seo">`; make sure the loader array and the `<noscript>` list include `20-redesign`, `30-v3`, `10-redesign`; confirm `08-hero.js`/`10-hero.css` are no longer needed (or leave them unloaded); then decide whether `v2.html` stays as a redirect or is deleted. Re-run Lighthouse mobile (CLS especially — the hero is 240vh sticky) and re-measure that the page's `scrollWidth` equals the viewport on a 390px emulation.
+   - **0e. Cache flush after any live push — ONLY once the owner lifts the database freeze.** Until then, push and tell the owner the cache was not flushed. SQL (do not run while frozen): `insert into expert_settings (key, value) values ('asset_version', (extract(epoch from now()) * 1000)::bigint::text) on conflict (key) do update set value = excluded.value;`
+   - **0f. Keep it non-looping.** The owner's rule: moving parts yes, loop no. Any new motion must be tied to scroll position or a one-shot reveal, with `prefers-reduced-motion` showing the finished state.
 1. **Admin accounts — owner runs this, and it blocks all admin work.** `expert_admin_profiles` is empty so nobody can log into `/admin/`, and `bootstrap` only works while it is empty (one shot). Give the owner a `! curl` POSTing `{"action":"bootstrap","accounts":[{"username":"…","password":"…","role":"super"}]}` to `https://qljcyiwkwdfodmabnzol.supabase.co/functions/v1/admin-manage-accounts` with `apikey` + `Authorization: Bearer <publishable key>`. Roles: `super` (owner), `bahar15` (manager), `1` (admin), `custom` (team). **The owner fills in their own passwords — never choose, type, or enter them.**
 2. **Photos: 3 products still have none (ids 4, 9, 10), and 9 carry an illustrative photo** that should be swapped for the real part (see §4). Ring is done at ten parts; ids 2–3 have a representative photo. The rest show the grey gear placeholder, and **free stock cannot fill them** (see §4) — ignition coil, EPB calipers, Airmatic struts, valve block, ABC seal kit and three tail lights all need a real image of the actual part. ⚠️ **The owner cannot upload them yet** — the admin panel needs an account and `bootstrap` hasn't been run (step 1). Until then: owner sends photos → commit under `img/products/` → `update expert_products set img_url = 'https://mukarramkebra.github.io/German-Expert/img/products/<file>.webp' where id = …`, which fills the storefront card and the admin tab at once. Better still, once step 1 is done they can upload straight from the admin. Do NOT substitute a near-match from `img/parts/`.
 3. **Import the catalog** when the product list arrives (CSV import supports `sku` and `makes`). Then raise `MIN_PRODUCTS` / set `SEO_MIN_PRODUCTS` in `.github/workflows/generate-seo.yml` above 0, so a Supabase outage returning `[]` can't wipe `sitemap.xml`.
@@ -314,6 +391,6 @@ Owner (with a screenshot of the "Every job we take on" cards): *"I want all of t
 
 ---
 
-**Standing rules:** never ask whether to commit or push — when a change is verified locally, commit with explicit paths and push to `main`. **After every push that touches anything the storefront loads, flush the cache** via `mcp__supabase-german__execute_sql` (upsert `expert_settings.asset_version` to `now()` in ms), then poll the live Pages URL and tell the owner. Skip only for docs/`scripts/`-only pushes.
+**Standing rules:** never ask whether to commit or push — when a change is verified locally, commit with explicit paths and push to `main`. **After every push that touches anything the storefront loads, flush the cache** via `mcp__supabase-german__execute_sql` (upsert `expert_settings.asset_version` to `now()` in ms), then poll the live Pages URL and tell the owner. Skip only for docs/`scripts/`-only pushes. ⚠️ **SUSPENDED since 2026-11-18: the owner froze all database access, including this flush — do not run it until they say so** (top of file; saved to Claude's memory as `no-database-changes`).
 
 **Local preview:** no Python on this machine. A small node static server serving the repo under `/German-Expert/` works (so root-relative paths in `404.html` resolve); one has been running on port 8124. It serves from disk, so it picks up edits without a restart.
