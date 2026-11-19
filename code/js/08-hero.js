@@ -202,7 +202,7 @@ const HERO_CARS_DEFAULT = [
   },
 ];
 
-const HERO_ROTATE_MS = 700;   // was 6500, 3500, 2600 — owner (2026-11-19): "the cars should be 0.7 seconds". The slide itself takes .4s (see .ge-car in 10-hero.css) and the 'is-leaving' timeout in show() must stay >= that.
+const HERO_ROTATE_MS = 1500;   // was 6500, 3500, 2600, then 700 (owner: "too fast") — owner (2026-11-19): "make it 1.5 sec". The slide itself takes .4s (see .ge-car in 10-hero.css) and the 'is-leaving' timeout in show() must stay >= that.
 const HERO_SHADERS_URL = 'https://cdn.jsdelivr.net/npm/shaders@4.0.5/dist/js/bundle.js';
 
 // German palette: graphite studio, neutral silver key light, red back wash.
