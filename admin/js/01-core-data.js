@@ -411,6 +411,7 @@ const CAR_MAKES = [
   { slug: 'opel',       label: 'Opel' },
   { slug: 'landrover',  label: 'Range Rover' },
   { slug: 'jaguar',     label: 'Jaguar' },
+  { slug: 'maserati',   label: 'Maserati' },
   { slug: 'toyota',     label: 'Toyota' }
 ];
 function getMakes(id) { var v = (window._sbFitmentMap || {})[String(id)]; return Array.isArray(v) ? v : []; }

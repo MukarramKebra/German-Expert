@@ -77,13 +77,13 @@ const HERO_PARTS = [
 // and the E-Class would otherwise hide its lower half behind the bodywork.
 // Makes that have a logo file at img/brands/logo-<make>.svg (white, from the
 // simple-icons set). A car whose `make` is not listed just shows no logo.
-const HERO_LOGO_MAKES = ['mercedes', 'bmw', 'audi', 'volkswagen', 'porsche', 'landrover', 'jaguar'];
+const HERO_LOGO_MAKES = ['mercedes', 'bmw', 'audi', 'volkswagen', 'porsche', 'landrover', 'jaguar', 'maserati'];
 // 2026-11-18 (owner): REAL, coloured logos, much larger. Files are img/brands/color/<make>.webp
 // (cropped to the artwork, 480px max side); this is each one's width/height so the plate
 // behind it can be sized without loading the image. The plate is white because Audi's black
 // rings, VW's navy and Porsche's black wordmark vanish on the dark stage.
 const HERO_LOGO_SIZE = 150;   // was 96 as a bare white glyph
-const HERO_LOGO_ASPECT = { mercedes: 1, bmw: 1, audi: 2.824, volkswagen: 1, porsche: 0.777, landrover: 1.912, jaguar: 2.222 };
+const HERO_LOGO_ASPECT = { mercedes: 1, bmw: 1, audi: 2.824, volkswagen: 1, porsche: 0.777, landrover: 1.912, jaguar: 2.222, maserati: 0.667 };
 
 const HERO_CARS = [
   {
@@ -186,6 +186,19 @@ const HERO_CARS = [
     logoLift: 0,
     scale: 1.1,
     alt: 'Jaguar F-Type coupe',
+  },
+  {
+    // Added 2026-11-19 from the owner's own transparent cut-out (grey Ghibli, original kept in
+    // img/hero/src/maserati-ghibli-source.png), cropped to its alpha box 929x454 -> NOT upscaled,
+    // so the 1400w file is really 929w. A sedan, so the logo needs only a small lift.
+    make: 'maserati',
+    src: 'img/hero/maserati-ghibli.webp', w: 929,
+    srcSmall: 'img/hero/maserati-ghibli-sm.webp', wSmall: 760,
+    model: 'GHIBLI',
+    badge: 'MASERATI',
+    logoLift: 40,
+    scale: 0.95,
+    alt: 'Maserati Ghibli sedan',
   },
 ];
 

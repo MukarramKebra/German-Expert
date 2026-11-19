@@ -96,6 +96,7 @@
       ]
     },
     { "slug": "jaguar", "label": "Jaguar", "ar": "جاكوار", "short": "Jaguar", "models": [] },
+    { "slug": "maserati", "label": "Maserati", "ar": "مازيراتي", "short": "Maserati", "models": [] },
     {
       "slug": "toyota", "label": "Toyota", "ar": "تويوتا", "short": "Toyota",
       "models": [

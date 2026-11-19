@@ -266,6 +266,7 @@ const CAR_MAKES = [
   { slug: 'opel',       label: 'Opel' },
   { slug: 'landrover',  label: 'Range Rover' },
   { slug: 'jaguar',     label: 'Jaguar' },
+  { slug: 'maserati',   label: 'Maserati' },
   { slug: 'toyota',     label: 'Toyota' }
 ];
 function getProductMakes(id) {
