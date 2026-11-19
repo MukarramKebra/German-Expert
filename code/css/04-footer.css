@@ -59,3 +59,16 @@ footer { background: var(--bar); padding: 64px 0 0; border-top: 1px solid rgba(0
 .footer-seo a { display: inline-block; color: rgba(255,255,255,0.82); text-decoration: none; font-size: 13px; margin: 0 16px 8px 0; }
 .footer-seo a:hover { color: #fff; }
 @media (max-width: 640px) { .footer-seo { grid-template-columns: 1fr; } }
+
+/* ALL-WHITE (2026-11-19, owner): footer on white, graphite text, hairline top rule. */
+footer { background: #fff; border-top: 1px solid var(--border); }
+.footer-brand p { color: #4b5563; }
+.footer-brand-name-text { color: var(--bar); }
+.footer-brand-name-text span { color: #6b7280; }
+.footer-links h3, .footer-seo h3 { color: var(--bar); }
+.footer-links a, .footer-seo a { color: #4b5563; }
+.footer-links a:hover, .footer-seo a:hover { color: var(--orange); }
+.footer-location, .footer-bottom, .footer-seo { border-top-color: var(--border); }
+.footer-bottom span { color: #6b7280; }
+.footer-map-btn { background: var(--light); border: 1px solid var(--border); }
+.footer-map-btn:hover { background: #e9ecef; }

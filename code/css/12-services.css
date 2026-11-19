@@ -442,3 +442,43 @@
   .svc-collage-labels > .svc-quad:last-child { padding-right: 56px; }
   .svc-quad-name { font-size: 12px; }
 }
+
+/* ═══ ALL-WHITE (2026-11-19, owner: "make all backgrounds white … everywhere where
+   the background is black") ═══════════════════════════════════════════════════
+   Flips the workshop band, the services section and its cards from graphite to
+   white. Last in the file on purpose: same specificity as the dark rules above,
+   so source order decides. Text goes graphite, the accent goes back to the
+   LIGHT-surface red (--orange). The collage's own photo-label scrims stay dark —
+   those are shading on a photograph, not a background. */
+.svc-band, .svc-collage { background: #fff; }
+.svc-collage { border-top-color: var(--border); border-bottom-color: var(--border); }
+#services {
+  background: #fff;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  color: var(--bar);
+}
+#services .section-tag { background: rgba(193,18,31,0.08); border-color: rgba(193,18,31,0.28); color: var(--orange); }
+#services .section-header h2 { color: var(--bar); }
+#services .section-header h2 .orange { color: var(--orange); }
+.svc-intro { color: #4b5563; }
+.svc-trust span { color: #374151; }
+.svc-trust i, .svc-icon i, .svc-price-poa { color: var(--orange); }
+.svc-list-head p { color: #6b7280; }
+.svc-card { background: var(--light); border-color: var(--border); }
+.svc-card:hover { background: #fff; border-color: rgba(193,18,31,0.4); }
+.svc-icon { background: rgba(193,18,31,0.08); border-color: rgba(193,18,31,0.22); }
+.svc-media { background: #eef0f3; }
+.svc-name, .svc-price { color: var(--bar); }
+.svc-desc { color: #4b5563; }
+.svc-make { color: #4b5563; background: #fff; border-color: var(--border); }
+.svc-meta { border-top-color: #cfd4da; }
+.svc-price em, .svc-dur { color: #6b7280; }
+.svc-parts { color: #4b5563; }
+.svc-parts:hover { color: var(--orange); background: rgba(0,0,0,0.04); }
+.svc-cta { background: var(--light); border-color: var(--border); }
+.svc-cta-txt h3, .svc-cta-txt strong { color: var(--bar); }
+.svc-cta-txt p { color: #4b5563; }
+.svc-cta-call { border-color: #b8bec6; color: var(--bar); }
+.svc-cta-call:hover { border-color: var(--orange); background: rgba(193,18,31,0.06); }
+.svc-list-head h3 { color: var(--bar); }

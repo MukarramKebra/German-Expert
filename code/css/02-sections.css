@@ -355,3 +355,11 @@
   #brandBanners .bb-brand:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 5px); }
 }
 #brandBanners .bb-crest { width: clamp(56px, 6vw, 76px); height: clamp(56px, 6vw, 76px); border-radius: 50%; object-fit: contain; margin-bottom: 8px; }
+
+/* ALL-WHITE (2026-11-19, owner): the "Cars we cover" band is white now, like the brands band under it.
+   The logo plates are white, so each tile gets a light-grey card to keep them visible. */
+#brandBanners .bb-cars { background: #fff; color: var(--bar); border-bottom: 1px solid var(--border); }
+#brandBanners .bb-cars .bb-tag { color: var(--orange); }
+#brandBanners .bb-car { color: var(--bar); background: var(--light); border-color: var(--border); }
+#brandBanners .bb-car img { background: #fff; box-shadow: 0 0 0 1px var(--border); }
+#brandBanners .bb-car:hover { background: #fff; border-color: var(--orange); }
