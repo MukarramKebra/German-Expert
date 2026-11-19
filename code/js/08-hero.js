@@ -202,7 +202,7 @@ const HERO_CARS_DEFAULT = [
   },
 ];
 
-const HERO_ROTATE_MS = 2600;   // was 6500, then 3500 — owner (2026-11-19, twice): "go to the next car faster". The slide itself now takes .65s (see .ge-car in 10-hero.css), so each car is fully visible ~2s.
+const HERO_ROTATE_MS = 700;   // was 6500, 3500, 2600 — owner (2026-11-19): "the cars should be 0.7 seconds". The slide itself takes .4s (see .ge-car in 10-hero.css) and the 'is-leaving' timeout in show() must stay >= that.
 const HERO_SHADERS_URL = 'https://cdn.jsdelivr.net/npm/shaders@4.0.5/dist/js/bundle.js';
 
 // German palette: graphite studio, neutral silver key light, red back wash.
@@ -481,7 +481,7 @@ function initHeroShowcase(HERO_CARS) {
       hydrate((n + 1) % figs.length);
       const prev = figs[cur];
       prev.classList.remove('is-active'); prev.classList.add('is-leaving'); prev.setAttribute('aria-hidden', 'true');
-      setTimeout(() => prev.classList.remove('is-leaving'), 700);   // must stay >= the .ge-car transform duration in 10-hero.css
+      setTimeout(() => prev.classList.remove('is-leaving'), 450);   // must stay >= the .ge-car transform duration in 10-hero.css
       figs[n].classList.add('is-active'); figs[n].removeAttribute('aria-hidden');
       dots.forEach((d, i) => { if (i === n) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
       cur = n;
@@ -534,7 +534,10 @@ function initHeroShowcase(HERO_CARS) {
     // as the page is otherwise done — never before, or it is straight back
     // to competing with the LCP image and the catalog fetches.
     if (figs.length > 1) {
-      const warm = () => hydrate(1);
+      // At 0.7s per car the rotation reaches every slide within a few seconds,
+      // so warming only slide 2 left the rest blank when their turn came. Warm
+      // them all, still only once the page is idle (they total well under 1 MB).
+      const warm = () => figs.forEach((_, i) => hydrate(i));
       const soon = () => (window.requestIdleCallback
         ? requestIdleCallback(warm, { timeout: 3000 })
         : setTimeout(warm, 800));

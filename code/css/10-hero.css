@@ -82,7 +82,7 @@
      lifted, the lower parts ended up touching the wheel arches at narrow widths. */
   padding-bottom: var(--reserve);
   opacity: 0; transform: translate3d(22%, 0, -120px); pointer-events: none;
-  transition: opacity .5s ease, transform .65s cubic-bezier(.2,.8,.2,1);
+  transition: opacity .3s ease, transform .4s cubic-bezier(.2,.8,.2,1);
 }
 .ge-car.is-active { opacity: 1; transform: none; pointer-events: auto; }
 .ge-car.is-leaving { opacity: 0; transform: translate3d(-22%, 0, -120px); }
@@ -556,4 +556,29 @@ button.ge-car-chip:active { background: #eef0f4; }
   .ge-logo-band { max-width: 1240px; flex-wrap: nowrap; gap: clamp(12px, 2.2vw, 34px); }
   .ge-logo-band img { height: clamp(34px, 3.6vw, 54px); max-width: 128px; }
   .ge-logo-band .ge-logo-us img { height: clamp(52px, 5vw, 72px); width: clamp(52px, 5vw, 72px); }
+}
+
+/* ═══ PHONE PARTS STRIP — MUCH BIGGER (2026-11-19, owner: "make the remsa moving
+   parts bigger in the phone … way bigger") ═══════════════════════════════════
+   The moving strip under the car on phones/tablets (.ge-car-chips, one chip per
+   HERO_PARTS entry — Remsa brake pads is one of them). Photos 42x36 -> 92x80,
+   labels 12.5 -> 16px. The strip is now ~48px taller, so everything that is
+   measured from the stage floor moves up by the same amount: stage height,
+   the car's bottom padding, the badge anchor (same 246px), the arrows and the
+   caption. Last in the file so it beats the 395-465 block above by order. The
+   loop is slower because its track is ~1.4x wider. */
+@media (max-width: 1024px) {
+  .ge-hero-stage { height: clamp(452px, calc(82vw + 144px), 614px); }
+  .ge-car { padding-bottom: 246px; }
+  .ge-car-model { top: calc(100% - 246px - min(32vw, 150px)); }
+  .ge-car-nav { bottom: 156px; }
+  .ge-car-cap { bottom: 140px; }
+  .ge-car-chips { bottom: 12px; padding: 6px 0; }
+  .ge-car-track { animation-duration: 52s; }
+  .ge-car-track li { margin-right: 14px; }
+  .ge-car-chip { gap: 12px; padding: 10px 18px 10px 12px; border-radius: 16px; }
+  .ge-car-chip-img { width: 92px; height: 80px; }
+  .ge-car-chip-icon { width: 64px; font-size: 34px; }
+  .ge-car-chip .ge-ring-part { font-size: 16px; }
+  .ge-car-chip .ge-ring-brand { font-size: 11px; }
 }

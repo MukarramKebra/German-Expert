@@ -242,8 +242,22 @@ function renderServiceCollage(collage, labels) {
       '</button>';
   }).join('');
 
-  wrap.innerHTML = '<figure class="svc-collage">' + img +
-    '<div class="svc-collage-labels">' + quads + '</div></figure>';
+  // WHITE FRAME (owner, 2026-11-19: "a white border around the 4 photos"). On the
+  // built-in collage the photos are slanted polygons, so the frame is an SVG
+  // laid over the picture in source pixels, one stroked polygon per photo; the
+  // seams get the same line from both neighbours, so they read as one white
+  // gutter. A custom collage has plain rectangles instead (CSS outline on each
+  // button, see `.svc-plain` in 12-services.css). Phones use the even 2x2 picture
+  // and take the same outline, so the SVG is hidden there.
+  var frame = '';
+  if (builtIn) {
+    frame = '<svg class="svc-frame" viewBox="0 0 ' + COLLAGE_W + ' ' + COLLAGE_H + '" preserveAspectRatio="none" aria-hidden="true" focusable="false">' +
+      COLLAGE_SHAPES.map(function (s) {
+        return '<polygon points="' + s.p.map(function (q) { return q[0] + ',' + q[1]; }).join(' ') + '" />';
+      }).join('') + '</svg>';
+  }
+  wrap.innerHTML = '<figure class="svc-collage' + (builtIn ? '' : ' svc-plain') + '">' + img +
+    '<div class="svc-collage-labels">' + quads + '</div>' + frame + '</figure>';
 }
 
 // Booking straight off a band — same contract as bookService().

@@ -41,6 +41,16 @@
 .contact-item div { display: flex; flex-direction: column; gap: 2px; }
 .contact-item strong { font-size: 11px; font-weight: 700; color: var(--dark); text-transform: uppercase; letter-spacing: 0.8px; }
 .contact-item span { font-size: 15px; color: var(--gray-600); }
+/* Our locations (2026-11-19): one card per branch under the contact items. */
+.branches { margin: 0 0 26px; padding-top: 22px; border-top: 1px solid var(--border); }
+.branches-h { font-size: 11px; font-weight: 700; color: var(--dark); text-transform: uppercase; letter-spacing: 0.8px; margin: 0 0 12px; }
+.branches-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.branch { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; background: #fff; border: 1px solid var(--border); border-radius: 8px; }
+.branch strong { font-size: 13px; font-weight: 800; color: var(--dark); text-transform: uppercase; letter-spacing: 0.3px; }
+.branch span { font-size: 13.5px; color: var(--gray-600); line-height: 1.5; }
+.branch-links { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 4px; }
+.branch-links a { font-size: 13.5px; font-weight: 700; color: var(--orange); text-decoration: none; }
+.branch-links a:hover { text-decoration: underline; }
 .social-links { display: flex; gap: 8px; }
 .social-links a { width: 36px; height: 36px; background: var(--light2); border: 1px solid var(--border); border-radius: 7px; display: flex; align-items: center; justify-content: center; color: var(--dark); font-size: 14px; text-decoration: none; transition: all 0.2s; }
 .social-links a:hover { background: var(--orange); border-color: var(--orange); color: #fff; }
