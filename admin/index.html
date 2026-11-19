@@ -91,6 +91,9 @@
     <button class="tab-btn" id="tabServices" onclick="switchTab('services')">
       <i class="fa fa-screwdriver-wrench"></i> Services
     </button>
+    <button class="tab-btn" id="tabHeroCars" onclick="switchTab('herocars')">
+      <i class="fa fa-car-side"></i> Hero Cars
+    </button>
     <button class="tab-btn" id="tabSeo" onclick="switchTab('seo')">
       <i class="fa fa-search-plus"></i> SEO
     </button>
@@ -536,6 +539,32 @@
       <div><span>The card list under the photos. Each one is a WhatsApp booking.</span></div>
     </div>
     <div id="svcList"></div>
+  </div>
+
+  <!-- HERO CARS SECTION (the rotating cars at the top of the homepage)
+       Logic: admin/js/16-hero-cars.js. One Supabase row (expert_settings,
+       key 'hero_cars'); the storefront reads it in code/js/08-hero.js and
+       falls back to its built-in list when the row is absent. -->
+  <div id="heroCarsSection" class="main" style="display:none">
+    <div class="table-top" style="margin-bottom:12px">
+      <h2><i class="fa fa-car-side" style="color:var(--orange);margin-right:8px"></i>Hero Cars</h2>
+      <div class="ctrl-right">
+        <span id="hcDirty" style="display:none;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#b45309"><i class="fa fa-circle-exclamation"></i> Unsaved changes</span>
+        <span id="hcCount" style="font-size:13px;color:var(--gray);font-weight:800;white-space:nowrap"></span>
+        <button class="ur-btn" onclick="hcAdd()"><i class="fa fa-plus"></i> Add Car</button>
+        <button class="save-btn" onclick="saveHeroCars()"><i class="fa fa-check"></i> Save Cars</button>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--gray);margin:0 0 16px;max-width:760px">
+      The cars that rotate at the top of the homepage, in this order. Edit a car&rsquo;s details, untick
+      <strong>Live</strong> to hide it for now, move it earlier or later, or delete it. Nothing changes on the
+      site until you press <strong>Save Cars</strong>; then it is live within seconds (a visitor who already
+      has the site open sees it after one refresh).
+      A new car needs a <strong>transparent cut-out photo</strong> in <code>img/hero/</code> &mdash; send the photo
+      to Claude and it will be cropped and added, then pick it here.
+      <button type="button" class="svc-adm-link" onclick="hcRestoreDefaults()"><i class="fa fa-rotate-left"></i> Put the original cars back</button>
+    </p>
+    <div id="hcList"></div>
   </div>
 
   <!-- SEO SECTION -->
@@ -1198,7 +1227,7 @@
   var v = '';
   try { v = localStorage.getItem('expert_asset_v') || ''; } catch(e) {}
   v = /^[0-9]+$/.test(v) ? v : '202608161800';
-  ['01-core-data','02-helpers','03-auth','04-tabs-nav','05-categories','06-reports','07-orders','08-inventory','09-deleted','10-csv-import','11-multiselect-brand-cat','12-seo','13-offers','14-product-view','15-services'].forEach(function(f) {
+  ['01-core-data','02-helpers','03-auth','04-tabs-nav','05-categories','06-reports','07-orders','08-inventory','09-deleted','10-csv-import','11-multiselect-brand-cat','12-seo','13-offers','14-product-view','15-services','16-hero-cars'].forEach(function(f) {
     var s = document.createElement('script');
     s.src = 'admin/js/' + f + '.js?v=' + v;
     s.async = false;

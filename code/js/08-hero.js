@@ -85,7 +85,7 @@ const HERO_LOGO_MAKES = ['mercedes', 'bmw', 'audi', 'volkswagen', 'porsche', 'la
 const HERO_LOGO_SIZE = 150;   // was 96 as a bare white glyph
 const HERO_LOGO_ASPECT = { mercedes: 1, bmw: 1, audi: 2.824, volkswagen: 1, porsche: 0.777, landrover: 1.912, jaguar: 2.222, maserati: 0.667 };
 
-const HERO_CARS = [
+const HERO_CARS_DEFAULT = [
   {
     src: 'img/hero/mercedes-e-class.webp', w: 1400,
     srcSmall: 'img/hero/mercedes-e-class-sm.webp', wSmall: 760,
@@ -225,7 +225,7 @@ const HERO_SHADER_PRESET = {
   ],
 };
 
-(function initHeroShowcase() {
+function initHeroShowcase(HERO_CARS) {
   const hero = document.getElementById('showcase');
   if (!hero) return;
   const reduceMotion = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -633,4 +633,54 @@ const HERO_SHADER_PRESET = {
   const later = () => (window.requestIdleCallback ? requestIdleCallback(start, { timeout: 2500 }) : setTimeout(start, 600));
   if (document.readyState === 'complete') later();
   else window.addEventListener('load', later, { once: true });
+}
+
+// ── WHICH CARS? (2026-11-19, owner: "I should be able to edit and delete the cars from the admin page") ──
+// The list above is only the FALLBACK. The admin's "Hero Cars" tab (admin/js/16-hero-cars.js) saves the
+// real list to expert_settings key 'hero_cars' as { cars: [ {src, w, srcSmall, wSmall, make, model,
+// badge, label, alt, scale, logoLift, logoScale, active} ] }. A returning visitor paints from the
+// localStorage copy at once and checks Supabase in the background; if the owner changed something
+// since, the cache is refreshed and the page reloads ONCE (sessionStorage guard, so it can never loop).
+// A first-time visitor has no copy, so they wait up to 1.5 s for the one tiny request (then fall back
+// to the built-in list) rather than seeing the wrong cars and being reloaded.
+// NOTE: index.html's <link rel=preload> for the first car is a hand-written copy; if the owner changes
+// which car is first, that preload is simply wasted (the image still loads normally).
+(function loadHeroCars() {
+  const KEY = 'expert_hero_cars_cache';       // raw row value, or 'none' = no row saved
+  const readCache = () => { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
+  const writeCache = v => { try { localStorage.setItem(KEY, v); } catch (e) {} };
+  // Raw row value -> cars to show. Never throws; anything unusable falls back to the built-in list.
+  function carsFrom(raw) {
+    if (!raw || raw === 'none') return HERO_CARS_DEFAULT;
+    let cfg; try { cfg = JSON.parse(raw); } catch (e) { return HERO_CARS_DEFAULT; }
+    const list = Array.isArray(cfg) ? cfg : (cfg && Array.isArray(cfg.cars) ? cfg.cars : null);
+    if (!list) return HERO_CARS_DEFAULT;
+    const okSrc = s => typeof s === 'string' && /^(img\/[A-Za-z0-9_\/.-]+|https:\/\/[^\s"'<>]+)$/.test(s) && s.indexOf('..') === -1;
+    return list.filter(c => c && c.active !== false && okSrc(c.src)).map(c => {
+      const o = Object.assign({}, c);
+      if (!okSrc(o.srcSmall)) { delete o.srcSmall; delete o.wSmall; }
+      return o;
+    });   // an empty list is honoured: the owner deleted every car, so the stage is hidden
+  }
+  function fetchRaw() {
+    if (typeof SB_URL === 'undefined' || typeof SB_H === 'undefined') return Promise.resolve(undefined);
+    return fetch(SB_URL + '/rest/v1/expert_settings?key=eq.hero_cars&select=value', { headers: SB_H })
+      .then(r => r.ok ? r.json() : Promise.reject(new Error(r.status)))
+      .then(rows => (Array.isArray(rows) && rows[0] && typeof rows[0].value === 'string') ? rows[0].value : 'none');
+  }
+  const cached = readCache();
+  if (cached !== null) {
+    initHeroShowcase(carsFrom(cached));
+    fetchRaw().then(raw => {
+      if (raw === undefined || raw === cached) return;
+      writeCache(raw);
+      let again = false; try { again = sessionStorage.getItem('ge_hero_reloaded') === '1'; sessionStorage.setItem('ge_hero_reloaded', '1'); } catch (e) { again = true; }
+      if (!again) location.reload();
+    }).catch(() => {});
+    return;
+  }
+  let done = false;
+  const go = raw => { if (done) return; done = true; if (raw !== undefined) writeCache(raw); initHeroShowcase(carsFrom(raw)); };
+  const t = setTimeout(() => go(undefined), 1500);
+  fetchRaw().then(raw => { clearTimeout(t); go(raw); }).catch(() => { clearTimeout(t); go(undefined); });
 })();

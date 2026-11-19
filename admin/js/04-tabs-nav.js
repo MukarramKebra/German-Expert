@@ -13,6 +13,7 @@ function switchTab(tab) {
   document.getElementById('bannersSection').style.display    = tab==='banners'    ? 'block' : 'none';
   document.getElementById('featuredSection').style.display   = tab==='featured'   ? 'block' : 'none';
   document.getElementById('servicesSection').style.display   = tab==='services'   ? 'block' : 'none';
+  document.getElementById('heroCarsSection').style.display   = tab==='herocars'   ? 'block' : 'none';
   document.getElementById('seoSection').style.display        = tab==='seo'        ? 'block' : 'none';
   document.getElementById('offersSection').style.display     = tab==='offers'     ? 'block' : 'none';
   document.getElementById('ownerSection').style.display      = tab==='owner'      ? 'block' : 'none';
@@ -25,6 +26,7 @@ function switchTab(tab) {
   document.getElementById('tabBanners').classList.toggle('active',     tab==='banners');
   document.getElementById('tabFeatured').classList.toggle('active',    tab==='featured');
   document.getElementById('tabServices').classList.toggle('active',    tab==='services');
+  document.getElementById('tabHeroCars').classList.toggle('active',    tab==='herocars');
   document.getElementById('tabSeo').classList.toggle('active',         tab==='seo');
   document.getElementById('tabOffers').classList.toggle('active',      tab==='offers');
   document.getElementById('tabOwner').classList.toggle('active',       tab==='owner');
@@ -39,6 +41,7 @@ function switchTab(tab) {
   // doesn't discard edits the owner hasn't saved yet (_svcLoaded/_svcDirty in
   // admin/js/15-services.js).
   if (tab==='services')  { if (_svcLoaded) renderServicesTab(); else loadServicesTab(); }
+  if (tab==='herocars')  { if (_hcLoaded) renderHeroCarsTab(); else loadHeroCarsTab(); }
   if (tab==='seo')       { loadSEOSettings(); renderSEOProducts(); }
   if (tab==='offers')    { if (typeof initOffersTab === 'function') initOffersTab(); }
   if (tab==='owner')       renderSuperAdmin();
