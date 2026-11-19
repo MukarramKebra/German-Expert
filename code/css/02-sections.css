@@ -281,14 +281,14 @@
    applyCatBgs() sets an inline background-image. The photo already says what
    the category is, so the icon goes and the label drops to the bottom edge
    so it doesn't sit on the part. */
-.cat-card[data-cat="engine"]       { background-image: url('../../img/categories/engine.jpg'); }
-.cat-card[data-cat="brakes"]       { background-image: url('../../img/categories/brakes.jpg'); }
-.cat-card[data-cat="suspension"]   { background-image: url('../../img/categories/suspension.jpg'); }
-.cat-card[data-cat="filters"]      { background-image: url('../../img/categories/filters.jpg'); }
-.cat-card[data-cat="electrical"]   { background-image: url('../../img/categories/electrical.jpg'); }
-.cat-card[data-cat="cooling"]      { background-image: url('../../img/categories/cooling.jpg'); }
-.cat-card[data-cat="transmission"] { background-image: url('../../img/categories/transmission.jpg'); }
-.cat-card[data-cat="body-lights"]  { background-image: url('../../img/categories/body-lights.jpg'); }
+.cat-card[data-cat="engine"]       { background-image: url('../../img/categories/engine.webp'); }
+.cat-card[data-cat="brakes"]       { background-image: url('../../img/categories/brakes.webp'); }
+.cat-card[data-cat="suspension"]   { background-image: url('../../img/categories/suspension.webp'); }
+.cat-card[data-cat="filters"]      { background-image: url('../../img/categories/filters.webp'); }
+.cat-card[data-cat="electrical"]   { background-image: url('../../img/categories/electrical.webp'); }
+.cat-card[data-cat="cooling"]      { background-image: url('../../img/categories/cooling.webp'); }
+.cat-card[data-cat="transmission"] { background-image: url('../../img/categories/transmission.webp'); }
+.cat-card[data-cat="body-lights"]  { background-image: url('../../img/categories/body-lights.webp'); }
 .cat-card[data-cat="engine"], .cat-card[data-cat="brakes"], .cat-card[data-cat="suspension"], .cat-card[data-cat="filters"],
 .cat-card[data-cat="electrical"], .cat-card[data-cat="cooling"], .cat-card[data-cat="transmission"], .cat-card[data-cat="body-lights"] {
   justify-content: flex-end; padding-bottom: 14px; background-size: cover; background-position: center top;
@@ -297,7 +297,7 @@
 .cat-card[data-cat="electrical"] .cat-icon, .cat-card[data-cat="cooling"] .cat-icon, .cat-card[data-cat="transmission"] .cat-icon, .cat-card[data-cat="body-lights"] .cat-icon { display: none; }
 
 /* "All Parts" tile — a car, same graphite treatment as the part tiles above. */
-.cat-card[data-cat="all"] { background-image: url('../../img/categories/all.jpg'); justify-content: flex-end; padding-bottom: 14px; background-size: cover; background-position: center top; }
+.cat-card[data-cat="all"] { background-image: url('../../img/categories/all.webp'); justify-content: flex-end; padding-bottom: 14px; background-size: cover; background-position: center top; }
 .cat-card[data-cat="all"] .cat-icon { display: none; }
 
 /* ── BRAND BANNERS (2026-11-16) ──────────────────────────────────────────────
@@ -363,3 +363,24 @@
 #brandBanners .bb-car { color: var(--bar); background: var(--light); border-color: var(--border); }
 #brandBanners .bb-car img { background: #fff; box-shadow: 0 0 0 1px var(--border); }
 #brandBanners .bb-car:hover { background: #fff; border-color: var(--orange); }
+
+/* ALL-WHITE, round 2 (2026-11-19, owner): (a) the car logos no longer sit in an outlined box — just the
+   logo and its name on the white band; (b) category tiles are white cards. The part photos were cut out of
+   their baked-in graphite gradient (img/categories/*.webp, transparent; the old .jpg files are gone). */
+#brandBanners .bb-car { background: transparent; border: 0; border-radius: 0; box-shadow: none; }
+#brandBanners .bb-car img { box-shadow: none; }
+#brandBanners .bb-car:hover { background: transparent; border-color: transparent; }
+#brandBanners .bb-car:hover { color: var(--orange); }
+
+.cat-card { background-color: #fff; background-image: none; border: 1px solid var(--border); border-bottom: 3px solid transparent; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.cat-card::before { background: transparent; }
+.cat-card h3 { color: var(--bar); text-shadow: none; }
+.cat-card p { color: #4b5563; text-shadow: none; }
+.cat-card .cat-icon { color: var(--orange); text-shadow: none; }
+.cat-card:hover { box-shadow: 0 14px 34px rgba(0,0,0,0.14); }
+/* the red wash on hover is dark enough for white text */
+.cat-card:hover h3, .cat-card:hover p { color: #fff; }
+.cat-card:hover .cat-icon { color: #fff; }
+.cat-card:hover { border-bottom-color: var(--orange); }
+/* part picture sits in the upper part of the white tile so the label under it never overlaps it */
+.cat-card[data-cat] { background-repeat: no-repeat; background-size: auto 70%; background-position: center 4px; }
