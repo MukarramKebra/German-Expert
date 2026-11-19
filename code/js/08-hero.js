@@ -202,7 +202,7 @@ const HERO_CARS_DEFAULT = [
   },
 ];
 
-const HERO_ROTATE_MS = 3500;   // was 6500 — owner (2026-11-19): "go to the next car faster"
+const HERO_ROTATE_MS = 2600;   // was 6500, then 3500 — owner (2026-11-19, twice): "go to the next car faster". The slide itself now takes .65s (see .ge-car in 10-hero.css), so each car is fully visible ~2s.
 const HERO_SHADERS_URL = 'https://cdn.jsdelivr.net/npm/shaders@4.0.5/dist/js/bundle.js';
 
 // German palette: graphite studio, neutral silver key light, red back wash.
@@ -481,7 +481,7 @@ function initHeroShowcase(HERO_CARS) {
       hydrate((n + 1) % figs.length);
       const prev = figs[cur];
       prev.classList.remove('is-active'); prev.classList.add('is-leaving'); prev.setAttribute('aria-hidden', 'true');
-      setTimeout(() => prev.classList.remove('is-leaving'), 1100);
+      setTimeout(() => prev.classList.remove('is-leaving'), 700);   // must stay >= the .ge-car transform duration in 10-hero.css
       figs[n].classList.add('is-active'); figs[n].removeAttribute('aria-hidden');
       dots.forEach((d, i) => { if (i === n) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
       cur = n;
