@@ -88,7 +88,7 @@ const ask = (q, hidden) => new Promise(res => {
 
   if (res.ok && body.ok) {
     console.log('\nDone. Account created: ' + username + '  (role: ' + role + ')');
-    console.log('Log in at https://alamdarauto.com/admin/ with that username and your password.');
+    console.log('Log in at https://alamdar-auto.com/admin/ with that username and your password.');
   } else if (body && body.error === 'already_bootstrapped') {
     console.error('\nAn admin account already exists, so bootstrap is closed (it only works once).');
     console.error('Log in to the admin panel and add more accounts from its Accounts tab.');

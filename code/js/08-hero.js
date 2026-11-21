@@ -486,10 +486,45 @@ function initHeroShowcase(HERO_CARS) {
       dots.forEach((d, i) => { if (i === n) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
       cur = n;
     }
+    // 2026-11-21 (owner: "when launching the loop of the parts and the cars don't load"). The
+    // rotation used to start on a timer and land on slides whose car + parts images were still
+    // downloading (only slide 0 ships with the page; the rest warm up later), so the loop showed an
+    // empty stage. Now the rotation only ever advances to a slide that has FULLY loaded, skipping
+    // any that haven't, and the first slide is held back (see reveal below) until it is complete.
+    // Images that aren't drawn (the phone chip strip on desktop, the ring on phone) are ignored.
+    const isDrawn = img => img.getClientRects().length > 0;
+    const isReady = n => {
+      hydrate(n);
+      return Array.from(figs[n].querySelectorAll('img')).filter(isDrawn).every(i => i.complete);
+    };
+    const nextReady = () => {
+      for (let k = 1; k < figs.length; k++) { const n = (cur + k) % figs.length; if (isReady(n)) return n; }
+      return -1;
+    };
     function restart() {
       clearInterval(timer);
-      if (figs.length > 1 && !document.hidden) timer = setInterval(() => show((cur + 1) % figs.length), HERO_ROTATE_MS);
+      if (figs.length > 1 && !document.hidden) timer = setInterval(() => { const n = nextReady(); if (n >= 0) show(n); }, HERO_ROTATE_MS);
     }
+
+    // Hold the whole stage (visibility only, so the images still download) until slide 0's car and
+    // parts have arrived, capped at 2.5 s so a slow image can never leave it blank. The empty box
+    // keeps its reserved height, so nothing shifts. Then start loading slide 1 straight away
+    // instead of waiting for the page's idle callback.
+    stage.classList.add('ge-stage-wait');
+    let revealed = false;
+    const reveal = () => {
+      if (revealed) return;
+      revealed = true;
+      stage.classList.remove('ge-stage-wait');
+      if (figs.length > 1) hydrate(1);
+    };
+    if (figs[0]) {
+      const first = Array.from(figs[0].querySelectorAll('img'));
+      const check = () => { if (first.filter(isDrawn).every(i => i.complete)) reveal(); };
+      first.forEach(i => { i.addEventListener('load', check); i.addEventListener('error', check); });
+      check();
+      setTimeout(reveal, 2500);
+    } else reveal();
     // Wrap both ways, and push the auto-advance back so a deliberate click
     // isn't immediately overridden by the timer that was already running.
     function step(delta) {

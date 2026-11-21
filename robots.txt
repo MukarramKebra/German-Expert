@@ -1,8 +1,8 @@
-# alamdarauto.com serves this project from the domain root, so crawlers
+# alamdar-auto.com serves this project from the domain root, so crawlers
 # (Google/Bing) DO read this file now.
 
 User-agent: *
 Allow: /
 Disallow: /admin/
 
-Sitemap: https://alamdarauto.com/sitemap.xml
+Sitemap: https://alamdar-auto.com/sitemap.xml

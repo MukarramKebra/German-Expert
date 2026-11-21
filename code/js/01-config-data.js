@@ -10,7 +10,7 @@ const GE_SB_KEY = (function() { try { return atob(GE_SB_KEY_B64); } catch (e) { 
 
 // ── SHOP CONTACT / SITE ──────────────────────────────────────────────────
 const SHOP_WA  = '96590010345';   // international format, digits only, used for wa.me links
-const SITE_URL = 'https://alamdarauto.com/';
+const SITE_URL = 'https://alamdar-auto.com/';
 
 // ── PRICE FORMAT (KD, 3 decimals) ────────────────────────────────────────
 // Every price shown on the storefront goes through this so the currency and

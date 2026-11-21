@@ -1,5 +1,5 @@
 // Local preview server: serves the repo at http://localhost:8123/
-// (the site is served from the domain root on alamdarauto.com, so root-relative links work).
+// (the site is served from the domain root on alamdar-auto.com, so root-relative links work).
 // Run from anywhere:  node scripts/serve.js        Stop: Ctrl+C
 const http = require('http'), fs = require('fs'), path = require('path');
 const ROOT = path.resolve(__dirname, '..');

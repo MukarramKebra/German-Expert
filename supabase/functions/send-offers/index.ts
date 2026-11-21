@@ -33,7 +33,7 @@
 
 // TODO-CONTACT: FROM must be on a domain verified in Resend (override with the FROM_EMAIL secret).
 const FROM = Deno.env.get("FROM_EMAIL") ?? "Alamdar Auto <offers@alamdar-auto.com>";
-const SITE_BASE = "https://alamdarauto.com/";
+const SITE_BASE = "https://alamdar-auto.com/";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
