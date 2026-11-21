@@ -671,19 +671,17 @@ function initHeroShowcase(HERO_CARS) {
       .then(r => r.ok ? r.json() : Promise.reject(new Error(r.status)))
       .then(rows => (Array.isArray(rows) && rows[0] && typeof rows[0].value === 'string') ? rows[0].value : 'none');
   }
+  // 2026-11-21 (owner: the site "first shows some old cache" on open): returning visitors used to paint
+  // from the cached list at once and RELOAD the whole page if the owner had since changed the cars, so
+  // they saw the old cars, then a reload. Now EVERYONE waits (max 1.5 s, one tiny request; the stage is an
+  // empty reserved box meanwhile, so nothing shifts) and paints ONCE with the current list. The cache is
+  // only the fallback when the request is slow or fails, and is refreshed for the next visit; no reload.
   const cached = readCache();
-  if (cached !== null) {
-    initHeroShowcase(carsFrom(cached));
-    fetchRaw().then(raw => {
-      if (raw === undefined || raw === cached) return;
-      writeCache(raw);
-      let again = false; try { again = sessionStorage.getItem('ge_hero_reloaded') === '1'; sessionStorage.setItem('ge_hero_reloaded', '1'); } catch (e) { again = true; }
-      if (!again) location.reload();
-    }).catch(() => {});
-    return;
-  }
+  const fallback = cached === null ? undefined : cached;
   let done = false;
-  const go = raw => { if (done) return; done = true; if (raw !== undefined) writeCache(raw); initHeroShowcase(carsFrom(raw)); };
-  const t = setTimeout(() => go(undefined), 1500);
-  fetchRaw().then(raw => { clearTimeout(t); go(raw); }).catch(() => { clearTimeout(t); go(undefined); });
+  const show = raw => { if (done) return; done = true; initHeroShowcase(carsFrom(raw)); };
+  const t = setTimeout(() => show(fallback), 1500);
+  fetchRaw()
+    .then(raw => { if (raw !== undefined) writeCache(raw); clearTimeout(t); show(raw === undefined ? fallback : raw); })
+    .catch(() => { clearTimeout(t); show(fallback); });
 })();

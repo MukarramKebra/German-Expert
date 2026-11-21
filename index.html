@@ -119,6 +119,18 @@
       .ge-hero-stage { height: clamp(404px, calc(82vw + 96px), 566px); }
     }
   </style>
+  <!-- FIRST-PAINT GATE (2026-11-21, owner: the site flashed an unstyled page on
+       open). The 12 stylesheets below are injected by script, and script-
+       injected stylesheets do NOT block rendering, so the browser painted the
+       raw HTML (header static, page ~17000px tall) for 1-3s until they landed,
+       then it collapsed. The loader adds .ge-css-wait to <html> and removes it
+       once every stylesheet has loaded (or failed, or 4s passed, so a dead CDN
+       can never leave a blank page). The class is added by JS, so with JS off
+       nothing is hidden and the <noscript> links do the styling. -->
+  <style id="ge-css-gate">
+    html.ge-css-wait { background: #fff; }
+    html.ge-css-wait body { visibility: hidden; }
+  </style>
   <script>
   // Version comes from localStorage (kept in sync with Supabase's
   // expert_settings.asset_version by checkAssetVersion() in
@@ -135,10 +147,22 @@
     // 12-services sits BEFORE 11-ui-polish deliberately: the polish layer has
     // to load last (see code/css/11-ui-polish.css), so load order here is not
     // file-number order.
-    ['01-base','02-sections','03-cart-features-contact','04-footer','05-responsive','06-lang-rtl','07-modals','08-account-auth','09-widgets','10-hero','12-services','11-ui-polish'].forEach(function(f) {
+    var root = document.documentElement;
+    var sheets = ['01-base','02-sections','03-cart-features-contact','04-footer','05-responsive','06-lang-rtl','07-modals','08-account-auth','09-widgets','10-hero','12-services','11-ui-polish'];
+    var left = sheets.length, shown = false;
+    function reveal() {
+      if (shown) return;
+      shown = true;
+      root.classList.remove('ge-css-wait');
+    }
+    function oneDone() { if (--left <= 0) reveal(); }
+    root.classList.add('ge-css-wait');
+    setTimeout(reveal, 4000);
+    sheets.forEach(function(f) {
       var l = document.createElement('link');
       l.rel = 'stylesheet';
       l.href = 'code/css/' + f + '.css?v=' + v;
+      l.onload = l.onerror = oneDone;
       document.head.appendChild(l);
     });
   })();
