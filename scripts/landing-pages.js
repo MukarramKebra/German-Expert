@@ -161,7 +161,7 @@ ${o.faq.map((f) => `      <details><summary>${esc(f[0])}</summary><p>${esc(f[1])
       'Send us your chassis (VIN) number or a photo of the old part on WhatsApp at +965 9001 0345 and we will match the exact part number for your ' + what + ' before you buy.'],
     ['Where can I buy ' + what + ' spare parts in Kuwait?',
       'Alamdar Auto Spare Parts Co. is in Shuwaikh Industrial Area, Kuwait. You can visit us, call +965 2482 7072, or message us on WhatsApp.'],
-    ['Do you deliver across Kuwait?', 'Yes — message us on WhatsApp with your area and we will confirm the delivery time.'],
+    ['Do you deliver?', 'No, we do not offer delivery. Message us on WhatsApp to confirm the part is in stock, then collect it from our store in Shuwaikh Industrial Area.'],
     ['Do you sell genuine parts?', 'We are an authorized distributor of auto spare parts in Kuwait, supplying genuine and OEM-quality parts. Tell us which you prefer and we will quote accordingly.']
   ];
 
