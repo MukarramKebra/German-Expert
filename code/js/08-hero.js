@@ -519,11 +519,13 @@ function initHeroShowcase(HERO_CARS) {
       if (figs.length > 1) hydrate(1);
     };
     if (figs[0]) {
-      const first = Array.from(figs[0].querySelectorAll('img'));
+      // Only the CAR gates the reveal (2026-11-23): waiting for all ten parts too held the stage ~0.6 s
+      // longer; the parts are small and simply appear as they arrive.
+      const first = Array.from(figs[0].querySelectorAll('.ge-car-img'));
       const check = () => { if (first.filter(isDrawn).every(i => i.complete)) reveal(); };
       first.forEach(i => { i.addEventListener('load', check); i.addEventListener('error', check); });
       check();
-      setTimeout(reveal, 2500);
+      setTimeout(reveal, 800);
     } else reveal();
     // Wrap both ways, and push the auto-advance back so a deliberate click
     // isn't immediately overridden by the timer that was already running.
@@ -711,12 +713,13 @@ function initHeroShowcase(HERO_CARS) {
   // they saw the old cars, then a reload. Now EVERYONE waits (max 1.5 s, one tiny request; the stage is an
   // empty reserved box meanwhile, so nothing shifts) and paints ONCE with the current list. The cache is
   // only the fallback when the request is slow or fails, and is refreshed for the next visit; no reload.
+  // 2026-11-23 (owner: "the loop loads like 3 seconds after the website does"): waiting for that request
+  // delayed the whole stage - and every parts/car image, which are only requested once the markup exists -
+  // by ~1.5 s even on a fast line (measured: page visible 0.4 s, stage 2.1 s). So now it paints AT ONCE
+  // from the cached list (or the built-in list on a first visit) and the request only refreshes the cache
+  // for the NEXT visit. No reload, so still no flash; the cost is that a change made in the admin shows up
+  // for a visitor one visit late.
   const cached = readCache();
-  const fallback = cached === null ? undefined : cached;
-  let done = false;
-  const show = raw => { if (done) return; done = true; initHeroShowcase(carsFrom(raw)); };
-  const t = setTimeout(() => show(fallback), 1500);
-  fetchRaw()
-    .then(raw => { if (raw !== undefined) writeCache(raw); clearTimeout(t); show(raw === undefined ? fallback : raw); })
-    .catch(() => { clearTimeout(t); show(fallback); });
+  initHeroShowcase(carsFrom(cached === null ? undefined : cached));
+  fetchRaw().then(raw => { if (raw !== undefined) writeCache(raw); }).catch(() => {});
 })();
