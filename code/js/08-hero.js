@@ -495,7 +495,10 @@ function initHeroShowcase(HERO_CARS) {
     const isDrawn = img => img.getClientRects().length > 0;
     const isReady = n => {
       hydrate(n);
-      return Array.from(figs[n].querySelectorAll('img')).filter(isDrawn).every(i => i.complete);
+      // CAR image only (2026-11-28): on phones the parts are a horizontally scrolling strip of
+      // loading="lazy" chips, and the ones scrolled out of view never download, so requiring every
+      // drawn image to be complete meant a slide was never "ready" and the cars stopped rotating.
+      return Array.from(figs[n].querySelectorAll('.ge-car-img')).filter(isDrawn).every(i => i.complete);
     };
     const nextReady = () => {
       for (let k = 1; k < figs.length; k++) { const n = (cur + k) % figs.length; if (isReady(n)) return n; }
